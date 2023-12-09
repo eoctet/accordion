@@ -6,13 +6,13 @@
 
 #### Supported actions
 
-| Action      | Description                                                      |
-|-------------|------------------------------------------------------------------|
-| 💡 API      | Calling third-party Restful APIs.                                |
-| ⚙️ Condtion | Logical judgment of combination conditions and single conditions. |
-| 🔗 Switch   | Multi-branch link execution.                                     |
-| ✉️ Email    | You can send custom emails.                                                    |
-| 💻 Shell    | Execute command line.                                           |
+| Action       | Description                                                      |
+|--------------|------------------------------------------------------------------|
+| 💡 API       | Calling third-party Restful APIs.                                |
+| ⚙️ Condition | Logical judgment of combination conditions and single conditions. |
+| 🔗 Switch    | Multi-branch link execution.                                     |
+| ✉️ Email     | You can send custom emails.                                                    |
+| 💻 Shell     | Execute command line.                                           |
 | 📝 Script    | Execute custom scripts.                                                   |
 
 > ⚠️ __NOTE__
