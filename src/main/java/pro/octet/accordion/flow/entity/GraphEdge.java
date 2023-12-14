@@ -4,17 +4,24 @@ import lombok.Data;
 import pro.octet.accordion.utils.CommonUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Data
 public class GraphEdge {
     private String id;
     private String name;
     private boolean switcher;
-    private GraphNode previousAction;
-    private GraphNode nextAction;
+    private GraphNode previousNode;
+    private GraphNode nextNode;
 
     public GraphEdge() {
         this.id = CommonUtils.randomString("edge");
+    }
+
+    public GraphEdge(GraphNode previousNode, GraphNode nextNode) {
+        this.id = CommonUtils.randomString("edge");
+        this.previousNode = previousNode;
+        this.nextNode = nextNode;
     }
 
     @Override
@@ -40,8 +47,8 @@ public class GraphEdge {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", switcher=" + switcher +
-                ", previousAction=" + previousAction +
-                ", nextAction=" + nextAction +
+                ", previousNode=" + Optional.ofNullable(previousNode).orElse(new GraphNode()).getActionId() +
+                ", nextNode=" + Optional.ofNullable(nextNode).orElse(new GraphNode()).getActionId() +
                 '}';
     }
 }

@@ -1,16 +1,14 @@
-package pro.octet.accordion.action.base;
+package pro.octet.accordion.action.shell;
 
 
-import lombok.extern.slf4j.Slf4j;
 import pro.octet.accordion.action.AbstractAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.exceptions.ActionException;
 
-@Slf4j
-public class ApiAction extends AbstractAction {
+public class ShellAction extends AbstractAction {
 
-    public ApiAction(ActionConfig actionConfig) {
+    public ShellAction(ActionConfig actionConfig) {
         super(actionConfig);
     }
 

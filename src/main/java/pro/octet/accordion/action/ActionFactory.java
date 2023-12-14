@@ -1,7 +1,7 @@
 package pro.octet.accordion.action;
 
 import lombok.extern.slf4j.Slf4j;
-import pro.octet.accordion.action.base.ApiAction;
+import pro.octet.accordion.action.api.ApiAction;
 import pro.octet.accordion.action.base.ConditionAction;
 import pro.octet.accordion.action.base.SwitchAction;
 import pro.octet.accordion.action.base.TestAction;

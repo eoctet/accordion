@@ -2,11 +2,15 @@ package pro.octet.accordion.action;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import pro.octet.accordion.action.model.*;
+import pro.octet.accordion.action.model.ActionConfig;
+import pro.octet.accordion.action.model.ActionResult;
+import pro.octet.accordion.action.model.InputParameter;
+import pro.octet.accordion.action.model.OutputParameter;
 import pro.octet.accordion.core.entity.Message;
 import pro.octet.accordion.core.entity.Session;
 import pro.octet.accordion.core.enums.Constant;
 import pro.octet.accordion.core.handler.DataTypeConvert;
+import pro.octet.accordion.utils.CommonUtils;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -31,8 +35,8 @@ public abstract class AbstractAction implements ActionService, Serializable {
         this.session = session;
         this.executeThrowable.set(null);
         this.inputParameter.clear();
-        if (session.containsKey(Constant.ACCORDION_SESSION)) {
-            Message message = (Message) session.get(Constant.ACCORDION_SESSION);
+        if (session.containsKey(Constant.ACCORDION_MESSAGE)) {
+            Message message = (Message) session.get(Constant.ACCORDION_MESSAGE);
             inputParameter.putAll(message);
         }
         if (session.containsKey(Constant.PREV_ACTION_OUTPUT)) {
@@ -46,8 +50,8 @@ public abstract class AbstractAction implements ActionService, Serializable {
     public void updateOutput(ActionResult actionResult) {
         this.session.remove(Constant.PREV_ACTION_OUTPUT);
 
-        List<OutputParameter> output = this.actionConfig.getActionOutput();
-        if (!output.isEmpty()) {
+        List<OutputParameter> output = getActionOutput();
+        if (!CommonUtils.isEmpty(output)) {
             List<OutputParameter> result = Lists.newArrayList();
             output.forEach(param -> {
                 String key = param.getName();
@@ -82,15 +86,11 @@ public abstract class AbstractAction implements ActionService, Serializable {
         this.executeThrowable.compareAndSet(null, throwable);
     }
 
-    protected ActionParams getActionParams() {
-        return this.actionConfig.getActionParams();
-    }
-
     protected InputParameter getInputParameter() {
         return inputParameter;
     }
 
     protected List<OutputParameter> getActionOutput() {
-        return this.actionConfig.getActionOutput();
+        return getConfig().getActionOutput();
     }
 }

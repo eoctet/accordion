@@ -4,7 +4,7 @@ public class Constant {
     /**
      * Action session constant params.
      */
-    public static final String ACCORDION_SESSION = "ACCORDION_SESSION";
+    public static final String ACCORDION_MESSAGE = "ACCORDION_MESSAGE";
     public static final String PREV_ACTION_OUTPUT = "PREV_ACTION_OUTPUT";
     public static final String ACTION_CONDITION_STATE = "ACTION_CONDITION_STATE";
     public static final String SWITCH_EXECUTE_CONTROLLER = "SWITCH_EXECUTE_CONTROLLER";

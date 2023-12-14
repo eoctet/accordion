@@ -17,6 +17,9 @@ public class GraphNode {
     private ActionService actionService;
     private GraphNodeStatus status;
 
+    public GraphNode() {
+    }
+
     public GraphNode(ActionService actionService) {
         this.actionId = actionService.getConfig().getId();
         this.actionName = actionService.getConfig().getActionName();
@@ -52,5 +55,16 @@ public class GraphNode {
     @Override
     public int hashCode() {
         return Objects.hash(actionId);
+    }
+
+    @Override
+    public String toString() {
+        return "GraphNode{" +
+                "actionId='" + actionId + '\'' +
+                ", actionName='" + actionName + '\'' +
+                ", edges=" + edges +
+                ", actionService=" + actionService +
+                ", status=" + status +
+                '}';
     }
 }

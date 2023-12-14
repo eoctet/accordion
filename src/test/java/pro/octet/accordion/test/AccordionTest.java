@@ -1,58 +1,34 @@
 package pro.octet.accordion.test;
 
 import pro.octet.accordion.Accordion;
+import pro.octet.accordion.AccordionPlan;
 import pro.octet.accordion.action.model.ActionConfig;
-import pro.octet.accordion.core.entity.Message;
 import pro.octet.accordion.core.enums.ActionType;
-import pro.octet.accordion.flow.model.EdgeConfig;
 
-/**
- * @author WangJian
- * @version 1.0
- * @since 1.8
- */
 public class AccordionTest {
 
     public static void main(String[] args) {
+        ActionConfig a = ActionConfig.builder().id("a").actionType(ActionType.TEST).actionName("A").build();
+        ActionConfig b = ActionConfig.builder().id("b").actionType(ActionType.TEST).actionName("B").build();
+        ActionConfig c = ActionConfig.builder().id("c").actionType(ActionType.TEST).actionName("C").build();
+        ActionConfig d = ActionConfig.builder().id("d").actionType(ActionType.TEST).actionName("D").build();
+        ActionConfig e = ActionConfig.builder().id("e").actionType(ActionType.TEST).actionName("E").build();
+        ActionConfig f = ActionConfig.builder().id("f").actionType(ActionType.TEST).actionName("F").build();
+        ActionConfig g = ActionConfig.builder().id("g").actionType(ActionType.TEST).actionName("G").build();
 
-        ActionConfig a = new ActionConfig("a", ActionType.TEST, "A", "");
-        ActionConfig b = new ActionConfig("b", ActionType.TEST, "B", "");
-        ActionConfig c = new ActionConfig("c", ActionType.TEST, "C", "");
-        ActionConfig d = new ActionConfig("d", ActionType.TEST, "D", "");
-        ActionConfig e = new ActionConfig("e", ActionType.TEST, "E", "");
-        ActionConfig f = new ActionConfig("f", ActionType.TEST, "F", "");
-        ActionConfig g = new ActionConfig("g", ActionType.TEST, "G", "");
+        AccordionPlan plan = AccordionPlan.of()
+                .start(a)
+                .next(a, b, c)
+                .next(b, d)
+                .next(c, d)
+                .next(d, e, f)
+                .next(e, g)
+                .next(f, g);
 
-        EdgeConfig e1 = new EdgeConfig(a, b);
-        EdgeConfig e2 = new EdgeConfig(a, c);
-        EdgeConfig e3 = new EdgeConfig(b, d);
-        EdgeConfig e4 = new EdgeConfig(c, d);
-        EdgeConfig e5 = new EdgeConfig(d, e);
-        EdgeConfig e6 = new EdgeConfig(d, f);
-        EdgeConfig e7 = new EdgeConfig(e, g);
-        EdgeConfig e8 = new EdgeConfig(f, g);
-
+        System.out.println(plan.getPlanGraphView());
         Accordion accordion = new Accordion();
-        accordion.addAction(a)
-                .addAction(b)
-                .addAction(c)
-                .addAction(d)
-                .addAction(e)
-                .addAction(f)
-                .addAction(g)
-                .addEdge(e1)
-                .addEdge(e2)
-                .addEdge(e3)
-                .addEdge(e4)
-                .addEdge(e5)
-                .addEdge(e6)
-                .addEdge(e7)
-                .addEdge(e8)
-                .play(new Message());
-
+        accordion.play(plan);
         System.out.println(accordion.verbose());
-
-        System.out.println(accordion.parseToJson());
 
     }
 }
