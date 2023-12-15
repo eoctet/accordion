@@ -14,6 +14,8 @@ import pro.octet.accordion.utils.CommonUtils;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -92,5 +94,26 @@ public abstract class AbstractAction implements ActionService, Serializable {
 
     protected List<OutputParameter> getActionOutput() {
         return getConfig().getActionOutput();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void findOutputParameters(List<OutputParameter> outputParameter, LinkedHashMap<String, Object> responseMaps, ActionResult actionResult) {
+        responseMaps.forEach((key, value) -> {
+            outputParameter.forEach(parameter -> {
+                if (parameter.getName().equalsIgnoreCase(key)) {
+                    actionResult.put(parameter.getName(), DataTypeConvert.getValue(parameter.getDatatype(), value));
+                }
+            });
+            if (value instanceof LinkedHashMap) {
+                findOutputParameters(outputParameter, (LinkedHashMap<String, Object>) value, actionResult);
+            }
+            if (value instanceof ArrayList) {
+                ((ArrayList<?>) value).forEach(e -> {
+                    if (e instanceof LinkedHashMap) {
+                        findOutputParameters(outputParameter, (LinkedHashMap<String, Object>) e, actionResult);
+                    }
+                });
+            }
+        });
     }
 }

@@ -36,4 +36,11 @@ public class ActionConfig {
     @JsonProperty("action_output")
     private List<OutputParameter> actionOutput;
 
+    public <T> T getActionParams(Class<T> clazz) {
+        if (actionParams != null && actionParams.getClass() == clazz) {
+            return clazz.cast(actionParams);
+        }
+        return null;
+    }
+
 }
