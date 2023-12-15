@@ -3,6 +3,7 @@ package pro.octet.accordion;
 
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.action.ActionService;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.core.entity.Message;
@@ -20,9 +21,11 @@ public class Accordion {
 
     private final Session session;
     private AccordionPlan plan;
+    private final StringBuffer executeGraphView;
 
     public Accordion() {
         this.session = new Session();
+        this.executeGraphView = new StringBuffer();
     }
 
     public void play(AccordionPlan plan) {
@@ -37,35 +40,36 @@ public class Accordion {
             if (message != null) {
                 session.put(Constant.ACCORDION_MESSAGE, message);
             }
-            execute(plan.getRootGraphNode());
+            execute(plan.getRootGraphNode(), StringUtils.EMPTY);
         } catch (Exception e) {
             throw new AccordionExecuteException(e.getMessage(), e);
         }
     }
 
-    private void execute(GraphNode nextNode) {
-        if (nextNode.getEdges().stream().map(GraphEdge::getPreviousNode)
-                .anyMatch(previousNode -> !previousNode.getActionId().equals(nextNode.getActionId())
-                        && !previousNode.isSuccess())) {
+    private void execute(GraphNode nextNode, String depth) {
+        if (!nextNode.preNodesAllExecuted()) {
             return;
         }
-        ActionService actionService = nextNode.getActionService();
+        if (!nextNode.preNodesHasErrorOrSkipped()) {
+            ActionService actionService = nextNode.getActionService();
+            ActionResult result = actionService.prepare(session).execute();
+            actionService.updateOutput(result);
+            GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
+            plan.updateGraphNodeStatus(nextNode, status);
+        }
+        executeGraphView.append(depth)
+                .append("⎣____ ")
+                .append(nextNode.getStatus().getFlag()).append(StringUtils.SPACE).append(nextNode.getActionName())
+                .append(" (").append(nextNode.getActionId()).append(")")
+                .append("\n");
 
-        ActionResult result = actionService.prepare(session).execute();
-        actionService.updateOutput(result);
-        GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
-        plan.updateGraphNodeStatus(nextNode, status);
-
-        nextNode.getEdges().forEach(edge -> {
-            GraphNode previousNode = edge.getPreviousNode();
-            if (previousNode.getActionId().equals(nextNode.getActionId())) {
-                execute(edge.getNextNode());
-            }
-        });
+        for (GraphEdge edge : nextNode.getRightEdges()) {
+            execute(edge.getNextNode(), depth + "\t");
+        }
     }
 
     public String verbose() {
-        return plan.getPlanGraphView();
+        return executeGraphView.toString();
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum GraphNodeStatus {
 
-    NORMAL("❔"), SUCCESS("✅"), ERROR("❌"), SKIP("⛔️");
+    NORMAL("⚪️"), SUCCESS("✅"), ERROR("🅾️"), SKIP("🟡");
 
     private final String flag;
 

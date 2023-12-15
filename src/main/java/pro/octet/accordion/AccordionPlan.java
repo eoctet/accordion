@@ -2,8 +2,8 @@ package pro.octet.accordion;
 
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.action.ActionFactory;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
@@ -11,25 +11,19 @@ import pro.octet.accordion.flow.entity.GraphEdge;
 import pro.octet.accordion.flow.entity.GraphNode;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
+@Getter
 @Slf4j
 public class AccordionPlan {
-
     private final List<GraphNode> graphNodes;
     private final List<GraphEdge> graphEdges;
-    private final StringBuffer graphSimpleView;
     private GraphNode rootGraphNode;
-    private final List<GraphNode> graphNodesFilter;
 
     private static volatile AccordionPlan instance;
 
     private AccordionPlan() {
         this.graphNodes = Lists.newArrayList();
         this.graphEdges = Lists.newArrayList();
-        this.graphNodesFilter = Lists.newArrayList();
-        this.graphSimpleView = new StringBuffer();
     }
 
     public static AccordionPlan of() {
@@ -48,14 +42,8 @@ public class AccordionPlan {
     }
 
     private GraphNode findGraphNode(String actionId) {
-        for (GraphNode node : graphNodes) {
-            if (node.getActionId().equals(actionId)) {
-                return node;
-            }
-        }
-        return null;
+        return graphNodes.stream().filter(node -> node.getActionId().equals(actionId)).findFirst().orElse(null);
     }
-
 
     public AccordionPlan start(ActionConfig actionConfig) {
         if (!graphNodes.isEmpty()) {
@@ -101,41 +89,10 @@ public class AccordionPlan {
     public void reset() {
         graphNodes.clear();
         graphEdges.clear();
-        graphSimpleView.setLength(0);
-        graphNodesFilter.clear();
     }
 
     protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
         graphNode.setStatus(status);
-    }
-
-    protected GraphNode getRootGraphNode() {
-        return rootGraphNode;
-    }
-
-    public String getPlanGraphView() {
-        if (graphNodes.isEmpty()) {
-            throw new IllegalArgumentException("Accordion plan is empty.");
-        }
-        graphViewUpdate(rootGraphNode, StringUtils.EMPTY);
-        String view = graphSimpleView.toString();
-        graphSimpleView.setLength(0);
-        graphNodesFilter.clear();
-        return view;
-    }
-
-    private void graphViewUpdate(GraphNode node, String depth) {
-        if (graphNodesFilter.contains(node)) {
-            return;
-        }
-        graphSimpleView.append(depth).append("⎣____ ").append(node.getStatus().getFlag()).append(StringUtils.SPACE).append(node.getActionName()).append("\n");
-        List<GraphEdge> edges = node.getEdges().stream()
-                .filter(edge -> Objects.equals(edge.getPreviousNode().getActionId(), node.getActionId()))
-                .collect(Collectors.toList());
-        for (GraphEdge edge : edges) {
-            graphViewUpdate(edge.getNextNode(), depth + "\t");
-        }
-        graphNodesFilter.add(node);
     }
 
 }
