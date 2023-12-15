@@ -22,6 +22,7 @@ public class Accordion {
     private final Session session;
     private AccordionPlan plan;
     private final StringBuffer executeGraphView;
+    private boolean debug;
 
     public Accordion() {
         this.session = new Session();
@@ -29,12 +30,17 @@ public class Accordion {
     }
 
     public void play(AccordionPlan plan) {
-        play(null, plan);
+        play(null, plan, false);
     }
 
-    public void play(@Nullable Message message, AccordionPlan accordionPlan) {
+    public void play(AccordionPlan plan, boolean isDebug) {
+        play(null, plan, isDebug);
+    }
+
+    public void play(@Nullable Message message, AccordionPlan accordionPlan, boolean isDebug) {
         Preconditions.checkNotNull(accordionPlan, "Accordion plan cannot be null");
         this.plan = accordionPlan;
+        this.debug = isDebug;
 
         try {
             if (message != null) {
@@ -50,12 +56,19 @@ public class Accordion {
         if (!nextNode.preNodesAllExecuted()) {
             return;
         }
-        if (!nextNode.preNodesHasErrorOrSkipped()) {
-            ActionService actionService = nextNode.getActionService();
-            ActionResult result = actionService.prepare(session).execute();
-            actionService.updateOutput(result);
-            GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
-            plan.updateGraphNodeStatus(nextNode, status);
+
+        if (debug) {
+            plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SUCCESS);
+        } else {
+            if (nextNode.preNodesHasErrorOrSkipped()) {
+                plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SKIP);
+            } else {
+                ActionService actionService = nextNode.getActionService();
+                ActionResult result = actionService.prepare(session).execute();
+                actionService.updateOutput(result);
+                GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
+                plan.updateGraphNodeStatus(nextNode, status);
+            }
         }
         executeGraphView.append(depth)
                 .append("⎣____ ")

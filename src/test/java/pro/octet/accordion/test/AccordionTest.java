@@ -30,7 +30,7 @@ public class AccordionTest {
 
         System.out.println("Execute:");
         Accordion accordion = new Accordion();
-        accordion.play(plan);
+        accordion.play(plan, true);
         System.out.println("Accordion plan:\n" + accordion.verbose());
 
     }
