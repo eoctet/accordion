@@ -1,4 +1,4 @@
-package pro.octet.accordion.flow.entity;
+package pro.octet.accordion.graph.entity;
 
 import lombok.Data;
 import pro.octet.accordion.utils.CommonUtils;

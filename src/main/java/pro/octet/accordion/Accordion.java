@@ -11,8 +11,8 @@ import pro.octet.accordion.core.entity.Session;
 import pro.octet.accordion.core.enums.Constant;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
 import pro.octet.accordion.exceptions.AccordionExecuteException;
-import pro.octet.accordion.flow.entity.GraphEdge;
-import pro.octet.accordion.flow.entity.GraphNode;
+import pro.octet.accordion.graph.entity.GraphEdge;
+import pro.octet.accordion.graph.entity.GraphNode;
 
 import javax.annotation.Nullable;
 
@@ -46,6 +46,7 @@ public class Accordion {
             if (message != null) {
                 session.put(Constant.ACCORDION_MESSAGE, message);
             }
+            executeGraphView.setLength(0);
             execute(plan.getRootGraphNode(), StringUtils.EMPTY);
         } catch (Exception e) {
             throw new AccordionExecuteException(e.getMessage(), e);

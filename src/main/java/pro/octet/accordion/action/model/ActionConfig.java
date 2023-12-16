@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 import pro.octet.accordion.core.enums.ActionType;
+import pro.octet.accordion.utils.JsonUtils;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 
@@ -37,6 +39,9 @@ public class ActionConfig {
     private List<OutputParameter> actionOutput;
 
     public <T> T getActionParams(Class<T> clazz) {
+        if (actionParams instanceof LinkedHashMap) {
+            actionParams = JsonUtils.parseToObject(JsonUtils.toJson(actionParams), clazz);
+        }
         if (actionParams != null && actionParams.getClass() == clazz) {
             return clazz.cast(actionParams);
         }

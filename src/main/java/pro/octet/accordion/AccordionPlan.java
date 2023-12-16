@@ -2,21 +2,28 @@ package pro.octet.accordion;
 
 
 import com.google.common.collect.Lists;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import pro.octet.accordion.action.ActionFactory;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
-import pro.octet.accordion.flow.entity.GraphEdge;
-import pro.octet.accordion.flow.entity.GraphNode;
+import pro.octet.accordion.graph.entity.GraphEdge;
+import pro.octet.accordion.graph.entity.GraphNode;
+import pro.octet.accordion.graph.model.AccordionConfig;
+import pro.octet.accordion.graph.model.AccordionGraphConfig;
+import pro.octet.accordion.graph.model.EdgeConfig;
+import pro.octet.accordion.utils.CommonUtils;
+import pro.octet.accordion.utils.JsonUtils;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-@Getter
+
 @Slf4j
 public class AccordionPlan {
     private final List<GraphNode> graphNodes;
     private final List<GraphEdge> graphEdges;
+    private AccordionConfig accordionConfig;
     private GraphNode rootGraphNode;
 
     private static volatile AccordionPlan instance;
@@ -55,17 +62,13 @@ public class AccordionPlan {
     }
 
     public AccordionPlan next(ActionConfig previousAction, ActionConfig nextAction) {
-        return next(previousAction.getId(), nextAction);
-    }
-
-    private AccordionPlan next(String previousActionId, ActionConfig nextAction) {
-        if (graphNodes.isEmpty()) {
-            start(nextAction);
-            return this;
-        }
-        GraphNode previousNode = findGraphNode(previousActionId);
+        GraphNode previousNode = findGraphNode(previousAction.getId());
         if (previousNode == null) {
-            throw new IllegalArgumentException("Unable to find the previous action, please check your parameter.");
+            if (!graphNodes.isEmpty()) {
+                throw new IllegalArgumentException("Unable to find the previous action, please check your parameter.");
+            }
+            previousNode = createGraphNode(previousAction);
+            graphNodes.add(previousNode);
         }
         GraphNode nextNode = findGraphNode(nextAction.getId());
         if (nextNode == null) {
@@ -89,10 +92,53 @@ public class AccordionPlan {
     public void reset() {
         graphNodes.clear();
         graphEdges.clear();
+        rootGraphNode = null;
     }
 
     protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
         graphNode.setStatus(status);
     }
 
+    protected GraphNode getRootGraphNode() {
+        return rootGraphNode;
+    }
+
+    public String toAccordionConfigJson() {
+        if (accordionConfig == null) {
+            AccordionGraphConfig graphConfig = new AccordionGraphConfig(Lists.newArrayList(), Lists.newArrayList());
+            graphNodes.stream().map(graphNode -> graphNode.getActionService().getConfig()).forEach(graphConfig::addAction);
+            graphEdges.stream().map(graphEdge -> new EdgeConfig(graphEdge.getPreviousNode().getActionId(), graphEdge.getNextNode().getActionId())).forEach(graphConfig::addEdge);
+            AccordionConfig config = new AccordionConfig(
+                    CommonUtils.randomString("ACR").toUpperCase(),
+                    "Default accordion name",
+                    "Default accordion desc",
+                    graphConfig, new Date()
+            );
+            return JsonUtils.toJson(config);
+        }
+        return JsonUtils.toJson(accordionConfig);
+    }
+
+    public void fromAccordionConfig(String accordionConfigJson) {
+        AccordionConfig config = Objects.requireNonNull(JsonUtils.parseToObject(accordionConfigJson, AccordionConfig.class));
+        fromAccordionConfig(config);
+    }
+
+    public void fromAccordionConfig(AccordionConfig accordionConfig) {
+        this.accordionConfig = accordionConfig;
+        reset();
+        AccordionGraphConfig graphConfig = accordionConfig.getGraphConfig();
+        List<ActionConfig> actionConfigs = graphConfig.getActions();
+
+        String message = "Unable to find the action config, please check your parameter.";
+        for (EdgeConfig edgeConfig : graphConfig.getEdges()) {
+            ActionConfig previousAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getPreviousAction()))
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException(message));
+            ActionConfig nextAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getNextAction()))
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException(message));
+            next(previousAction, nextAction);
+        }
+        rootGraphNode = graphNodes.stream().filter(graphNode -> graphNode.getLeftEdges().isEmpty()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(message));
+    }
 }

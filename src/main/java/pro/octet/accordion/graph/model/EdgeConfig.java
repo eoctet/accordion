@@ -1,4 +1,4 @@
-package pro.octet.accordion.flow.model;
+package pro.octet.accordion.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

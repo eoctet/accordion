@@ -1,4 +1,4 @@
-package pro.octet.accordion.flow.model;
+package pro.octet.accordion.graph.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FlowConfig implements Serializable {
+public class AccordionConfig implements Serializable {
 
     @JsonProperty("id")
     private String id;
@@ -24,10 +24,20 @@ public class FlowConfig implements Serializable {
     private String desc;
 
     @JsonProperty("graph_config")
-    private FlowGraphConfig flowGraphConfig;
+    private AccordionGraphConfig graphConfig;
 
     @JsonProperty("updatetime")
-    @JsonFormat(pattern = Constant.DATE_FORMAT, timezone = "GMT+8")
+    @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME, timezone = "GMT+8")
     private Date updatetime;
 
+    public AccordionConfig(String id, String name, String desc, AccordionGraphConfig graphConfig, Date updatetime) {
+        this.id = id;
+        this.name = name;
+        this.desc = desc;
+        this.graphConfig = graphConfig;
+        this.updatetime = updatetime;
+    }
+
+    public AccordionConfig() {
+    }
 }
