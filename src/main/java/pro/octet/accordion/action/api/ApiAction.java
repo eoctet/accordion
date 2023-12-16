@@ -10,6 +10,7 @@ import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.model.InputParameter;
 import pro.octet.accordion.action.model.OutputParameter;
+import pro.octet.accordion.action.parameters.ApiParameter;
 import pro.octet.accordion.exceptions.ActionException;
 import pro.octet.accordion.utils.CommonUtils;
 import pro.octet.accordion.utils.JsonUtils;

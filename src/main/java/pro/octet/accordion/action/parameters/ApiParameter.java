@@ -1,4 +1,4 @@
-package pro.octet.accordion.action.api;
+package pro.octet.accordion.action.parameters;
 
 import com.google.common.collect.Maps;
 import lombok.Builder;
