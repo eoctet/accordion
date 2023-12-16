@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
-import pro.octet.accordion.core.enums.ActionType;
 import pro.octet.accordion.utils.JsonUtils;
 
 import java.util.LinkedHashMap;
@@ -24,7 +23,7 @@ public class ActionConfig {
     private String id;
 
     @JsonProperty("action_type")
-    private ActionType actionType;
+    private String actionType;
 
     @JsonProperty("action_name")
     private String actionName;

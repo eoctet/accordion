@@ -3,7 +3,7 @@ package pro.octet.accordion;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import pro.octet.accordion.action.ActionFactory;
+import pro.octet.accordion.action.ActionRegister;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
 import pro.octet.accordion.graph.entity.GraphEdge;
@@ -45,7 +45,7 @@ public class AccordionPlan {
     }
 
     private GraphNode createGraphNode(ActionConfig action) {
-        return new GraphNode(ActionFactory.getInstance().build(action.getActionType(), action));
+        return new GraphNode(ActionRegister.getInstance().build(action));
     }
 
     private GraphNode findGraphNode(String actionId) {
