@@ -8,6 +8,7 @@ import pro.octet.accordion.action.ActionService;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.core.entity.Message;
 import pro.octet.accordion.core.entity.Session;
+import pro.octet.accordion.core.enums.ActionType;
 import pro.octet.accordion.core.enums.Constant;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
 import pro.octet.accordion.exceptions.AccordionExecuteException;
@@ -23,6 +24,7 @@ public class Accordion {
     private AccordionPlan plan;
     private final StringBuffer executeGraphView;
     private boolean debug;
+    private boolean breakUp;
 
     public Accordion() {
         this.session = new Session();
@@ -47,6 +49,7 @@ public class Accordion {
                 session.put(Constant.ACCORDION_MESSAGE, message);
             }
             executeGraphView.setLength(0);
+            breakUp = false;
             execute(plan.getRootGraphNode(), StringUtils.EMPTY);
         } catch (Exception e) {
             throw new AccordionExecuteException(e.getMessage(), e);
@@ -61,7 +64,7 @@ public class Accordion {
         if (debug) {
             plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SUCCESS);
         } else {
-            if (nextNode.preNodesHasErrorOrSkipped()) {
+            if (nextNode.preNodesHasErrorOrSkipped() || breakUp) {
                 plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SKIP);
             } else {
                 ActionService actionService = nextNode.getActionService();
@@ -69,6 +72,10 @@ public class Accordion {
                 actionService.updateOutput(result);
                 GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
                 plan.updateGraphNodeStatus(nextNode, status);
+                if (ActionType.CONDITION.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
+                    breakUp = !result.getBoolean(Constant.ACTION_CONDITION_STATE);
+                    log.info("Condition action execution result: " + !breakUp);
+                }
             }
         }
         executeGraphView.append(depth)

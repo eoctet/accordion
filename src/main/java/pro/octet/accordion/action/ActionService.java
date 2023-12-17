@@ -10,7 +10,9 @@ public interface ActionService {
 
     ActionService prepare(Session session);
 
-    ActionResult execute() throws ActionException;
+    default ActionResult execute() throws ActionException {
+        throw new ActionException("Action not implemented.");
+    }
 
     void updateOutput(ActionResult actionResult);
 
