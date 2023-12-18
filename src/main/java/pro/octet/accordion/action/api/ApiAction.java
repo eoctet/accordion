@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import pro.octet.accordion.action.AbstractAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
@@ -78,20 +79,20 @@ public class ApiAction extends AbstractAction {
         //Set request headers
         Map<String, String> headersMaps = Maps.newHashMap();
         if (!params.getHeaders().isEmpty()) {
-            params.getHeaders().forEach((key, value) -> headersMaps.put(key, CommonUtils.parameterFormat(inputParameter, value)));
+            params.getHeaders().forEach((key, value) -> headersMaps.put(key, StringSubstitutor.replace(value, inputParameter)));
         }
         Headers headers = Headers.of(headersMaps);
         //Set request params
-        String url = CommonUtils.parameterFormat(inputParameter, params.getUrl());
+        String url = StringSubstitutor.replace(params.getUrl(), inputParameter);
         HttpUrl.Builder urlBuilder = HttpUrl.get(url).newBuilder();
         if (!params.getRequest().isEmpty()) {
-            params.getRequest().forEach((key, value) -> urlBuilder.addQueryParameter(key, CommonUtils.parameterFormat(inputParameter, value)));
+            params.getRequest().forEach((key, value) -> urlBuilder.addQueryParameter(key, StringSubstitutor.replace(value, inputParameter)));
         }
         //Set request body
         RequestBody body = null;
         if (StringUtils.isNotBlank(params.getBody())) {
             MediaType mediaType = getMediaType();
-            String bodyStr = CommonUtils.parameterFormat(inputParameter, params.getBody());
+            String bodyStr = StringSubstitutor.replace(params.getBody(), inputParameter);
             body = RequestBody.create(bodyStr, mediaType);
         }
         Request request = new Request.Builder()

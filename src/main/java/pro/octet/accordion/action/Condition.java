@@ -1,26 +1,26 @@
 package pro.octet.accordion.action;
 
-import de.odysseus.el.ExpressionFactoryImpl;
-import de.odysseus.el.util.SimpleContext;
+import com.googlecode.aviator.AviatorEvaluator;
+import com.googlecode.aviator.AviatorEvaluatorInstance;
+import com.googlecode.aviator.Feature;
+import com.googlecode.aviator.Options;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.core.enums.ConditionOperator;
 
-import javax.el.ExpressionFactory;
-import javax.el.ValueExpression;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 public class Condition implements Serializable {
 
-    private static final String EXPRESSION_BEGIN = "${";
-    private static final String EXPRESSION_END = "}";
     private final StringBuffer expression;
-    private static final ExpressionFactory EXPRESSION_FACTORY;
+    private static final AviatorEvaluatorInstance EVALUATOR;
 
     static {
-        EXPRESSION_FACTORY = new ExpressionFactoryImpl();
+        EVALUATOR = AviatorEvaluator.newInstance();
+        EVALUATOR.setOption(Options.FEATURE_SET, Feature.asSet(Feature.Assignment, Feature.Lambda));
     }
 
     public Condition() {
@@ -111,10 +111,8 @@ public class Condition implements Serializable {
     }
 
     public static boolean test(Map<String, Object> params, String expression) {
-        SimpleContext context = new SimpleContext();
-        params.forEach((key, value) -> context.setVariable(key, EXPRESSION_FACTORY.createValueExpression(value, value.getClass())));
-        ValueExpression valueExpression = EXPRESSION_FACTORY.createValueExpression(context, expression, Boolean.class);
-        return (boolean) valueExpression.getValue(context);
+        Object result = EVALUATOR.compile(expression, true).execute(params);
+        return (boolean) Optional.of(result).orElse(false);
     }
 
     public String getExpression() {
@@ -122,11 +120,7 @@ public class Condition implements Serializable {
     }
 
     public String build() {
-        String finalExpression = getExpression();
-        if (!StringUtils.startsWith(finalExpression, EXPRESSION_BEGIN) && !StringUtils.endsWith(finalExpression, EXPRESSION_END)) {
-            finalExpression = StringUtils.join(EXPRESSION_BEGIN, finalExpression, EXPRESSION_END);
-        }
-        return finalExpression;
+        return getExpression();
     }
 
     @Override

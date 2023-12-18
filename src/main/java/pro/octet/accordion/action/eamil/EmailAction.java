@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.text.StringSubstitutor;
 import pro.octet.accordion.action.AbstractAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
@@ -76,7 +77,7 @@ public class EmailAction extends AbstractAction {
     public ActionResult execute() throws ActionException {
         ActionResult actionResult = new ActionResult();
         try {
-            String content = CommonUtils.parameterFormat(getInputParameter(), params.getContent());
+            String content = StringSubstitutor.replace(params.getContent(), getInputParameter());
             String status = send(params, content);
             log.debug("The email has been sent, status: " + status);
         } catch (Exception e) {
