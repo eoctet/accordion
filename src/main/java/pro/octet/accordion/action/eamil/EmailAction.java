@@ -26,7 +26,7 @@ public class EmailAction extends AbstractAction {
     public EmailAction(ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(EmailParameter.class);
-
+        Preconditions.checkNotNull(params, "Email parameter can not be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getServer()), "Email SMTP server address cannot be empty.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getFrom()), "Email sender cannot be empty.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getSubject()), "Email subject cannot be empty.");

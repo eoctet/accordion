@@ -19,7 +19,8 @@ import java.util.Map;
 @Jacksonized
 public class ApiParameter {
     private String url;
-    private HttpMethod method;
+    @Builder.Default
+    private HttpMethod method = HttpMethod.GET;
     @Builder.Default
     private Map<String, String> headers = Maps.newLinkedHashMap();
     @Builder.Default

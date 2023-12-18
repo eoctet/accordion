@@ -8,7 +8,6 @@ import pro.octet.accordion.action.model.InputParameter;
 import pro.octet.accordion.action.model.OutputParameter;
 import pro.octet.accordion.core.entity.Message;
 import pro.octet.accordion.core.entity.Session;
-import pro.octet.accordion.core.enums.Constant;
 import pro.octet.accordion.core.handler.DataTypeConvert;
 import pro.octet.accordion.utils.CommonUtils;
 
@@ -21,6 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public abstract class AbstractAction implements ActionService, Serializable {
+    public static final String ACCORDION_MESSAGE = "ACCORDION_MESSAGE";
+    public static final String PREV_ACTION_OUTPUT = "PREV_ACTION_OUTPUT";
     private final ActionConfig actionConfig;
     private final InputParameter inputParameter;
     private Session session;
@@ -37,12 +38,12 @@ public abstract class AbstractAction implements ActionService, Serializable {
         this.session = session;
         this.executeThrowable.set(null);
         this.inputParameter.clear();
-        if (session.containsKey(Constant.ACCORDION_MESSAGE)) {
-            Message message = (Message) session.get(Constant.ACCORDION_MESSAGE);
+        if (session.containsKey(ACCORDION_MESSAGE)) {
+            Message message = (Message) session.get(ACCORDION_MESSAGE);
             inputParameter.putAll(message);
         }
-        if (session.containsKey(Constant.PREV_ACTION_OUTPUT)) {
-            List<OutputParameter> prevComponentOutput = (List<OutputParameter>) session.get(Constant.PREV_ACTION_OUTPUT);
+        if (session.containsKey(PREV_ACTION_OUTPUT)) {
+            List<OutputParameter> prevComponentOutput = (List<OutputParameter>) session.get(PREV_ACTION_OUTPUT);
             prevComponentOutput.forEach(param -> inputParameter.put(param.getName(), param.getValue()));
         }
         return this;
@@ -50,7 +51,7 @@ public abstract class AbstractAction implements ActionService, Serializable {
 
     @Override
     public void updateOutput(ActionResult actionResult) {
-        this.session.remove(Constant.PREV_ACTION_OUTPUT);
+        this.session.remove(PREV_ACTION_OUTPUT);
 
         List<OutputParameter> output = getActionOutput();
         if (!CommonUtils.isEmpty(output)) {
@@ -65,7 +66,7 @@ public abstract class AbstractAction implements ActionService, Serializable {
                     result.add(new OutputParameter(param.getName(), param.getDatatype(), param.getDesc(), value));
                 }
             });
-            this.session.put(Constant.PREV_ACTION_OUTPUT, result);
+            this.session.put(PREV_ACTION_OUTPUT, result);
         }
     }
 

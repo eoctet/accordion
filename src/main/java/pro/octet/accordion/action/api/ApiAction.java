@@ -1,6 +1,7 @@
 package pro.octet.accordion.action.api;
 
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -11,6 +12,7 @@ import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.model.InputParameter;
 import pro.octet.accordion.action.model.OutputParameter;
 import pro.octet.accordion.action.parameters.ApiParameter;
+import pro.octet.accordion.core.enums.HttpMethod;
 import pro.octet.accordion.exceptions.ActionException;
 import pro.octet.accordion.utils.CommonUtils;
 import pro.octet.accordion.utils.JsonUtils;
@@ -37,6 +39,12 @@ public class ApiAction extends AbstractAction {
     public ApiAction(ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(ApiParameter.class);
+        Preconditions.checkNotNull(params, "API parameter can not be null.");
+        Preconditions.checkArgument(StringUtils.isNotBlank(params.getUrl()), "Request url cannot be empty.");
+        if (HttpMethod.GET != params.getMethod()) {
+            Preconditions.checkArgument(StringUtils.isNotBlank(params.getBody()), "Request body cannot be empty.");
+        }
+
         Proxy proxyServer = null;
         if (StringUtils.isNotBlank(params.getProxyServerAddress()) && params.getProxyServerPort() != -1) {
             proxyServer = new Proxy(params.getProxyType(), new InetSocketAddress(params.getProxyServerAddress(), params.getProxyServerPort()));
