@@ -13,6 +13,7 @@ import pro.octet.accordion.action.model.OutputParameter;
 import pro.octet.accordion.action.parameters.ScriptParameter;
 import pro.octet.accordion.core.enums.DataType;
 import pro.octet.accordion.exceptions.ActionException;
+import pro.octet.accordion.utils.CommonUtils;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class ScriptAction extends AbstractAction {
         this.params = actionConfig.getActionParams(ScriptParameter.class);
         Preconditions.checkNotNull(params, "Script parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getScript()), "Script cannot be empty.");
+        //init AviatorEvaluator and config
         evaluator = AviatorEvaluator.newInstance();
         evaluator.setOption(Options.MAX_LOOP_COUNT, Integer.MAX_VALUE);
         evaluator.setOption(Options.SERIALIZABLE, true);
@@ -35,6 +37,11 @@ public class ScriptAction extends AbstractAction {
         evaluator.disableFeature(Feature.Module);
         evaluator.disableFeature(Feature.InternalVars);
         evaluator.setOption(Options.TRACE_EVAL, params.isDebug());
+        //if no output parameters are set, the default value is used
+        List<OutputParameter> outputConfig = getActionOutput();
+        if (CommonUtils.isEmpty(outputConfig)) {
+            outputConfig.add(new OutputParameter(ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result"));
+        }
     }
 
     @Override
@@ -44,11 +51,8 @@ public class ScriptAction extends AbstractAction {
             Expression exp = evaluator.compile(params.getScriptId(), params.getScript(), true);
             Object result = exp.execute(getInputParameter());
             if (result != null) {
-                List<OutputParameter> outputConfig = getActionOutput();
-                OutputParameter outputParameter = outputConfig.stream().findFirst()
-                        .orElse(new OutputParameter(ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result"));
-                outputParameter.setValue(result);
-                actionResult.put(outputParameter.getName(), outputParameter.getValue());
+                OutputParameter outputParameter = getActionOutput().stream().findFirst().get();
+                actionResult.put(outputParameter.getName(), result);
             }
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
