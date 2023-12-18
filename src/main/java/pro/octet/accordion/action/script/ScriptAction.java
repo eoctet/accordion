@@ -46,7 +46,8 @@ public class ScriptAction extends AbstractAction {
             if (result != null) {
                 List<OutputParameter> outputConfig = getActionOutput();
                 OutputParameter outputParameter = outputConfig.stream().findFirst()
-                        .orElse(new OutputParameter(ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result", result));
+                        .orElse(new OutputParameter(ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result"));
+                outputParameter.setValue(result);
                 actionResult.put(outputParameter.getName(), outputParameter.getValue());
             }
         } catch (Exception e) {

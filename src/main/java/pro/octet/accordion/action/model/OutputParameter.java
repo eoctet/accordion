@@ -30,6 +30,12 @@ public class OutputParameter {
         this.value = value;
     }
 
+    public OutputParameter(String name, DataType datatype, String desc) {
+        this.name = name;
+        this.datatype = datatype;
+        this.desc = desc;
+    }
+
     public OutputParameter() {
     }
 
