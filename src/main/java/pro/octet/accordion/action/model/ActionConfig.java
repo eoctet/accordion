@@ -2,6 +2,7 @@ package pro.octet.accordion.action.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -35,7 +36,8 @@ public class ActionConfig {
     private Object actionParams;
 
     @JsonProperty("action_output")
-    private List<OutputParameter> actionOutput;
+    @Builder.Default
+    private List<OutputParameter> actionOutput = Lists.newArrayList();
 
     public <T> T getActionParams(Class<T> clazz) {
         if (actionParams instanceof LinkedHashMap) {
