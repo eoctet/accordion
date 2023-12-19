@@ -49,4 +49,12 @@ public class ActionConfig {
         return null;
     }
 
+    public <T> T getActionParams(Class<T> clazz, String errorMessage) {
+        T object = getActionParams(clazz);
+        if (object == null) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return object;
+    }
+
 }

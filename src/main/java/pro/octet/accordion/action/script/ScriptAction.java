@@ -25,8 +25,7 @@ public class ScriptAction extends AbstractAction {
 
     public ScriptAction(ActionConfig actionConfig) {
         super(actionConfig);
-        this.params = actionConfig.getActionParams(ScriptParameter.class);
-        Preconditions.checkNotNull(params, "Script parameter cannot be null.");
+        this.params = actionConfig.getActionParams(ScriptParameter.class, "Script parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getScript()), "Script cannot be empty.");
         //init AviatorEvaluator and config
         evaluator = AviatorEvaluator.newInstance();

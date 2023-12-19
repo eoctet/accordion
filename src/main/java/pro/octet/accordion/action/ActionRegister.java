@@ -9,7 +9,6 @@ import pro.octet.accordion.action.base.TestAction;
 import pro.octet.accordion.action.eamil.EmailAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.script.ScriptAction;
-import pro.octet.accordion.action.shell.ShellAction;
 import pro.octet.accordion.core.enums.ActionType;
 import pro.octet.accordion.exceptions.ActionException;
 
@@ -25,7 +24,6 @@ public class ActionRegister {
         ACTION_MAPPING.put(ActionType.CONDITION.name(), ConditionAction.class.getName());
         ACTION_MAPPING.put(ActionType.SWITCH.name(), SwitchAction.class.getName());
         ACTION_MAPPING.put(ActionType.EMAIL.name(), EmailAction.class.getName());
-        ACTION_MAPPING.put(ActionType.SHELL.name(), ShellAction.class.getName());
         ACTION_MAPPING.put(ActionType.SCRIPT.name(), ScriptAction.class.getName());
         ACTION_MAPPING.put(ActionType.TEST.name(), TestAction.class.getName());
     }

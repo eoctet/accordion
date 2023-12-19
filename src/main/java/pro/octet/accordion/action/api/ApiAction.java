@@ -39,8 +39,7 @@ public class ApiAction extends AbstractAction {
 
     public ApiAction(ActionConfig actionConfig) {
         super(actionConfig);
-        this.params = actionConfig.getActionParams(ApiParameter.class);
-        Preconditions.checkNotNull(params, "API parameter can not be null.");
+        this.params = actionConfig.getActionParams(ApiParameter.class, "API parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getUrl()), "Request url cannot be empty.");
         if (HttpMethod.GET != params.getMethod()) {
             Preconditions.checkArgument(StringUtils.isNotBlank(params.getBody()), "Request body cannot be empty.");

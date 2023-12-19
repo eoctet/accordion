@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.action.AbstractAction;
 import pro.octet.accordion.action.ActionService;
 import pro.octet.accordion.action.base.ConditionAction;
+import pro.octet.accordion.action.base.SwitchAction;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.core.entity.Message;
 import pro.octet.accordion.core.entity.Session;
@@ -15,8 +16,10 @@ import pro.octet.accordion.core.enums.GraphNodeStatus;
 import pro.octet.accordion.exceptions.AccordionExecuteException;
 import pro.octet.accordion.graph.entity.GraphEdge;
 import pro.octet.accordion.graph.entity.GraphNode;
+import pro.octet.accordion.graph.entity.SwitchController;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @Slf4j
 public class Accordion {
@@ -26,10 +29,12 @@ public class Accordion {
     private final StringBuffer executeGraphView;
     private boolean debug;
     private boolean breakUp;
+    private SwitchController controller;
 
     public Accordion() {
         this.session = new Session();
         this.executeGraphView = new StringBuffer();
+        this.controller = new SwitchController();
     }
 
     public void play(AccordionPlan plan) {
@@ -51,6 +56,7 @@ public class Accordion {
             }
             executeGraphView.setLength(0);
             breakUp = false;
+            controller.clear();
             execute(plan.getRootGraphNode(), StringUtils.EMPTY);
         } catch (Exception e) {
             throw new AccordionExecuteException(e.getMessage(), e);
@@ -59,9 +65,10 @@ public class Accordion {
 
     private void execute(GraphNode nextNode, String depth) {
         if (nextNode.preNodesAllExecuted()) {
+            boolean hasControl = Optional.ofNullable(controller.get(nextNode.getActionId())).orElse(true);
             if (debug) {
                 plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SUCCESS);
-            } else if (!nextNode.preNodesHasErrorOrSkipped() && !breakUp) {
+            } else if (!nextNode.preNodesHasErrorOrSkipped() && !breakUp && hasControl) {
                 ActionService actionService = nextNode.getActionService();
                 ActionResult result = actionService.prepare(session).execute();
                 actionService.updateOutput(result);
@@ -69,7 +76,9 @@ public class Accordion {
                 plan.updateGraphNodeStatus(nextNode, status);
                 if (ActionType.CONDITION.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
                     breakUp = !result.getBoolean(ConditionAction.ACTION_CONDITION_STATE);
-                    log.info("Condition action execution result: " + !breakUp);
+                }
+                if (ActionType.SWITCH.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
+                    controller = (SwitchController) result.get(SwitchAction.ACTION_SWITCH_CONTROL);
                 }
             } else {
                 plan.updateGraphNodeStatus(nextNode, GraphNodeStatus.SKIP);

@@ -11,12 +11,6 @@ import java.io.Serializable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EdgeConfig implements Serializable {
 
-    @JsonProperty("switch_condition")
-    private String switchCondition;
-
-    @JsonProperty("switch_logic")
-    private String switchLogic;
-
     @JsonProperty("previous_action")
     private String previousAction;
 
@@ -30,17 +24,6 @@ public class EdgeConfig implements Serializable {
 
     public EdgeConfig(ActionConfig previousAction, ActionConfig nextAction) {
         this(previousAction.getId(), nextAction.getId());
-    }
-
-    public EdgeConfig(String switchCondition, String switchLogic, String previousAction, String nextAction) {
-        this.switchCondition = switchCondition;
-        this.switchLogic = switchLogic;
-        this.previousAction = previousAction;
-        this.nextAction = nextAction;
-    }
-
-    public EdgeConfig(String switchCondition, String switchLogic, ActionConfig previousAction, ActionConfig nextAction) {
-        this(switchCondition, switchLogic, previousAction.getId(), nextAction.getId());
     }
 
     public EdgeConfig() {

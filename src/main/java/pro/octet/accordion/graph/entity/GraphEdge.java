@@ -9,8 +9,6 @@ import java.util.Optional;
 @Data
 public class GraphEdge {
     private String id;
-    private String name;
-    private boolean switcher;
     private GraphNode previousNode;
     private GraphNode nextNode;
 
@@ -45,8 +43,6 @@ public class GraphEdge {
     public String toString() {
         return "GraphEdge{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", switcher=" + switcher +
                 ", previousNode=" + Optional.ofNullable(previousNode).orElse(new GraphNode()).getActionId() +
                 ", nextNode=" + Optional.ofNullable(nextNode).orElse(new GraphNode()).getActionId() +
                 '}';

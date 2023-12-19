@@ -6,7 +6,6 @@ public enum ActionType {
     CONDITION,
     SWITCH,
     EMAIL,
-    SHELL,
     SCRIPT,
     TEST
 }

@@ -4,6 +4,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Feature;
 import com.googlecode.aviator.Options;
+import com.googlecode.aviator.lexer.token.OperatorType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.core.enums.ConditionOperator;
@@ -21,6 +22,8 @@ public class Condition implements Serializable {
     static {
         EVALUATOR = AviatorEvaluator.newInstance();
         EVALUATOR.setOption(Options.FEATURE_SET, Feature.asSet(Feature.Assignment, Feature.Lambda));
+        EVALUATOR.aliasOperator(OperatorType.AND, "and");
+        EVALUATOR.aliasOperator(OperatorType.OR, "or");
     }
 
     public Condition() {
