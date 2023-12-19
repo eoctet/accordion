@@ -21,7 +21,7 @@
 
 ## 使用手册
 
-- __[开发手册](https://github.com/eoctet/accordion.wiki.git)__
+- __[开发手册](https://github.com/eoctet/accordion/wiki/使用手册)__
 
 
 ## 问题反馈

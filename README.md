@@ -22,7 +22,7 @@
 
 ## Manual
 
-- __[Development manual](https://github.com/eoctet/accordion.wiki.git)__
+- __[Development manual](https://github.com/eoctet/accordion/wiki/使用手册)__
 
 
 ## Feedback
