@@ -11,6 +11,13 @@ import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.parameters.ConditionParameter;
 import pro.octet.accordion.exceptions.ActionException;
 
+/**
+ * ConditionAction is similar to the "if" in Java, used to control the execution process.
+ * When the conditional judgment is not true, the execution will be interrupted.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ * @see ConditionParameter
+ */
 @Slf4j
 public class ConditionAction extends AbstractAction {
     public static final String ACTION_CONDITION_STATE = "ACTION_CONDITION_STATE";
@@ -30,7 +37,7 @@ public class ConditionAction extends AbstractAction {
         try {
             String expression = params.getExpression();
             flag = Condition.test(getInputParameter(), expression);
-            log.info("Condition action execution result: " + flag);
+            log.debug("Condition action execution result: " + flag);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }

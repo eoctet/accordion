@@ -15,6 +15,11 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 
+/**
+ * Data type converter.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Slf4j
 public class DataTypeConvert {
     private static final String POINT = ".";
@@ -41,9 +46,7 @@ public class DataTypeConvert {
     public static <T extends Serializable> T getValue(DataType dataType, Object value) {
         Preconditions.checkNotNull(dataType, MessageFormat.format("Unsupported data type {0}", dataType));
         if (value == null || StringUtils.isBlank(String.valueOf(value))) {
-            T defaultValue = (T) dataType.getDefaultValue();
-            log.trace("Value is null, return the default value '{}'", defaultValue);
-            return defaultValue;
+            return (T) dataType.getDefaultValue();
         }
         return (T) convert(dataType.getClassType(), String.valueOf(value));
     }

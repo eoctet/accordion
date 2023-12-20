@@ -18,6 +18,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * AbstractAction.
+ * This is an abstract class, all Action's implementation classes need to inherit this class.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Slf4j
 public abstract class AbstractAction implements ActionService, Serializable {
     public static final String ACCORDION_MESSAGE = "ACCORDION_MESSAGE";
@@ -43,8 +49,8 @@ public abstract class AbstractAction implements ActionService, Serializable {
             inputParameter.putAll(message);
         }
         if (session.containsKey(PREV_ACTION_OUTPUT)) {
-            List<OutputParameter> prevComponentOutput = (List<OutputParameter>) session.get(PREV_ACTION_OUTPUT);
-            prevComponentOutput.forEach(param -> inputParameter.put(param.getName(), param.getValue()));
+            List<OutputParameter> prevActionOutput = (List<OutputParameter>) session.get(PREV_ACTION_OUTPUT);
+            prevActionOutput.forEach(param -> inputParameter.put(param.getName(), param.getValue()));
         }
         return this;
     }

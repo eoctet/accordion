@@ -13,6 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 
+/**
+ * Action Config model.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Getter
 @Builder
 @ToString

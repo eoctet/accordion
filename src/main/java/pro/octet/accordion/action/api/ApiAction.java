@@ -30,7 +30,13 @@ import java.util.concurrent.TimeUnit;
 import static pro.octet.accordion.core.enums.DataFormatType.JSON;
 import static pro.octet.accordion.core.enums.DataFormatType.XML;
 
-
+/**
+ * ApiAction Supports calling third-party Restful APIs.
+ * supports requests and responses in JSON and XML data formats, and also supports the use of proxy services.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ * @see ApiParameter
+ */
 @Slf4j
 public class ApiAction extends AbstractAction {
 
@@ -44,10 +50,11 @@ public class ApiAction extends AbstractAction {
         if (HttpMethod.GET != params.getMethod()) {
             Preconditions.checkArgument(StringUtils.isNotBlank(params.getBody()), "Request body cannot be empty.");
         }
-
+        log.debug("Create API action, parameters: {}.", JsonUtils.toJson(params));
         Proxy proxyServer = null;
         if (StringUtils.isNotBlank(params.getProxyServerAddress()) && params.getProxyServerPort() != -1) {
             proxyServer = new Proxy(params.getProxyType(), new InetSocketAddress(params.getProxyServerAddress(), params.getProxyServerPort()));
+            log.debug("Enable proxy service support, proxy server address: {}.", StringUtils.join(params.getProxyServerAddress(), ":", params.getProxyServerPort()));
         }
         this.client = new OkHttpClient().newBuilder()
                 .proxy(proxyServer)
@@ -87,6 +94,7 @@ public class ApiAction extends AbstractAction {
         if (!params.getRequest().isEmpty()) {
             params.getRequest().forEach((key, value) -> urlBuilder.addQueryParameter(key, StringSubstitutor.replace(value, inputParameter)));
         }
+        HttpUrl httpUrl = urlBuilder.build();
         //Set request body
         RequestBody body = null;
         if (StringUtils.isNotBlank(params.getBody())) {
@@ -94,6 +102,7 @@ public class ApiAction extends AbstractAction {
             String bodyStr = StringSubstitutor.replace(params.getBody(), inputParameter);
             body = RequestBody.create(bodyStr, mediaType);
         }
+        log.debug("Request url: {}, request headers: {}, request body: {}.", httpUrl.url(), headersMaps, body);
         Request request = new Request.Builder()
                 .url(urlBuilder.build())
                 .headers(headers)

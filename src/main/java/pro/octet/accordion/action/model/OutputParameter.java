@@ -5,7 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import pro.octet.accordion.core.enums.DataType;
 
-
+/**
+ * Action output parameter model
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OutputParameter {

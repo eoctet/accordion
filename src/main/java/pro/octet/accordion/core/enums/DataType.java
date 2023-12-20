@@ -7,9 +7,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
+/**
+ * Data type define.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 public enum DataType {
 
     /**
@@ -35,7 +39,7 @@ public enum DataType {
     /**
      * DATETIME java data type
      */
-    DATETIME(new Date()),
+    DATETIME(StringUtils.EMPTY),
     /**
      * BOOLEAN java data type
      */

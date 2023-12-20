@@ -11,6 +11,13 @@ import pro.octet.accordion.exceptions.ActionException;
 import pro.octet.accordion.graph.entity.SwitchController;
 import pro.octet.accordion.utils.CommonUtils;
 
+/**
+ * SwitchAction is a combination of multiple sets of conditions used to control multiple different execution chains,
+ * suitable for execution scenarios of multiple independent tasks.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ * @see SwitchParameter
+ */
 public class SwitchAction extends AbstractAction {
     public static final String ACTION_SWITCH_CONTROL = "ACTION_SWITCH_CONTROL";
     private final SwitchParameter params;

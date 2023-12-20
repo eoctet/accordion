@@ -3,6 +3,11 @@ package pro.octet.accordion.core.enums;
 
 import lombok.Getter;
 
+/**
+ * Condition operator define.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Getter
 public enum ConditionOperator {
     EQUALS("=="),

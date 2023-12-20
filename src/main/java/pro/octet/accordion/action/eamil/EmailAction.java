@@ -19,6 +19,13 @@ import pro.octet.accordion.utils.CommonUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+/**
+ * EmailAction Supports sending emails to multiple email addresses.
+ * By default, the content format of the email is in HTML format, and email attachments are not currently supported.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ * @see EmailParameter
+ */
 @Slf4j
 public class EmailAction extends AbstractAction {
 

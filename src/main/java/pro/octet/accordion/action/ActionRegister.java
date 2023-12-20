@@ -14,6 +14,11 @@ import pro.octet.accordion.exceptions.ActionException;
 
 import java.util.Map;
 
+/**
+ * Action register, Manage and register all actions.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 public class ActionRegister {
 
     private static volatile ActionRegister register;
@@ -42,14 +47,38 @@ public class ActionRegister {
         return register;
     }
 
+
+    /**
+     * Check if the action type is registered.
+     *
+     * @param actionType Action type
+     * @return true if registered, false otherwise.
+     * @see ActionType
+     */
     public boolean isRegistered(String actionType) {
         return ACTION_MAPPING.containsKey(actionType);
     }
 
+    /**
+     * Register action.
+     *
+     * @param actionType Action type
+     * @param className  Action class name
+     * @return Returns true if the registration is successful, otherwise false.
+     * @see ActionType
+     */
     public boolean register(ActionType actionType, String className) {
         return register(actionType.name(), className);
     }
 
+    /**
+     * Register action.
+     *
+     * @param actionType Action type
+     * @param className  Action class name
+     * @return Returns true if the registration is successful, otherwise false.
+     * @see ActionType
+     */
     public boolean register(String actionType, String className) {
         if (isRegistered(actionType)) {
             return false;
@@ -58,6 +87,27 @@ public class ActionRegister {
         return true;
     }
 
+    /**
+     * Remove a registered action
+     *
+     * @param actionType Action type
+     * @return Returns true on success, otherwise false.
+     */
+    public boolean unregister(String actionType) {
+        if (!isRegistered(actionType)) {
+            return false;
+        }
+        ACTION_MAPPING.remove(actionType);
+        return true;
+    }
+
+    /**
+     * Build action service.
+     *
+     * @param actionConfig Action config
+     * @return Action service
+     * @throws ActionException If the corresponding action type cannot be found, throw an exception
+     */
     public ActionService build(ActionConfig actionConfig) {
         String className = ACTION_MAPPING.get(actionConfig.getActionType());
         if (className == null) {
