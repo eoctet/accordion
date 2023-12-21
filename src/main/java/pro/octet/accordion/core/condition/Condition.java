@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
  * The first is to write the expression directly, and the second is to create it using Condition.
  * <p><p>
  * example 1:
- * <code>Condition condition = new Condition("vars", ConditionOperator.GREATER_THAN, 10).or("vars", ConditionOperator.LESS_THAN, 99);</code>
+ * <code>Condition condition = new Condition("vars", ConditionOperator.GREATER_THAN, 10).and("vars", ConditionOperator.LESS_THAN, 99);</code>
  * <p><p>
  * example 2:
- * <code>(vars > 10) or (vars < 99)</code>
+ * <code>(vars > 10) and (vars < 99)</code>
  *
  * @author <a href="https://github.com/eoctet">William</a>
  */
