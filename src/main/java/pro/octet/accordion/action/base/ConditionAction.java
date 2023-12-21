@@ -5,10 +5,10 @@ import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import pro.octet.accordion.action.AbstractAction;
-import pro.octet.accordion.action.Condition;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.parameters.ConditionParameter;
+import pro.octet.accordion.core.condition.ConditionBuilder;
 import pro.octet.accordion.exceptions.ActionException;
 
 /**
@@ -36,7 +36,7 @@ public class ConditionAction extends AbstractAction {
 
         try {
             String expression = params.getExpression();
-            flag = Condition.test(getInputParameter(), expression);
+            flag = ConditionBuilder.getInstance().test(getInputParameter(), expression);
             log.debug("Condition action execution result: " + flag);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));

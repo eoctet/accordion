@@ -1,6 +1,7 @@
 package pro.octet.accordion.core.entity;
 
 
+import com.google.common.collect.Maps;
 import pro.octet.accordion.core.enums.DataType;
 import pro.octet.accordion.core.handler.DataTypeConvert;
 import pro.octet.accordion.utils.JsonUtils;
@@ -10,6 +11,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable {
@@ -48,5 +50,9 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
 
     public <E> LinkedList<E> getList(String key, @Nullable Class<E> clazz) {
         return JsonUtils.parseJsonToList(String.valueOf(this.get(key)), clazz);
+    }
+
+    public Map<K, V> toMap() {
+        return Maps.newHashMap(this);
     }
 }

@@ -3,10 +3,11 @@ package pro.octet.accordion.action.base;
 
 import com.google.common.base.Preconditions;
 import pro.octet.accordion.action.AbstractAction;
-import pro.octet.accordion.action.Condition;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.parameters.SwitchParameter;
+import pro.octet.accordion.core.condition.Condition;
+import pro.octet.accordion.core.condition.ConditionBuilder;
 import pro.octet.accordion.exceptions.ActionException;
 import pro.octet.accordion.graph.entity.SwitchController;
 import pro.octet.accordion.utils.CommonUtils;
@@ -34,8 +35,8 @@ public class SwitchAction extends AbstractAction {
         SwitchController controller = new SwitchController();
         try {
             for (SwitchParameter.Branch branch : params.getBranches()) {
-                String expression = branch.getCondition().getExpression();
-                boolean flag = branch.isNegation() != Condition.test(getInputParameter(), expression);
+                Condition condition = branch.getCondition();
+                boolean flag = branch.isNegation() != ConditionBuilder.getInstance().test(getInputParameter(), condition);
                 controller.put(branch.getActionId(), flag);
             }
         } catch (Exception e) {

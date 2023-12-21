@@ -27,4 +27,8 @@ public enum ConditionOperator {
         this.operator = operator;
     }
 
+    public static boolean isLogicalOperator(ConditionOperator operator) {
+        return !(operator == AND || operator == OR);
+    }
+
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
-import pro.octet.accordion.action.Condition;
+import pro.octet.accordion.core.condition.Condition;
 
 import java.util.Arrays;
 import java.util.List;
