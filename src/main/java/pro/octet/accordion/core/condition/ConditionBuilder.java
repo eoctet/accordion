@@ -9,6 +9,7 @@ import com.googlecode.aviator.lexer.token.OperatorType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class ConditionBuilder {
     static {
         EVALUATOR = AviatorEvaluator.newInstance();
         EVALUATOR.setOption(Options.FEATURE_SET, Feature.asSet(Feature.Assignment, Feature.Lambda));
+        EVALUATOR.setOption(Options.SERIALIZABLE, true);
         EVALUATOR.aliasOperator(OperatorType.AND, "and");
         EVALUATOR.aliasOperator(OperatorType.OR, "or");
     }
@@ -38,30 +40,45 @@ public class ConditionBuilder {
         return builder;
     }
 
-    public boolean test(Map<String, Object> params, String expression) {
+    public boolean test(Map<String, Object> params, String expression, boolean debug) {
         Preconditions.checkNotNull(params, "Condition parameters cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(expression), "Expression cannot be empty.");
+        EVALUATOR.setOption(Options.TRACE_EVAL, debug);
         Object result = EVALUATOR.compile(expression, true).execute(params);
         return (boolean) Optional.of(result).orElse(false);
     }
 
-    public boolean test(Map<String, Object> params, Condition condition) {
+    public boolean test(Map<String, Object> params, Condition condition, boolean debug) {
         String expression = build(condition);
-        return test(params, expression);
+        return test(params, expression, debug);
     }
 
-    public String build(Condition condition) {
-        Preconditions.checkNotNull(condition, "Condition cannot be null.");
+    public boolean test(Map<String, Object> params, String expression) {
+        return test(params, expression, false);
+    }
 
+    public boolean test(Map<String, Object> params, Condition condition) {
+        return test(params, condition, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String build(List<Condition.ExpressionGroup> expressionGroups) {
         StringBuilder snippet = new StringBuilder();
-        for (int i = 0; i < condition.getExpressionGroups().size(); i++) {
-            Condition.ExpressionGroup group = condition.getExpressionGroups().get(i);
+        for (int i = 0; i < expressionGroups.size(); i++) {
+            Condition.ExpressionGroup group = expressionGroups.get(i);
             if (i > 0) {
-                snippet.append(StringUtils.SPACE).append(group.getJoin().getOperator()).append(StringUtils.SPACE);
+                snippet.append(StringUtils.SPACE).append(group.getType().name().toLowerCase()).append(StringUtils.SPACE);
             }
-            String expression = group.toExpression();
+            String expression = "";
+            if (group.isExpressionGroup()) {
+                expression = build((List<Condition.ExpressionGroup>) group.getExpression());
+            }
+            if (group.isExpression()) {
+                Condition.Expression expr = (Condition.Expression) group.getExpression();
+                expression = expr.toExpression();
+            }
             String flag = Optional.ofNullable(group.getNegation()).orElse(true) ? "" : "!";
-            if (StringUtils.countMatches(expression, "(") > 1 && condition.getExpressionGroups().size() > 1) {
+            if (StringUtils.countMatches(expression, "(") > 1) {
                 expression = StringUtils.join(flag, "(", expression, ")");
             } else {
                 expression = StringUtils.join(flag, expression);
@@ -69,6 +86,11 @@ public class ConditionBuilder {
             snippet.append(expression);
         }
         return snippet.toString();
+    }
+
+    public String build(Condition condition) {
+        Preconditions.checkNotNull(condition, "Condition cannot be null.");
+        return build(condition.getExpressionGroups());
     }
 
 }

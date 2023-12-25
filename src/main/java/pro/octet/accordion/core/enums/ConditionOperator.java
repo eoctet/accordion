@@ -17,18 +17,12 @@ public enum ConditionOperator {
     LESS_THAN("<"),
     LESS_THAN_OR_EQUALS("<="),
     CONTAINS("contains"),
-    NOT_CONTAINS("!contains"),
-    AND("and"),
-    OR("or");
+    NOT_CONTAINS("!contains");
 
     private final String operator;
 
     ConditionOperator(String operator) {
         this.operator = operator;
-    }
-
-    public static boolean isLogicalOperator(ConditionOperator operator) {
-        return !(operator == AND || operator == OR);
     }
 
 }

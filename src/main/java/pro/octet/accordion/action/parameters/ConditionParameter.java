@@ -19,4 +19,5 @@ public class ConditionParameter {
      * Condition expression. For example: Arg == 100.
      */
     private String expression;
+    private boolean debug;
 }

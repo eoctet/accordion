@@ -36,7 +36,7 @@ public class ConditionAction extends AbstractAction {
 
         try {
             String expression = params.getExpression();
-            flag = ConditionBuilder.getInstance().test(getInputParameter(), expression);
+            flag = ConditionBuilder.getInstance().test(getInputParameter(), expression, params.isDebug());
             log.debug("Condition action execution result: " + flag);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));

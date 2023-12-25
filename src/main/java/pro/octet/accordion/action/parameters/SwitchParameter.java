@@ -27,6 +27,8 @@ public class SwitchParameter {
     @Builder.Default
     private List<Branch> branches = Lists.newArrayList();
 
+    private boolean debug;
+
     /**
      * Add a branch to the switch.
      *

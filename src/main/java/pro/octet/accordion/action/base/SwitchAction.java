@@ -36,7 +36,7 @@ public class SwitchAction extends AbstractAction {
         try {
             for (SwitchParameter.Branch branch : params.getBranches()) {
                 Condition condition = branch.getCondition();
-                boolean flag = branch.isNegation() != ConditionBuilder.getInstance().test(getInputParameter(), condition);
+                boolean flag = branch.isNegation() != ConditionBuilder.getInstance().test(getInputParameter(), condition, params.isDebug());
                 controller.put(branch.getActionId(), flag);
             }
         } catch (Exception e) {
