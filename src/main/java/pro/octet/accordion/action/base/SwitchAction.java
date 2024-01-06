@@ -6,10 +6,9 @@ import pro.octet.accordion.action.AbstractAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.model.ActionResult;
 import pro.octet.accordion.action.parameters.SwitchParameter;
-import pro.octet.accordion.core.condition.Condition;
 import pro.octet.accordion.core.condition.ConditionBuilder;
 import pro.octet.accordion.exceptions.ActionException;
-import pro.octet.accordion.graph.entity.SwitchController;
+import pro.octet.accordion.graph.entity.SwitchFilter;
 import pro.octet.accordion.utils.CommonUtils;
 
 /**
@@ -32,11 +31,10 @@ public class SwitchAction extends AbstractAction {
     @Override
     public ActionResult execute() throws ActionException {
         ActionResult actionResult = new ActionResult();
-        SwitchController controller = new SwitchController();
+        SwitchFilter controller = new SwitchFilter();
         try {
             for (SwitchParameter.Branch branch : params.getBranches()) {
-                Condition condition = branch.getCondition();
-                boolean flag = branch.isNegation() != ConditionBuilder.getInstance().test(getInputParameter(), condition, params.isDebug());
+                boolean flag = branch.isNegation() != ConditionBuilder.getInstance().test(getInputParameter(), branch.getExpression(), params.isDebug());
                 controller.put(branch.getActionId(), flag);
             }
         } catch (Exception e) {

@@ -12,8 +12,8 @@ public class ConditionExamples {
 
     public static void main(String[] args) {
         //create a condition
-        Condition condition = new Condition("vars", ConditionOperator.GREATER_THAN, 10)
-                .and("vars", ConditionOperator.LESS_THAN, 99);
+        Condition condition = new Condition("vars", ConditionOperator.GT, 10)
+                .and("vars", ConditionOperator.LT, 99);
 
         //set the condition params
         Map<String, Object> params = Maps.newLinkedHashMap();

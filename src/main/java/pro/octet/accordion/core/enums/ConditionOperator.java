@@ -10,14 +10,14 @@ import lombok.Getter;
  */
 @Getter
 public enum ConditionOperator {
-    EQUALS("=="),
-    NOT_EQUALS("!="),
-    GREATER_THAN(">"),
-    GREATER_THAN_OR_EQUALS(">="),
-    LESS_THAN("<"),
-    LESS_THAN_OR_EQUALS("<="),
-    CONTAINS("contains"),
-    NOT_CONTAINS("!contains");
+    EQ("=="),
+    NEQ("!="),
+    GT(">"),
+    GE(">="),
+    LT("<"),
+    LE("<="),
+    IN("contains"),
+    NOT_IN("!contains");
 
     private final String operator;
 

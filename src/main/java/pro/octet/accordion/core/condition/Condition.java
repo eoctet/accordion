@@ -1,6 +1,10 @@
 package pro.octet.accordion.core.condition;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,6 +12,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringSubstitutor;
 import pro.octet.accordion.core.enums.ConditionOperator;
+import pro.octet.accordion.utils.JsonUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -29,6 +34,7 @@ import java.util.Map;
 @Slf4j
 public class Condition implements Serializable {
 
+    @JsonProperty("expressions")
     private final List<ExpressionGroup> expressionGroups;
 
     public Condition() {
@@ -98,27 +104,39 @@ public class Condition implements Serializable {
     }
 
     @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class ExpressionGroup implements Serializable {
         private final ConditionType type;
         private final Object expression;
         private final Boolean negation;
 
-        public ExpressionGroup(ConditionType type, Object expression, Boolean negation) {
+        @JsonCreator
+        public ExpressionGroup(@JsonProperty("type") ConditionType type, @JsonProperty("expression") Object expression, @JsonProperty("negation") Boolean negation) {
             this.type = type;
-            this.expression = expression;
             this.negation = negation;
+
+            if (expression instanceof Map) {
+                this.expression = JsonUtils.parseToObject(JsonUtils.toJson(expression), Expression.class);
+            } else if (expression instanceof List) {
+                this.expression = JsonUtils.parseJsonToList(JsonUtils.toJson(expression), ExpressionGroup.class);
+            } else {
+                this.expression = expression;
+            }
         }
 
+        @JsonIgnore
         public boolean isExpressionGroup() {
             return expression instanceof List;
         }
 
+        @JsonIgnore
         public boolean isExpression() {
             return expression instanceof Expression;
         }
     }
 
     @Getter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class Expression implements Serializable {
         private static final String EXPRESSION_TEMP = "{negation}({param} {operator} {value})";
 
@@ -127,7 +145,8 @@ public class Condition implements Serializable {
         private final Object value;
         private final Boolean negation;
 
-        public Expression(Object parameter, ConditionOperator operator, Object value, boolean negation) {
+        @JsonCreator
+        public Expression(@JsonProperty("parameter") Object parameter, @JsonProperty("operator") ConditionOperator operator, @JsonProperty("value") Object value, @JsonProperty("negation") boolean negation) {
             this.parameter = parameter;
             this.operator = operator;
             this.value = value;

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import pro.octet.accordion.action.ActionRegister;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.core.enums.GraphNodeStatus;
+import pro.octet.accordion.exceptions.AccordionException;
 import pro.octet.accordion.graph.entity.GraphEdge;
 import pro.octet.accordion.graph.entity.GraphNode;
 import pro.octet.accordion.graph.model.AccordionConfig;
@@ -17,6 +18,8 @@ import pro.octet.accordion.utils.JsonUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -52,6 +55,12 @@ public class AccordionPlan {
         return graphNodes.stream().filter(node -> node.getActionId().equals(actionId)).findFirst().orElse(null);
     }
 
+    private GraphNode findRootGraphNode() {
+        Set<GraphNode> nextGraphNodes = graphEdges.stream().map(GraphEdge::getNextNode).collect(Collectors.toSet());
+        return graphNodes.stream().filter(node -> !nextGraphNodes.contains(node)).findFirst()
+                .orElseThrow(() -> new AccordionException("No starting action found."));
+    }
+
     public AccordionPlan start(ActionConfig actionConfig) {
         if (!graphNodes.isEmpty()) {
             throw new IllegalArgumentException("Not allowed to add because the list is not empty.");
@@ -76,9 +85,8 @@ public class AccordionPlan {
             graphNodes.add(nextNode);
         }
         GraphEdge edge = new GraphEdge(previousNode, nextNode);
-        previousNode.addEdge(edge);
-        nextNode.addEdge(edge);
         graphEdges.add(edge);
+        previousNode.addEdge(edge);
         return this;
     }
 
@@ -90,9 +98,21 @@ public class AccordionPlan {
     }
 
     public void reset() {
-        graphNodes.clear();
-        graphEdges.clear();
-        rootGraphNode = null;
+        graphNodes.forEach(GraphNode::reset);
+    }
+
+    protected boolean prevGraphNodesFinished(GraphNode graphNode) {
+        if (graphNode.equals(rootGraphNode)) {
+            return true;
+        }
+        for (GraphEdge edge : graphEdges) {
+            GraphNode previousNode = edge.getPreviousNode();
+            GraphNode nextNode = edge.getNextNode();
+            if (nextNode.equals(graphNode) && previousNode.getStatus() != GraphNodeStatus.SUCCESS) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
@@ -100,6 +120,9 @@ public class AccordionPlan {
     }
 
     protected GraphNode getRootGraphNode() {
+        if (rootGraphNode == null) {
+            rootGraphNode = findRootGraphNode();
+        }
         return rootGraphNode;
     }
 
@@ -108,6 +131,7 @@ public class AccordionPlan {
             AccordionGraphConfig graphConfig = new AccordionGraphConfig(Lists.newArrayList(), Lists.newArrayList());
             graphNodes.stream().map(graphNode -> graphNode.getActionService().getConfig()).forEach(graphConfig::addAction);
             graphEdges.stream().map(graphEdge -> new EdgeConfig(graphEdge.getPreviousNode().getActionId(), graphEdge.getNextNode().getActionId())).forEach(graphConfig::addEdge);
+            findRootGraphNode();
             AccordionConfig config = new AccordionConfig(
                     CommonUtils.randomString("ACR").toUpperCase(),
                     "Default accordion name",
@@ -126,19 +150,21 @@ public class AccordionPlan {
 
     public void fromAccordionConfig(AccordionConfig accordionConfig) {
         this.accordionConfig = accordionConfig;
-        reset();
+        this.graphNodes.clear();
+        this.graphEdges.clear();
+        this.rootGraphNode = null;
+
         AccordionGraphConfig graphConfig = accordionConfig.getGraphConfig();
         List<ActionConfig> actionConfigs = graphConfig.getActions();
 
         String message = "Unable to find the action config, please check your parameter.";
         for (EdgeConfig edgeConfig : graphConfig.getEdges()) {
             ActionConfig previousAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getPreviousAction()))
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException(message));
+                    .findFirst().orElseThrow(() -> new AccordionException(message));
             ActionConfig nextAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getNextAction()))
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException(message));
+                    .findFirst().orElseThrow(() -> new AccordionException(message));
             next(previousAction, nextAction);
         }
-        rootGraphNode = graphNodes.stream().filter(graphNode -> graphNode.getLeftEdges().isEmpty()).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(message));
+        this.rootGraphNode = findRootGraphNode();
     }
 }

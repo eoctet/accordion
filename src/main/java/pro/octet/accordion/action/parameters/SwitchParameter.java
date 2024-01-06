@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
-import pro.octet.accordion.core.condition.Condition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,11 +66,9 @@ public class SwitchParameter {
          */
         private String actionId;
         /**
-         * Branch condition.
-         *
-         * @see Condition
+         * Branch Condition expression. For example: Arg == 100.
          */
-        private Condition condition;
+        private String expression;
         /**
          * Reverse branch condition boolean, such as: !true or !false.
          */
