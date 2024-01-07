@@ -1,4 +1,4 @@
-package pro.octet.accordion.action.eamil;
+package pro.octet.accordion.action.email;
 
 
 import com.google.common.base.Preconditions;

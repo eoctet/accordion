@@ -6,7 +6,7 @@ import pro.octet.accordion.action.api.ApiAction;
 import pro.octet.accordion.action.base.ConditionAction;
 import pro.octet.accordion.action.base.SwitchAction;
 import pro.octet.accordion.action.base.TestAction;
-import pro.octet.accordion.action.eamil.EmailAction;
+import pro.octet.accordion.action.email.EmailAction;
 import pro.octet.accordion.action.model.ActionConfig;
 import pro.octet.accordion.action.script.ScriptAction;
 import pro.octet.accordion.core.enums.ActionType;
