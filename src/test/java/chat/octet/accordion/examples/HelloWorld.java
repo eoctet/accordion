@@ -14,14 +14,14 @@ public class HelloWorld {
         ActionConfig myAction = ActionConfig.builder()
                 .id(CommonUtils.randomString("ACT").toUpperCase())
                 .actionType(ActionType.SCRIPT.name())
-                .actionName("My Action")
+                .actionName("My action")
                 .actionDesc("My first action example")
-                .actionParams(ScriptParameter.builder().script("1+1").build())
+                .actionParams(ScriptParameter.builder().script("println('Hello world')").build())
                 .build();
 
         AccordionPlan plan = AccordionPlan.of().start(myAction);
         Accordion accordion = new Accordion(plan);
-        accordion.play();
+        accordion.play(true);
         System.out.println("Accordion plan:\n" + accordion.verbose());
     }
 }
