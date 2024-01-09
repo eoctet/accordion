@@ -23,6 +23,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Specify an accordion plan to be executed using the accordion.
+ *
+ * @author <a href="https://github.com/eoctet">William</a>
+ */
 @Slf4j
 public class Accordion {
     private final Session session;
@@ -40,18 +45,37 @@ public class Accordion {
         this.switchFilter = new SwitchFilter();
     }
 
+    /**
+     * Play the accordion plan.
+     */
     public void play() {
         play(null, false);
     }
 
+    /**
+     * Play the accordion plan.
+     *
+     * @param verbose Print the execution result.
+     */
     public void play(boolean verbose) {
         play(null, verbose);
     }
 
+    /**
+     * Play the accordion plan.
+     *
+     * @param message The message to be passed to the accordion.
+     */
     public void play(Message message) {
         play(message, false);
     }
 
+    /**
+     * Play the accordion plan.
+     *
+     * @param message The message to be passed to the accordion.
+     * @param verbose Print the execution result.
+     */
     public void play(@Nullable Message message, boolean verbose) {
         if (executeGraphView.length() > 0) {
             log.debug("Reset the execution status of the accordion.");

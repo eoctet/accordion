@@ -47,4 +47,8 @@ public class ExecuteResult {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return result.toString();
+    }
 }
