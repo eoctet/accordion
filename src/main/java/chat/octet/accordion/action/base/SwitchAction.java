@@ -3,7 +3,7 @@ package chat.octet.accordion.action.base;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.parameters.SwitchParameter;
 import chat.octet.accordion.core.condition.ConditionBuilder;
 import chat.octet.accordion.exceptions.ActionException;
@@ -31,8 +31,8 @@ public class SwitchAction extends AbstractAction {
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         SwitchFilter controller = new SwitchFilter();
         try {
             for (SwitchParameter.Branch branch : params.getBranches()) {
@@ -43,7 +43,7 @@ public class SwitchAction extends AbstractAction {
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        actionResult.put(ACTION_SWITCH_CONTROL, controller);
-        return actionResult;
+        executeResult.add(ACTION_SWITCH_CONTROL, controller);
+        return executeResult;
     }
 }

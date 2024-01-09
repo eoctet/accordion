@@ -3,7 +3,7 @@ package chat.octet.accordion.action.base;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.model.OutputParameter;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
@@ -33,17 +33,17 @@ public class TestAction extends AbstractAction {
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         try {
             List<OutputParameter> outputParameter = getActionOutput();
             if (!CommonUtils.isEmpty(outputParameter)) {
-                findOutputParameters(outputParameter, Maps.newLinkedHashMap(getInputParameter()), actionResult);
+                findOutputParameters(outputParameter, Maps.newLinkedHashMap(getInputParameter()), executeResult);
             }
-            log.info("Current execute action: {}, action input parameters: {}, action result: {}.", name, getInputParameter(), actionResult);
+            log.info("Current execute action: {}, action input parameters: {}, action result: {}.", name, getInputParameter(), executeResult);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        return actionResult;
+        return executeResult;
     }
 }

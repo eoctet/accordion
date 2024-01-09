@@ -3,19 +3,21 @@ package chat.octet.accordion.action.script;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.model.OutputParameter;
 import chat.octet.accordion.action.parameters.ScriptParameter;
 import chat.octet.accordion.core.enums.DataType;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.googlecode.aviator.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class ScriptAction extends AbstractAction {
@@ -37,26 +39,27 @@ public class ScriptAction extends AbstractAction {
         evaluator.disableFeature(Feature.InternalVars);
         evaluator.setOption(Options.TRACE_EVAL, params.isDebug());
         //if no output parameters are set, the default value is used
-        List<OutputParameter> outputConfig = getActionOutput();
+        List<OutputParameter> outputConfig = Optional.ofNullable(actionConfig.getActionOutput()).orElse(Lists.newArrayList());
         if (CommonUtils.isEmpty(outputConfig)) {
-            outputConfig.add(new OutputParameter(ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result"));
+            outputConfig.add(new OutputParameter(ScriptAction.ACTION_SCRIPT_RESULT, DataType.STRING, "Script default result"));
+            actionConfig.setActionOutput(outputConfig);
         }
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         try {
             Expression exp = evaluator.compile(params.getScriptId(), params.getScript(), true);
             Object result = exp.execute(getInputParameter());
             if (result != null) {
                 OutputParameter outputParameter = getActionOutput().stream().findFirst().get();
-                actionResult.put(outputParameter.getName(), result);
+                executeResult.add(outputParameter.getName(), result);
             }
             log.debug("Script action execution result: " + result);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        return actionResult;
+        return executeResult;
     }
 }

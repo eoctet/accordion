@@ -75,10 +75,12 @@ public class ApiParameter {
     /**
      * Proxy type: DIRECT/HTTP/SOCKS.
      */
+    @Nullable
     private Proxy.Type proxyType;
     /**
      * Proxy server address.
      */
+    @Nullable
     private String proxyServerAddress;
     /**
      * Proxy server port.

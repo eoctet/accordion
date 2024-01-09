@@ -16,12 +16,12 @@ public class HelloWorld {
                 .actionType(ActionType.SCRIPT.name())
                 .actionName("My Action")
                 .actionDesc("My first action example")
-                .actionParams(ScriptParameter.builder().script("println('Hello world')").build())
+                .actionParams(ScriptParameter.builder().script("1+1").build())
                 .build();
 
         AccordionPlan plan = AccordionPlan.of().start(myAction);
-        Accordion accordion = new Accordion();
-        accordion.play(plan);
+        Accordion accordion = new Accordion(plan);
+        accordion.play();
         System.out.println("Accordion plan:\n" + accordion.verbose());
     }
 }

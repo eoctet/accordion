@@ -55,4 +55,10 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
     public Map<K, V> toMap() {
         return Maps.newHashMap(this);
     }
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJson(this);
+    }
+
 }

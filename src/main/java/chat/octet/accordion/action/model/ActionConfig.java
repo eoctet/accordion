@@ -3,9 +3,9 @@ package chat.octet.accordion.action.model;
 import chat.octet.accordion.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 
@@ -41,8 +41,8 @@ public class ActionConfig {
     private Object actionParams;
 
     @JsonProperty("action_output")
-    @Builder.Default
-    private List<OutputParameter> actionOutput = Lists.newArrayList();
+    @Setter
+    private List<OutputParameter> actionOutput;
 
     public <T> T getActionParams(Class<T> clazz) {
         if (actionParams instanceof LinkedHashMap) {

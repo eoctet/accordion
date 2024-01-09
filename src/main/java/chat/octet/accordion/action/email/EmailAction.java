@@ -3,7 +3,7 @@ package chat.octet.accordion.action.email;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.parameters.EmailParameter;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
@@ -80,8 +80,8 @@ public class EmailAction extends AbstractAction {
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         try {
             String content = StringSubstitutor.replace(params.getContent(), getInputParameter());
             String status = send(params, content);
@@ -89,6 +89,6 @@ public class EmailAction extends AbstractAction {
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        return actionResult;
+        return executeResult;
     }
 }

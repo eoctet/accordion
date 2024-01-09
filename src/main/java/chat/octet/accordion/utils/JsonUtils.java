@@ -9,11 +9,16 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.TimeZone;
 
 @Slf4j
 public class JsonUtils {
 
     private static final ObjectMapper JACKSON_MAPPER = new ObjectMapper();
+
+    static {
+        JACKSON_MAPPER.setTimeZone(TimeZone.getDefault());
+    }
 
     private JsonUtils() {
     }

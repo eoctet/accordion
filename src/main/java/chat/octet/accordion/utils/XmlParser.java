@@ -14,6 +14,9 @@ import java.util.LinkedHashMap;
 @Slf4j
 public class XmlParser {
 
+    private XmlParser() {
+    }
+
     public static LinkedHashMap<String, Object> parseXmlToMap(String xmlContent) {
         LinkedHashMap<String, Object> maps = Maps.newLinkedHashMap();
         try (StringReader stringReader = new StringReader(xmlContent)) {

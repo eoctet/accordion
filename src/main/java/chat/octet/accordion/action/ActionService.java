@@ -2,7 +2,7 @@ package chat.octet.accordion.action;
 
 
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.core.entity.Session;
 import chat.octet.accordion.exceptions.ActionException;
 
@@ -25,19 +25,19 @@ public interface ActionService {
     /**
      * Execute the action.
      *
-     * @return Action result
+     * @return Action execution result
      * @throws ActionException Possible exceptions during action execution.
      */
-    default ActionResult execute() throws ActionException {
+    default ExecuteResult execute() throws ActionException {
         throw new ActionException("Action not implemented.");
     }
 
     /**
      * Update the output parameters of the current action.
      *
-     * @param actionResult Action result
+     * @param executeResult Action execution result
      */
-    void updateOutput(ActionResult actionResult);
+    void updateOutput(ExecuteResult executeResult);
 
     /**
      * Check if there is an error during the action execution.

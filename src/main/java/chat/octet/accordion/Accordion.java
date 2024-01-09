@@ -3,9 +3,7 @@ package chat.octet.accordion;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.ActionService;
-import chat.octet.accordion.action.base.ConditionAction;
-import chat.octet.accordion.action.base.SwitchAction;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.core.entity.Message;
 import chat.octet.accordion.core.entity.Session;
 import chat.octet.accordion.core.enums.ActionType;
@@ -27,34 +25,39 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class Accordion {
-
     private final Session session;
     private final StringBuffer executeGraphView;
     private boolean verbose;
     private SwitchFilter switchFilter;
     private boolean breakUp;
-    private AccordionPlan plan;
+    private final AccordionPlan plan;
 
-    public Accordion() {
+    public Accordion(AccordionPlan accordionPlan) {
+        Preconditions.checkNotNull(accordionPlan, "Accordion plan cannot be null");
+        this.plan = accordionPlan;
         this.session = new Session();
         this.executeGraphView = new StringBuffer();
         this.switchFilter = new SwitchFilter();
     }
 
-    public void play(AccordionPlan plan) {
-        play(null, plan, false);
+    public void play() {
+        play(null, false);
     }
 
-    public void play(AccordionPlan plan, boolean verbose) {
-        play(null, plan, verbose);
+    public void play(boolean verbose) {
+        play(null, verbose);
     }
 
-    public void play(@Nullable Message message, AccordionPlan accordionPlan, boolean verbose) {
-        Preconditions.checkNotNull(accordionPlan, "Accordion plan cannot be null");
+    public void play(Message message) {
+        play(message, false);
+    }
+
+    public void play(@Nullable Message message, boolean verbose) {
+        if (executeGraphView.length() > 0) {
+            log.debug("Reset the execution status of the accordion.");
+            reset();
+        }
         this.verbose = verbose;
-        this.plan = accordionPlan;
-
-        reset();
         if (message != null) {
             this.session.put(AbstractAction.ACCORDION_MESSAGE, message);
         }
@@ -96,15 +99,15 @@ public class Accordion {
         boolean filter = Optional.ofNullable(switchFilter.get(node.getActionId())).orElse(true);
         if (!breakUp && filter && plan.prevGraphNodesFinished(node)) {
             ActionService actionService = node.getActionService();
-            ActionResult result = actionService.prepare(session).execute();
+            ExecuteResult result = actionService.prepare(session).execute();
             actionService.updateOutput(result);
             GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
             plan.updateGraphNodeStatus(node, status);
             if (ActionType.CONDITION.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
-                breakUp = !result.getBoolean(ConditionAction.ACTION_CONDITION_STATE);
+                breakUp = result.isBreak();
             }
             if (ActionType.SWITCH.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
-                switchFilter = (SwitchFilter) result.get(SwitchAction.ACTION_SWITCH_CONTROL);
+                switchFilter = result.getSwitchFilter();
             }
         } else {
             plan.updateGraphNodeStatus(node, GraphNodeStatus.SKIP);

@@ -27,7 +27,7 @@ public class AccordionConfig implements Serializable {
     private AccordionGraphConfig graphConfig;
 
     @JsonProperty("updatetime")
-    @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME, timezone = "GMT+8")
+    @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME)
     private Date updatetime;
 
     public AccordionConfig(String id, String name, String desc, AccordionGraphConfig graphConfig, Date updatetime) {

@@ -3,7 +3,7 @@ package chat.octet.accordion.action.api;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.model.InputParameter;
 import chat.octet.accordion.action.model.OutputParameter;
 import chat.octet.accordion.action.parameters.ApiParameter;
@@ -117,14 +117,14 @@ public class ApiAction extends AbstractAction {
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         try {
             String responseBody = exchange(getInputParameter());
             // System.out.println("responseBody: " + responseBody);
             if (StringUtils.isBlank(responseBody)) {
                 log.warn("Response result is empty, please check if the API is normal.");
-                return actionResult;
+                return executeResult;
             }
             LinkedHashMap<String, Object> responseMaps = null;
             switch (params.getResponseDataFormat()) {
@@ -140,12 +140,12 @@ public class ApiAction extends AbstractAction {
             }
             List<OutputParameter> outputParameter = getActionOutput();
             if (!CommonUtils.isEmpty(outputParameter)) {
-                findOutputParameters(outputParameter, responseMaps, actionResult);
+                findOutputParameters(outputParameter, responseMaps, executeResult);
             }
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        return actionResult;
+        return executeResult;
     }
 
 }

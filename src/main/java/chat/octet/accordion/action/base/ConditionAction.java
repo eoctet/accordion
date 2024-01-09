@@ -3,7 +3,7 @@ package chat.octet.accordion.action.base;
 
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.model.ActionResult;
+import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.parameters.ConditionParameter;
 import chat.octet.accordion.core.condition.ConditionBuilder;
 import chat.octet.accordion.exceptions.ActionException;
@@ -30,8 +30,8 @@ public class ConditionAction extends AbstractAction {
     }
 
     @Override
-    public ActionResult execute() throws ActionException {
-        ActionResult actionResult = new ActionResult();
+    public ExecuteResult execute() throws ActionException {
+        ExecuteResult executeResult = new ExecuteResult();
         boolean flag = false;
 
         try {
@@ -41,7 +41,7 @@ public class ConditionAction extends AbstractAction {
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
-        actionResult.put(ACTION_CONDITION_STATE, flag);
-        return actionResult;
+        executeResult.add(ACTION_CONDITION_STATE, flag);
+        return executeResult;
     }
 }

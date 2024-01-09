@@ -114,7 +114,7 @@ public class Condition implements Serializable {
         public ExpressionGroup(@JsonProperty("type") ConditionType type, @JsonProperty("expression") Object expression, @JsonProperty("negation") Boolean negation) {
             this.type = type;
             this.negation = negation;
-
+            //Special handling of type issues in JSON parsing
             if (expression instanceof Map) {
                 this.expression = JsonUtils.parseToObject(JsonUtils.toJson(expression), Expression.class);
             } else if (expression instanceof List) {
