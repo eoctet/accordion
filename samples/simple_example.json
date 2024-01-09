@@ -1,0 +1,44 @@
+{
+  "id": "ACR-MDESSISDQB",
+  "name": "Default accordion name",
+  "desc": "Default accordion desc",
+  "graph_config": {
+    "actions": [
+      {
+        "id": "ACT-BKFR133GZ0",
+        "action_type": "SCRIPT",
+        "action_name": "My action",
+        "action_desc": "My first action example",
+        "action_params": {
+          "scriptId": "script-dyk9obhc63",
+          "script": "1+1",
+          "debug": false
+        },
+        "action_output": [
+          {
+            "name": "number",
+            "datatype": "LONG",
+            "desc": "Calc result"
+          }
+        ]
+      },
+      {
+        "id": "ACT-OLH1M13ZIR",
+        "action_type": "CONDITION",
+        "action_name": "Condition action",
+        "action_desc": "Condition action example",
+        "action_params": {
+          "expression": "(number == 2)",
+          "debug": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "previous_action": "ACT-BKFR133GZ0",
+        "next_action": "ACT-OLH1M13ZIR"
+      }
+    ]
+  },
+  "updatetime": "2024-01-09 12:51:43"
+}
