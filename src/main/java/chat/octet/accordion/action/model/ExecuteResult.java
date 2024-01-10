@@ -4,8 +4,13 @@ package chat.octet.accordion.action.model;
 import chat.octet.accordion.action.base.ConditionAction;
 import chat.octet.accordion.action.base.SwitchAction;
 import chat.octet.accordion.core.entity.Tuple;
+import chat.octet.accordion.core.handler.DataTypeConvert;
 import chat.octet.accordion.graph.entity.SwitchFilter;
 import lombok.Getter;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Action execution result.
@@ -13,14 +18,14 @@ import lombok.Getter;
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @Getter
-public class ExecuteResult {
+public class ExecuteResult implements Serializable {
     private final Tuple<String, Object> result;
 
     public ExecuteResult() {
         this.result = new Tuple<>();
     }
 
-    public boolean containsKey(String key) {
+    public boolean contains(String key) {
         return this.result.containsKey(key);
     }
 
@@ -33,22 +38,51 @@ public class ExecuteResult {
         return this.result.get(key);
     }
 
+    public <T> T getValue(String key, Class<T> clazz) {
+        return clazz.cast(this.result.get(key));
+    }
+
     public boolean isBreak() {
-        if (containsKey(ConditionAction.ACTION_CONDITION_STATE)) {
+        if (contains(ConditionAction.ACTION_CONDITION_STATE)) {
             return !this.result.getBoolean(ConditionAction.ACTION_CONDITION_STATE);
         }
         return false;
     }
 
     public SwitchFilter getSwitchFilter() {
-        if (containsKey(SwitchAction.ACTION_SWITCH_CONTROL)) {
+        if (contains(SwitchAction.ACTION_SWITCH_CONTROL)) {
             return (SwitchFilter) this.result.get(SwitchAction.ACTION_SWITCH_CONTROL);
         }
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public void findAndAddParameters(List<OutputParameter> outputParameter, Map<String, Object> result) {
+        result.forEach((key, value) -> {
+            outputParameter.forEach(parameter -> {
+                if (parameter.getName().equalsIgnoreCase(key)) {
+                    this.add(parameter.getName(), DataTypeConvert.getValue(parameter.getDatatype(), value));
+                }
+            });
+            if (value instanceof Map) {
+                findAndAddParameters(outputParameter, (Map<String, Object>) value);
+            }
+            if (value instanceof List) {
+                ((List<?>) value).forEach(e -> {
+                    if (e instanceof Map) {
+                        findAndAddParameters(outputParameter, (Map<String, Object>) e);
+                    }
+                });
+            }
+        });
+    }
+
+    public void clear() {
+        this.result.clear();
+    }
+
     @Override
     public String toString() {
-        return result.toString();
+        return this.result.toString();
     }
 }

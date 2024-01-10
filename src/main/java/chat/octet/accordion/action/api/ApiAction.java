@@ -140,7 +140,7 @@ public class ApiAction extends AbstractAction {
             }
             List<OutputParameter> outputParameter = getActionOutput();
             if (!CommonUtils.isEmpty(outputParameter)) {
-                findOutputParameters(outputParameter, responseMaps, executeResult);
+                executeResult.findAndAddParameters(outputParameter, responseMaps);
             }
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));

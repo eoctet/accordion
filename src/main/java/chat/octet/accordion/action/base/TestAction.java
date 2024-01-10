@@ -8,7 +8,6 @@ import chat.octet.accordion.action.model.OutputParameter;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
 import chat.octet.accordion.utils.JsonUtils;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public class TestAction extends AbstractAction {
         try {
             List<OutputParameter> outputParameter = getActionOutput();
             if (!CommonUtils.isEmpty(outputParameter)) {
-                findOutputParameters(outputParameter, Maps.newLinkedHashMap(getInputParameter()), executeResult);
+                executeResult.findAndAddParameters(outputParameter, getInputParameter().toMap());
             }
             log.info("Current execute action: {}, action input parameters: {}, action result: {}.", name, getInputParameter(), executeResult);
         } catch (Exception e) {

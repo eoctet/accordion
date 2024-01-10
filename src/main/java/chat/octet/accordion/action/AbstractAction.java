@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -48,14 +46,18 @@ public abstract class AbstractAction implements ActionService, Serializable {
         this.executeThrowable.set(null);
         this.inputParameter.clear();
         if (session.containsKey(ACCORDION_MESSAGE)) {
-            Message message = (Message) session.get(ACCORDION_MESSAGE);
+            Message message = session.getValue(ACCORDION_MESSAGE, Message.class);
             inputParameter.putAll(message);
             log.debug("({}) -> Find the message in the action session, update them as input parameters, message: {}.", actionId, message);
         }
         if (session.containsKey(PREV_ACTION_OUTPUT)) {
-            List<OutputParameter> prevActionOutput = (List<OutputParameter>) session.get(PREV_ACTION_OUTPUT);
+            List<OutputParameter> prevActionOutput = session.getValue(PREV_ACTION_OUTPUT, List.class);
             prevActionOutput.forEach(param -> inputParameter.put(param.getName(), param.getValue()));
             log.debug("({}) -> Find the prev-action output in the action session, update them as input parameters, output: {}.", actionId, JsonUtils.toJson(prevActionOutput));
+        }
+        if (!session.getGlobal().isEmpty()) {
+            inputParameter.putAll(session.getGlobal());
+            log.debug("({}) -> Find the global parameters, update them as input parameters, global: {}.", actionId, session.getGlobal());
         }
         return this;
     }
@@ -70,14 +72,14 @@ public abstract class AbstractAction implements ActionService, Serializable {
             output.forEach(param -> {
                 String key = param.getName();
                 Object value = param.getValue();
-                if (executeResult.containsKey(key)) {
+                if (executeResult.contains(key)) {
                     value = DataTypeConvert.getValue(param.getDatatype(), executeResult.getValue(key));
                 }
                 if (value != null) {
                     result.add(new OutputParameter(param.getName(), param.getDatatype(), param.getDesc(), value));
                 }
             });
-            this.session.put(PREV_ACTION_OUTPUT, result);
+            this.session.add(PREV_ACTION_OUTPUT, result);
             log.debug("({}) -> Update output into the action session, output: {}.", actionId, JsonUtils.toJson(result));
         }
     }
@@ -109,24 +111,4 @@ public abstract class AbstractAction implements ActionService, Serializable {
         return getConfig().getActionOutput();
     }
 
-    @SuppressWarnings("unchecked")
-    protected void findOutputParameters(List<OutputParameter> outputParameter, LinkedHashMap<String, Object> responseMaps, ExecuteResult executeResult) {
-        responseMaps.forEach((key, value) -> {
-            outputParameter.forEach(parameter -> {
-                if (parameter.getName().equalsIgnoreCase(key)) {
-                    executeResult.add(parameter.getName(), DataTypeConvert.getValue(parameter.getDatatype(), value));
-                }
-            });
-            if (value instanceof LinkedHashMap) {
-                findOutputParameters(outputParameter, (LinkedHashMap<String, Object>) value, executeResult);
-            }
-            if (value instanceof ArrayList) {
-                ((ArrayList<?>) value).forEach(e -> {
-                    if (e instanceof LinkedHashMap) {
-                        findOutputParameters(outputParameter, (LinkedHashMap<String, Object>) e, executeResult);
-                    }
-                });
-            }
-        });
-    }
 }

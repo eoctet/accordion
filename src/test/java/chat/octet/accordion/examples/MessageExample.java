@@ -11,15 +11,21 @@ import chat.octet.accordion.core.entity.Message;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.core.enums.ConditionOperator;
 import chat.octet.accordion.utils.CommonUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.RandomUtils;
+
+import java.util.Map;
 
 public class MessageExample {
     public static void main(String[] args) {
+        Map<String, Object> global = Maps.newLinkedHashMap();
+        global.put("flag", true);
+
         Message message = new Message();
         message.put("num", RandomUtils.nextInt(1, 100));
         message.put("div", RandomUtils.nextFloat(0, 10));
 
-        Condition condition = new Condition("num*div", ConditionOperator.GT, 50);
+        Condition condition = new Condition("num*div", ConditionOperator.GT, 50).and("flag", ConditionOperator.EQ, true);
         ActionConfig conditionAction = ActionConfig.builder()
                 .id(CommonUtils.randomString("ACT").toUpperCase())
                 .actionType(ActionType.CONDITION.name())
@@ -32,7 +38,7 @@ public class MessageExample {
         AccordionPlan plan = AccordionPlan.of().start(conditionAction);
         //
         Accordion accordion = new Accordion(plan);
-        accordion.play(message, true);
+        accordion.play(global, message, true);
         System.out.println("Accordion plan:\n" + accordion.verbose());
     }
 }

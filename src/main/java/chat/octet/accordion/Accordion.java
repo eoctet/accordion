@@ -51,7 +51,7 @@ public class Accordion {
      * @return ExecuteResult, last execution result.
      */
     public ExecuteResult play() {
-        return play(null, false);
+        return play(false);
     }
 
     /**
@@ -61,7 +61,7 @@ public class Accordion {
      * @return ExecuteResult, last execution result.
      */
     public ExecuteResult play(boolean verbose) {
-        return play(null, verbose);
+        return play(null, null, verbose);
     }
 
     /**
@@ -71,7 +71,7 @@ public class Accordion {
      * @return ExecuteResult, last execution result.
      */
     public ExecuteResult play(Message message) {
-        return play(message, false);
+        return play(null, message, false);
     }
 
     /**
@@ -81,28 +81,46 @@ public class Accordion {
      * @param verbose Print the execution views.
      * @return ExecuteResult, last execution result.
      */
-    public ExecuteResult play(@Nullable Message message, boolean verbose) {
+    public ExecuteResult play(Message message, boolean verbose) {
+        return play(null, message, verbose);
+    }
+
+    /**
+     * Play the accordion plan.
+     *
+     * @param globalParams The global parameters to be passed to the accordion.
+     * @param message      The message to be passed to the accordion.
+     * @param verbose      Print the execution views.
+     * @return ExecuteResult, last execution result.
+     */
+    public ExecuteResult play(@Nullable Map<String, Object> globalParams, @Nullable Message message, boolean verbose) {
         if (executeGraphView.length() > 0) {
             log.debug("Reset the execution status of the accordion.");
             reset();
         }
-        this.verbose = verbose;
-        if (message != null) {
-            this.session.put(AbstractAction.ACCORDION_MESSAGE, message);
+        if (globalParams != null && !globalParams.isEmpty()) {
+            globalParams.forEach((key, value) -> this.session.add(key, value, true));
         }
+        if (message != null) {
+            this.session.add(AbstractAction.ACCORDION_MESSAGE, message);
+        }
+        this.verbose = verbose;
 
         GraphNode node = plan.getRootGraphNode();
         Preconditions.checkNotNull(node, "Root graph node cannot be null.");
         Queue<GraphNode> queue = Lists.newLinkedList();
 
         int level = 0;
+        long start;
         ExecuteResult lastResult;
         List<GraphView> executedGraphViews = Lists.newArrayList(new GraphView(node, level, false));
 
         try {
             do {
                 //execute action service
+                start = System.currentTimeMillis();
                 lastResult = execute(node);
+                log.debug("({}) -> Action execution time: {} ms.", node.getActionId(), System.currentTimeMillis() - start);
                 //get next actions
                 Set<GraphEdge> edges = node.getEdges();
                 level += edges.isEmpty() ? 0 : 1;
