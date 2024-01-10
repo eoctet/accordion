@@ -74,9 +74,10 @@ Accordion plan:
 > 更多示例: `chat.octet.accordion.examples.*`
 
 
-## 使用手册
+## 开发文档
 
-- __[开发手册](https://github.com/eoctet/accordion/wiki/使用手册)__
+- __[开发手册](https://github.com/eoctet/accordion/wiki/开发手册)__
+- __[Development manual](https://github.com/eoctet/accordion/wiki/Development-manual)__
 
 
 ## 问题反馈

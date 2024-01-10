@@ -8,13 +8,13 @@
 
 #### Supported actions
 
-| Action       | Description                                                      |
-|--------------|------------------------------------------------------------------|
-| 💡 API       | Calling third-party Restful APIs.                                |
+| Action       | Description                                                       |
+|--------------|-------------------------------------------------------------------|
+| 💡 API       | Calling third-party Restful APIs.                                 |
 | ⚙️ Condition | Logical judgment of combination conditions and single conditions. |
-| 🔗 Switch    | Multi-branch link execution.                                     |
-| ✉️ Email     | You can send custom emails.                                                    |
-| 📝 Script    | Execute custom scripts.                                                   |
+| 🔗 Switch    | Multi-branch link execution.                                      |
+| ✉️ Email     | You can send custom emails.                                       |
+| 📝 Script    | Execute custom scripts.                                           |
 
 
 ## Quick start
@@ -74,9 +74,10 @@ Accordion plan:
 > More examples: `chat.octet.accordion.examples.*`
 
 
-## Manual
+## Documentation
 
-- __[Development manual](https://github.com/eoctet/accordion/wiki/使用手册)__
+- __[开发手册](https://github.com/eoctet/accordion/wiki/开发手册)__
+- __[Development manual](https://github.com/eoctet/accordion/wiki/Development-manual)__
 
 
 ## Feedback

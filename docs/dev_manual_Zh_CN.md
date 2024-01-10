@@ -271,20 +271,20 @@ ActionConfig action = ActionConfig.builder()
 
 - __参数说明__
 
-| 参数名称    | 是否必填 | 说明                         |
-|---------|------|----------------------------|
-| url     | Y    | 请求地址 http://127.0.0.1/api  |
-| method  | Y    | 请求方式 GET/POST/PUT...       |
-| headers | N    | 请求头参数列表 {"args": "value"}  |
-| request | N    | 请求参数列表 {"args": "value"}   |
-| form    | N    | 请求表单参数列表 {"args": "value"} |
-| body    | N    | 请求正文，支持JSON或XML            |
-| timeout    | N    | 请求超时时间 (毫秒)，默认值5000毫秒      |
-| responseDataFormat    | N    | 响应数据格式，支持JSON或XML          |
-| retryOnConnectionFailure    | N    | 请求发生错误时是否重试                |
-| proxyType    | N    | 代理服务类型 DIRECT/HTTP/SOCKS   |
-| proxyServerAddress    | N    | 代理服务器地址 127.0.0.1          |
-| proxyServerPort    | N    | 代理服务器端口 8080               |
+| 参数名称                     | 是否必填 | 说明                         |
+|--------------------------|------|----------------------------|
+| url                      | Y    | 请求地址 http://127.0.0.1/api  |
+| method                   | Y    | 请求方式 GET/POST/PUT...       |
+| headers                  | N    | 请求头参数列表 {"args": "value"}  |
+| request                  | N    | 请求参数列表 {"args": "value"}   |
+| form                     | N    | 请求表单参数列表 {"args": "value"} |
+| body                     | N    | 请求正文，支持JSON或XML            |
+| timeout                  | N    | 请求超时时间 (毫秒)，默认值5000毫秒      |
+| responseDataFormat       | N    | 响应数据格式，支持JSON或XML          |
+| retryOnConnectionFailure | N    | 请求发生错误时是否重试                |
+| proxyType                | N    | 代理服务类型 DIRECT/HTTP/SOCKS   |
+| proxyServerAddress       | N    | 代理服务器地址 127.0.0.1          |
+| proxyServerPort          | N    | 代理服务器端口 8080               |
 
 - __输出参数__
 
@@ -317,7 +317,9 @@ ActionConfig action = ActionConfig.builder()
 
 - __条件表达式__
 
-条件表达式有两种使用方式，第一种是直接写表达式，例如： `a+b==123`，第二种是使用 `Condition` 进行创建：
+条件表达式有两种使用方式，第一种是直接写表达式，例如： `a+b==123`，第二种是使用 `Condition` 进行创建。
+
+示例1:
 
 ```java
 Condition condition = new Condition("age", ConditionOperator.GT, 18)
@@ -325,6 +327,8 @@ Condition condition = new Condition("age", ConditionOperator.GT, 18)
 
 String expression = ConditionBuilder.getInstance().build(condition);
 ```
+
+示例2:
 
 ```text
 (age > 18) and (age < 30)
@@ -349,9 +353,9 @@ String expression = ConditionBuilder.getInstance().build(condition);
 
 - __参数说明__
 
-| 参数名称    | 是否必填 | 说明                        |
-|---------|------|---------------------------|
-| expression     | Y    | 条件表达式 |
+| 参数名称       | 是否必填 | 说明    |
+|------------|------|-------|
+| expression | Y    | 条件表达式 |
 
 - __输出参数__
 
@@ -386,13 +390,13 @@ ActionConfig switchAction = ActionConfig.builder()
 
 - __参数说明__
 
-| 参数名称    | 是否必填 | 说明               |
-|---------|------|------------------|
-| branches     | Y    | 分支列表  [...]    |
-| name     | Y    | 分支名称             |
-| actionId     | Y    | 分支执行的动作ID        |
-| expression     | Y    | 条件表达式             |
-| negation     | Y    | 条件反转 true / false |
+| 参数名称       | 是否必填 | 说明                |
+|------------|------|-------------------|
+| branches   | Y    | 分支列表  [...]       |
+| name       | Y    | 分支名称              |
+| actionId   | Y    | 分支执行的动作ID         |
+| expression | Y    | 条件表达式             |
+| negation   | Y    | 条件反转 true / false |
 
 - __输出参数__
 
@@ -431,21 +435,21 @@ ActionConfig emailAction = ActionConfig.builder()
 
 - __参数说明__
 
-| 参数名称    | 是否必填 | 说明                 |
-|---------|------|--------------------|
-| server     | Y    | 邮箱服务器地址  127.0.0.1 |
-| smtpPort     | Y    | 邮箱服务器端口，默认 `25`    |
-| ssl     | N    | 是否开启 SSL           |
-| tls     | N    | 是否开启 TLS           |
-| username     | N    | 发件人账号              |
-| password     | N    | 发件人密码              |
-| subject     | Y    | 邮件主题               |
-| from     | Y    | 发件人                |
-| to     | Y    | 收件人，多个以 `,` 分割     |
-| cc     | N    | 抄送人，多个以 `,` 分割     |
-| content     | Y    | 邮件内容               |
-| timeout     | N    | 发送超时时间，默认5000毫秒    |
-| debug     | N    | 是否调试               |
+| 参数名称     | 是否必填 | 说明                |
+|----------|------|-------------------|
+| server   | Y    | 邮箱服务器地址 127.0.0.1 |
+| smtpPort | Y    | 邮箱服务器端口，默认 `25`   |
+| ssl      | N    | 是否开启 SSL          |
+| tls      | N    | 是否开启 TLS          |
+| username | N    | 发件人账号             |
+| password | N    | 发件人密码             |
+| subject  | Y    | 邮件主题              |
+| from     | Y    | 发件人               |
+| to       | Y    | 收件人，多个以 `,` 分割    |
+| cc       | N    | 抄送人，多个以 `,` 分割    |
+| content  | Y    | 邮件内容              |
+| timeout  | N    | 发送超时时间，默认5000毫秒   |
+| debug    | N    | 是否调试              |
 
 - __输出参数__
 
@@ -484,11 +488,11 @@ ActionConfig scriptAction = ActionConfig.builder()
 
 - __参数说明__
 
-| 参数名称    | 是否必填 | 说明          |
-|---------|------|-------------|
-| scriptId     | N    | 脚本ID，默认自动生成 |
-| script     | Y    | 脚本代码        |
-| debug     | N    | 开启调试，默认关闭   |
+| 参数名称     | 是否必填 | 说明          |
+|----------|------|-------------|
+| scriptId | N    | 脚本ID，默认自动生成 |
+| script   | Y    | 脚本代码        |
+| debug    | N    | 开启调试，默认关闭   |
 
 - __输出参数__
 
@@ -528,8 +532,11 @@ public class MyAction extends AbstractAction {
 ```
 
 > ℹ️ **TIPS**
+> 
 > - 所有动作都继承了 `AbstractAction` 并且实现 `execute` 方法，在构造方法中初始化所需要的参数。
-> - `execute` 方法逻辑默认使用 `try-catch` 处理，你也可以选择抛出异常。
+> 
+> - `execute` 方法默认使用 `try-catch` 处理，你也可以选择抛出异常。
+> 
 > - 如果需要传递输出参数，请将它们写入 `ExecuteResult`。
 
 
@@ -587,7 +594,7 @@ __全局可用__，在任务执行开始阶段会初始化 `session`，其中存
 
 ### 数据类型
 
-支持主要的数据类型 `chat.octet.accordion.core.enums.DataType`，
+支持主要的数据类型 `chat.octet.accordion.core.enums.DataType`
 
 在参数传递过程中将自动进行参数类型转换，对未指定数据类型的参数将统一使用 `String`。
 
