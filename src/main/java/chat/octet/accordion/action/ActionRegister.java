@@ -10,7 +10,9 @@ import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.script.ScriptAction;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.exceptions.ActionException;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -56,6 +58,7 @@ public class ActionRegister {
      * @see ActionType
      */
     public boolean isRegistered(String actionType) {
+        Preconditions.checkArgument(StringUtils.isNotBlank(actionType), "Action type cannot be empty.");
         return ACTION_MAPPING.containsKey(actionType);
     }
 
@@ -83,6 +86,7 @@ public class ActionRegister {
         if (isRegistered(actionType)) {
             return false;
         }
+        Preconditions.checkArgument(StringUtils.isNotBlank(className), "Action class name cannot be empty.");
         ACTION_MAPPING.put(actionType, className);
         return true;
     }
@@ -109,10 +113,15 @@ public class ActionRegister {
      * @throws ActionException If the corresponding action type cannot be found, throw an exception
      */
     public ActionService build(ActionConfig actionConfig) {
+        Preconditions.checkArgument(StringUtils.isNotBlank(actionConfig.getId()), "Action ID cannot be empty.");
+        Preconditions.checkArgument(StringUtils.isNotBlank(actionConfig.getActionType()), "Action type cannot be empty.");
+        Preconditions.checkArgument(StringUtils.isNotBlank(actionConfig.getActionName()), "Action name cannot be empty.");
+
         String className = ACTION_MAPPING.get(actionConfig.getActionType());
         if (className == null) {
             throw new ActionException("Action type " + actionConfig.getActionType() + " is not registered.");
         }
+
         try {
             Class<?> clazz = Class.forName(className);
             return (ActionService) clazz.getConstructor(ActionConfig.class).newInstance(actionConfig);
