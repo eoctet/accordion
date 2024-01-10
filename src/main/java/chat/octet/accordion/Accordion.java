@@ -47,36 +47,41 @@ public class Accordion {
 
     /**
      * Play the accordion plan.
+     *
+     * @return ExecuteResult, last execution result.
      */
-    public void play() {
-        play(null, false);
+    public ExecuteResult play() {
+        return play(null, false);
     }
 
     /**
      * Play the accordion plan.
      *
-     * @param verbose Print the execution result.
+     * @param verbose Print the execution views.
+     * @return ExecuteResult, last execution result.
      */
-    public void play(boolean verbose) {
-        play(null, verbose);
-    }
-
-    /**
-     * Play the accordion plan.
-     *
-     * @param message The message to be passed to the accordion.
-     */
-    public void play(Message message) {
-        play(message, false);
+    public ExecuteResult play(boolean verbose) {
+        return play(null, verbose);
     }
 
     /**
      * Play the accordion plan.
      *
      * @param message The message to be passed to the accordion.
-     * @param verbose Print the execution result.
+     * @return ExecuteResult, last execution result.
      */
-    public void play(@Nullable Message message, boolean verbose) {
+    public ExecuteResult play(Message message) {
+        return play(message, false);
+    }
+
+    /**
+     * Play the accordion plan.
+     *
+     * @param message The message to be passed to the accordion.
+     * @param verbose Print the execution views.
+     * @return ExecuteResult, last execution result.
+     */
+    public ExecuteResult play(@Nullable Message message, boolean verbose) {
         if (executeGraphView.length() > 0) {
             log.debug("Reset the execution status of the accordion.");
             reset();
@@ -91,12 +96,13 @@ public class Accordion {
         Queue<GraphNode> queue = Lists.newLinkedList();
 
         int level = 0;
+        ExecuteResult lastResult;
         List<GraphView> executedGraphViews = Lists.newArrayList(new GraphView(node, level, false));
 
         try {
             do {
                 //execute action service
-                execute(node);
+                lastResult = execute(node);
                 //get next actions
                 Set<GraphEdge> edges = node.getEdges();
                 level += edges.isEmpty() ? 0 : 1;
@@ -117,25 +123,28 @@ public class Accordion {
             throw new AccordionException(e.getMessage(), e);
         }
         generateExecuteGraphView(executedGraphViews);
+        return lastResult;
     }
 
-    private void execute(GraphNode node) {
+    private ExecuteResult execute(GraphNode node) {
+        ExecuteResult result = new ExecuteResult();
         boolean filter = Optional.ofNullable(switchFilter.get(node.getActionId())).orElse(true);
         if (!breakUp && filter && plan.prevGraphNodesFinished(node)) {
             ActionService actionService = node.getActionService();
-            ExecuteResult result = actionService.prepare(session).execute();
+            result = actionService.prepare(session).execute();
             actionService.updateOutput(result);
             GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
             plan.updateGraphNodeStatus(node, status);
-            if (ActionType.CONDITION.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
+            if (ActionType.CONDITION == ActionType.valueOf(actionService.getConfig().getActionType())) {
                 breakUp = result.isBreak();
             }
-            if (ActionType.SWITCH.name().equalsIgnoreCase(actionService.getConfig().getActionType())) {
+            if (ActionType.SWITCH == ActionType.valueOf(actionService.getConfig().getActionType())) {
                 switchFilter = result.getSwitchFilter();
             }
         } else {
             plan.updateGraphNodeStatus(node, GraphNodeStatus.SKIP);
         }
+        return result;
     }
 
     private void generateExecuteGraphView(List<GraphView> views) {
@@ -160,10 +169,19 @@ public class Accordion {
         }
     }
 
+
+    /**
+     * Return the execution views.
+     *
+     * @return String
+     */
     public String verbose() {
         return executeGraphView.toString();
     }
 
+    /**
+     * Reset the accordion status.
+     */
     public void reset() {
         this.executeGraphView.setLength(0);
         this.breakUp = false;
