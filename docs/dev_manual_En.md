@@ -511,6 +511,78 @@ Without specifying output parameters, custom actions will use the default output
 |----------------------|----------|--------------------------|
 | ACTION_SCRIPT_RESULT | String   | Default output parameter |
 
+
+#### ShellAction
+
+> `chat.octet.accordion.action.shell.ShellAction`
+
+Support executing custom commands or scripts, such as `bash`, `cmd`, `powershell`.
+
+```java
+ActionConfig action = ActionConfig.builder()
+        .id(CommonUtils.randomString("ACT").toUpperCase())
+        .actionType(ActionType.SHELL.name())
+        .actionName("Shell action")
+        .actionParams(
+                ShellParameter.builder().shell("echo 'hello world'").build()
+        )
+        .build();
+```
+
+- __Action Parameters__
+
+| Parameter | Required | Description                          |
+|-----------|----------|--------------------------------------|
+| type      | N        | Shell language type, default: bash   |
+| shell     | Y        | Shell code snippets                  |
+| timeout   | N        | Execution timeout, default: 60000 ms |
+
+- __Action Output Parameters__
+
+You can specify an output parameter or leave it blank.
+
+----
+
+#### LlamaAI
+
+> `chat.octet.accordion.action.llama.LlamaAction`
+
+Implemented using `llama-Java`, supports automatic inference in chat mode and completion mode.
+
+```java
+ActionConfig action = ActionConfig.builder()
+        .id(CommonUtils.randomString("ACT").toUpperCase())
+        .actionType(ActionType.LLAMA.name())
+        .actionName("llama action")
+        .actionParams(
+                LlamaParameter.builder().modelParameter(
+                                ModelParameter.builder().modelPath("/llama-java/models/model-7b-q6_k.gguf").build()
+                        ).generateParameter(
+                                GenerateParameter.builder().verbosePrompt(true).build()
+                        ).system("You're Kitty Jamie, and your answers and actions are the same as those of a kitten.")
+                        .build()
+        )
+        .build();
+```
+
+- __Action Parameters__
+
+| Parameter         | Required | Description                                                            |
+|-------------------|----------|------------------------------------------------------------------------|
+| modelParameter    | Y        | Llama model parameters                                                 |
+| generateParameter | N        | Llama generate parameters. Use default values when not specified       |
+| chatMode          | N        | Use chat mode (default: true), Otherwise it will be in completion mode |
+| system            | N        | System prompt text                                                     |
+| memory            | N        | Use chat memory (default: false), Only available in chat mode          |
+
+> For the complete parameters of `modelParameter` and `generateParameter`, please refer to [`llama-java`](https://github.com/eoctet/llama-java) Documents.
+
+- __Action Output Parameters__
+
+| Parameter    | DataType | Description           |
+|--------------|----------|-----------------------|
+| LLAMA_OUTPUT | String   | model generation text |
+
 ----
 
 #### Custom action

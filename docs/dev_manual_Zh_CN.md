@@ -504,6 +504,79 @@ ActionConfig scriptAction = ActionConfig.builder()
 
 ----
 
+#### 命令行
+
+> `chat.octet.accordion.action.shell.ShellAction`
+
+支持执行自定义的命令或脚本，例如：`bash`、`cmd`、`powershell`。
+
+```java
+ActionConfig action = ActionConfig.builder()
+        .id(CommonUtils.randomString("ACT").toUpperCase())
+        .actionType(ActionType.SHELL.name())
+        .actionName("Shell action")
+        .actionParams(
+                ShellParameter.builder().shell("echo 'hello world'").build()
+        )
+        .build();
+```
+
+- __参数说明__
+
+| 参数名称    | 是否必填 | 说明                 |
+|---------|------|--------------------|
+| type    | N    | 命令行类型，默认：bash      |
+| shell   | Y    | 命令行代码片段            |
+| timeout | N    | 执行超时时间，默认：60000 ms |
+
+- __输出参数__
+
+可以指定一个输出参数或留空。
+
+----
+
+#### LlamaAI
+
+> `chat.octet.accordion.action.llama.LlamaAction`
+
+使用 `llama-Java` 实现，支持聊天模式和续写模式下的自动推理AI。
+
+```java
+ActionConfig action = ActionConfig.builder()
+        .id(CommonUtils.randomString("ACT").toUpperCase())
+        .actionType(ActionType.LLAMA.name())
+        .actionName("llama action")
+        .actionParams(
+                LlamaParameter.builder().modelParameter(
+                                ModelParameter.builder().modelPath("/llama-java/models/model-7b-q6_k.gguf").build()
+                        ).generateParameter(
+                                GenerateParameter.builder().verbosePrompt(true).build()
+                        ).system("You're Kitty Jamie, and your answers and actions are the same as those of a kitten.")
+                        .build()
+        )
+        .build();
+```
+
+- __参数说明__
+
+| 参数名称              | 是否必填 | 说明               |
+|-------------------|------|------------------|
+| modelParameter    | Y    | 模型参数             |
+| generateParameter | N    | 推理生成参数           |
+| chatMode          | N    | 是否使用聊天模式，默认：true |
+| system            | N    | 系统提示词            |
+| memory            | N    | 是否开启记忆，默认：false  |
+
+> 关于 `modelParameter` 和 `generateParameter` 完整的参数请查阅 [`llama-java`](https://github.com/eoctet/llama-java) 文档。
+
+- __输出参数__
+
+| 参数名称         | 参数类型   | 说明      |
+|--------------|--------|---------|
+| LLAMA_OUTPUT | String | 模型生成的结果 |
+
+----
+
 #### 自定义动作
 
 除了预置的动作，你可以创建自己的自定义动作，实现方式如下：
