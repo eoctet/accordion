@@ -15,7 +15,8 @@
 | 🔗 Switch    | Multi-branch link execution.                                      |
 | ✉️ Email     | You can send custom emails.                                       |
 | 📝 Script    | Execute custom scripts.                                           |
-
+| 💻 Shell     | Execute custom command line.                                      |
+| 🤖 LlamaAI   | Generate dialogue and continuation text using Llama AI.           |
 
 ## Quick start
 
