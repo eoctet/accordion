@@ -152,55 +152,6 @@ public class AccordionPlan {
     }
 
     /**
-     * Reset the plan status.
-     */
-    public void reset() {
-        graphNodes.forEach(GraphNode::reset);
-    }
-
-    /**
-     * Check if all previous nodes are finished.
-     *
-     * @param graphNode Dependent graph node.
-     * @return boolean, Returns true if all previous nodes have been completed, otherwise false is returned.
-     */
-    protected boolean prevGraphNodesFinished(GraphNode graphNode) {
-        if (graphNode.equals(rootGraphNode)) {
-            return true;
-        }
-        for (GraphEdge edge : graphEdges) {
-            GraphNode previousNode = edge.getPreviousNode();
-            GraphNode nextNode = edge.getNextNode();
-            if (nextNode.equals(graphNode) && previousNode.getStatus() != GraphNodeStatus.SUCCESS) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Update the status of the graph node.
-     *
-     * @param graphNode Graph node.
-     * @param status    Graph node status.
-     */
-    protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
-        graphNode.setStatus(status);
-    }
-
-    /**
-     * Get the root GraphNode.
-     *
-     * @return GraphNode
-     */
-    protected GraphNode getRootGraphNode() {
-        if (rootGraphNode == null) {
-            rootGraphNode = findRootGraphNode();
-        }
-        return rootGraphNode;
-    }
-
-    /**
      * Export the plan to JSON.
      *
      * @return String
@@ -258,5 +209,63 @@ public class AccordionPlan {
         }
         this.rootGraphNode = findRootGraphNode();
         return this;
+    }
+
+    /**
+     * Reset the plan status.
+     */
+    public void reset() {
+        graphNodes.forEach(GraphNode::reset);
+    }
+
+    /**
+     * Check if all previous nodes are finished.
+     *
+     * @param graphNode Dependent graph node.
+     * @return boolean, Returns true if all previous nodes have been completed, otherwise false is returned.
+     */
+    protected boolean prevGraphNodesFinished(GraphNode graphNode) {
+        if (graphNode.equals(rootGraphNode)) {
+            return true;
+        }
+        for (GraphEdge edge : graphEdges) {
+            GraphNode previousNode = edge.getPreviousNode();
+            GraphNode nextNode = edge.getNextNode();
+            if (nextNode.equals(graphNode) && previousNode.getStatus() != GraphNodeStatus.SUCCESS) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Update the status of the graph node.
+     *
+     * @param graphNode Graph node.
+     * @param status    Graph node status.
+     */
+    protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
+        graphNode.setStatus(status);
+    }
+
+    /**
+     * Get the root GraphNode.
+     *
+     * @return GraphNode
+     */
+    protected GraphNode getRootGraphNode() {
+        if (rootGraphNode == null) {
+            rootGraphNode = findRootGraphNode();
+        }
+        return rootGraphNode;
+    }
+
+    /**
+     * Get the graph nodes.
+     *
+     * @return List, graph nodes.
+     */
+    protected List<GraphNode> getGraphNodes() {
+        return graphNodes;
     }
 }

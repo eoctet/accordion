@@ -1,6 +1,7 @@
-package chat.octet.accordion.action.parameters;
+package chat.octet.accordion.action.email;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 @Builder
 @ToString
 @Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EmailParameter {
     /**
      * SMTP server address.

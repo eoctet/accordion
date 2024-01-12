@@ -4,7 +4,7 @@ package chat.octet.accordion.examples;
 import chat.octet.accordion.Accordion;
 import chat.octet.accordion.AccordionPlan;
 import chat.octet.accordion.action.model.ActionConfig;
-import chat.octet.accordion.action.parameters.ConditionParameter;
+import chat.octet.accordion.action.base.ConditionParameter;
 import chat.octet.accordion.core.condition.Condition;
 import chat.octet.accordion.core.condition.ConditionBuilder;
 import chat.octet.accordion.core.entity.Message;
@@ -37,8 +37,9 @@ public class MessageExample {
         //Create an Accordion plan and set actions
         AccordionPlan plan = AccordionPlan.of().start(conditionAction);
         //
-        Accordion accordion = new Accordion(plan);
-        accordion.play(global, message, true);
-        System.out.println("Accordion plan:\n" + accordion.verbose());
+        try (Accordion accordion = new Accordion(plan)) {
+            accordion.play(global, message, true);
+            System.out.println("Accordion plan:\n" + accordion.verbose());
+        }
     }
 }

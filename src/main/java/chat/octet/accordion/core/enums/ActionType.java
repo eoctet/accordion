@@ -12,5 +12,7 @@ public enum ActionType {
     SWITCH,
     EMAIL,
     SCRIPT,
-    TEST
+    TEST,
+    LLAMA,
+    SHELL
 }

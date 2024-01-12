@@ -63,7 +63,7 @@ public abstract class AbstractAction implements ActionService, Serializable {
     }
 
     @Override
-    public void updateOutput(ExecuteResult executeResult) {
+    public void output(ExecuteResult executeResult) {
         this.session.remove(PREV_ACTION_OUTPUT);
 
         List<OutputParameter> output = getActionOutput();
@@ -97,6 +97,10 @@ public abstract class AbstractAction implements ActionService, Serializable {
     @Override
     public ActionConfig getConfig() {
         return this.actionConfig;
+    }
+
+    @Override
+    public void close() {
     }
 
     protected void setExecuteThrowable(Throwable throwable) {

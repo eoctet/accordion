@@ -3,10 +3,10 @@ package chat.octet.accordion.examples;
 
 import chat.octet.accordion.Accordion;
 import chat.octet.accordion.AccordionPlan;
+import chat.octet.accordion.action.base.ConditionParameter;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.OutputParameter;
-import chat.octet.accordion.action.parameters.ConditionParameter;
-import chat.octet.accordion.action.parameters.ScriptParameter;
+import chat.octet.accordion.action.script.ScriptParameter;
 import chat.octet.accordion.core.condition.Condition;
 import chat.octet.accordion.core.condition.ConditionBuilder;
 import chat.octet.accordion.core.enums.ActionType;
@@ -42,8 +42,9 @@ public class SimpleExample {
         AccordionPlan plan = AccordionPlan.of().next(myAction, conditionAction);
         System.out.println(plan.exportToJsonConfig());
         //
-        Accordion accordion = new Accordion(plan);
-        accordion.play(true);
-        System.out.println("Accordion plan:\n" + accordion.verbose());
+        try (Accordion accordion = new Accordion(plan)) {
+            accordion.play(true);
+            System.out.println("Accordion plan:\n" + accordion.verbose());
+        }
     }
 }

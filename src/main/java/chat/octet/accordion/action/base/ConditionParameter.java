@@ -1,5 +1,6 @@
-package chat.octet.accordion.action.parameters;
+package chat.octet.accordion.action.base;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @ToString
 @Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConditionParameter {
     /**
      * Condition expression. For example: Arg == 100.

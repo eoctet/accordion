@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @Slf4j
-public class Accordion {
+public class Accordion implements AutoCloseable {
     private final Session session;
     private final StringBuffer executeGraphView;
     private boolean verbose;
@@ -148,15 +148,19 @@ public class Accordion {
         ExecuteResult result = new ExecuteResult();
         boolean filter = Optional.ofNullable(switchFilter.get(node.getActionId())).orElse(true);
         if (!breakUp && filter && plan.prevGraphNodesFinished(node)) {
+            //
             ActionService actionService = node.getActionService();
             result = actionService.prepare(session).execute();
-            actionService.updateOutput(result);
+            actionService.output(result);
+            //
             GraphNodeStatus status = actionService.checkError() ? GraphNodeStatus.ERROR : GraphNodeStatus.SUCCESS;
             plan.updateGraphNodeStatus(node, status);
-            if (ActionType.CONDITION == ActionType.valueOf(actionService.getConfig().getActionType())) {
+            //
+            ActionType actionType = ActionType.valueOf(actionService.getConfig().getActionType());
+            if (ActionType.CONDITION == actionType) {
                 breakUp = result.isBreak();
             }
-            if (ActionType.SWITCH == ActionType.valueOf(actionService.getConfig().getActionType())) {
+            if (ActionType.SWITCH == actionType) {
                 switchFilter = result.getSwitchFilter();
             }
         } else {
@@ -205,9 +209,13 @@ public class Accordion {
         this.breakUp = false;
         this.switchFilter.clear();
         this.session.clear();
-        if (this.plan != null) {
-            this.plan.reset();
-        }
+        this.plan.reset();
     }
 
+    @Override
+    public void close() {
+        for (GraphNode n : plan.getGraphNodes()) {
+            n.getActionService().close();
+        }
+    }
 }

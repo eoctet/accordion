@@ -6,8 +6,10 @@ import chat.octet.accordion.action.base.ConditionAction;
 import chat.octet.accordion.action.base.SwitchAction;
 import chat.octet.accordion.action.base.TestAction;
 import chat.octet.accordion.action.email.EmailAction;
+import chat.octet.accordion.action.llama.LlamaAction;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.script.ScriptAction;
+import chat.octet.accordion.action.shell.ShellAction;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.exceptions.ActionException;
 import com.google.common.base.Preconditions;
@@ -33,6 +35,8 @@ public class ActionRegister {
         ACTION_MAPPING.put(ActionType.EMAIL.name(), EmailAction.class.getName());
         ACTION_MAPPING.put(ActionType.SCRIPT.name(), ScriptAction.class.getName());
         ACTION_MAPPING.put(ActionType.TEST.name(), TestAction.class.getName());
+        ACTION_MAPPING.put(ActionType.LLAMA.name(), LlamaAction.class.getName());
+        ACTION_MAPPING.put(ActionType.SHELL.name(), ShellAction.class.getName());
     }
 
     private ActionRegister() {

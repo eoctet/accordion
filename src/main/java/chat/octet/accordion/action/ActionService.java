@@ -37,7 +37,7 @@ public interface ActionService {
      *
      * @param executeResult Action execution result
      */
-    void updateOutput(ExecuteResult executeResult);
+    void output(ExecuteResult executeResult);
 
     /**
      * Check if there is an error during the action execution.
@@ -52,5 +52,11 @@ public interface ActionService {
      * @return Action configuration
      */
     ActionConfig getConfig();
+
+    /**
+     * (Optional) Close action,
+     * if you have resources that need to be released, please implement this method.
+     */
+    void close();
 
 }

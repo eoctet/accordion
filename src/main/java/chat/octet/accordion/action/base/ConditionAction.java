@@ -4,7 +4,6 @@ package chat.octet.accordion.action.base;
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.ExecuteResult;
-import chat.octet.accordion.action.parameters.ConditionParameter;
 import chat.octet.accordion.core.condition.ConditionBuilder;
 import chat.octet.accordion.exceptions.ActionException;
 import com.google.common.base.Preconditions;

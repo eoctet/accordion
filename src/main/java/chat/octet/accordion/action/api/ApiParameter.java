@@ -1,7 +1,8 @@
-package chat.octet.accordion.action.parameters;
+package chat.octet.accordion.action.api;
 
 import chat.octet.accordion.core.enums.DataFormatType;
 import chat.octet.accordion.core.enums.HttpMethod;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Builder
 @ToString
 @Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiParameter {
     /**
      * Request url.

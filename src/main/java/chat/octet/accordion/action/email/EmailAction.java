@@ -4,7 +4,6 @@ package chat.octet.accordion.action.email;
 import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.ExecuteResult;
-import chat.octet.accordion.action.parameters.EmailParameter;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
 import com.google.common.base.Preconditions;

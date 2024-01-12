@@ -1,5 +1,6 @@
-package chat.octet.accordion.action.parameters;
+package chat.octet.accordion.action.base;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import java.util.List;
 @Builder
 @ToString
 @Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SwitchParameter {
 
     /**

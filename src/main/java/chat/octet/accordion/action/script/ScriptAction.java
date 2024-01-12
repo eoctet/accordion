@@ -5,7 +5,6 @@ import chat.octet.accordion.action.AbstractAction;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.model.OutputParameter;
-import chat.octet.accordion.action.parameters.ScriptParameter;
 import chat.octet.accordion.core.enums.DataType;
 import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.utils.CommonUtils;
