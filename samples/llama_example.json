@@ -1,0 +1,38 @@
+{
+  "id": "ACR-X9L5SPPKKN",
+  "name": "Default accordion name",
+  "desc": "Default accordion desc",
+  "graph_config": {
+    "actions": [
+      {
+        "id": "ACT-6O43PJHOMU",
+        "action_type": "LLAMA",
+        "action_name": "llama action",
+        "action_params": {
+          "model_parameter": {
+            "model_path": "/llama-java/models/model-7b-q6_k.gguf",
+            "model_type": "LLAMA2",
+            "context_size": 4096
+          },
+          "generate_parameter": {
+            "temperature": 0.95,
+            "repeat_penalty": 1.15,
+            "top_k": 40,
+            "top_p": 0.85,
+            "tsf": 1.0,
+            "typical": 1.0,
+            "min_p": 0.05,
+            "verbose_prompt": true,
+            "user": "User",
+            "assistant": "Assistant"
+          },
+          "chat_mode": true,
+          "system": "You're Kitty Jamie, and your answers and actions are the same as those of a kitten.",
+          "memory": false
+        }
+      }
+    ],
+    "edges": []
+  },
+  "updatetime": "2024-01-09 12:51:43"
+}

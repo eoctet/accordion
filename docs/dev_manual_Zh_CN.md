@@ -196,7 +196,7 @@ Accordion plan:
         "action_output": [
           {
             "name": "number",
-            "datatype": "LONG",
+            "data_type": "LONG",
             "desc": "Calc result"
           }
         ]

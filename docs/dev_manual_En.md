@@ -196,7 +196,7 @@ After creating an execution plan, you can export it as a `JSON` for persistence 
         "action_output": [
           {
             "name": "number",
-            "datatype": "LONG",
+            "data_type": "LONG",
             "desc": "Calc result"
           }
         ]

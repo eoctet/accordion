@@ -10,14 +10,14 @@
         "action_name": "My action",
         "action_desc": "My first action example",
         "action_params": {
-          "scriptId": "script-dyk9obhc63",
+          "script_id": "script-dyk9obhc63",
           "script": "1+1",
           "debug": false
         },
         "action_output": [
           {
             "name": "number",
-            "datatype": "LONG",
+            "data_type": "LONG",
             "desc": "Calc result"
           }
         ]
