@@ -112,11 +112,20 @@
                     <groupId>com.squareup.okio</groupId>
                     <artifactId>okio-jvm</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.squareup.okio</groupId>
+                    <artifactId>okio</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio-jvm</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio</artifactId>
             <version>3.4.0</version>
         </dependency>
         <dependency>
@@ -143,6 +152,12 @@
             <groupId>chat.octet</groupId>
             <artifactId>llama-java-core</artifactId>
             <version>1.3.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
