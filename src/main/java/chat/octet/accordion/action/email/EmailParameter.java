@@ -2,6 +2,8 @@ package chat.octet.accordion.action.email;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 @ToString
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class EmailParameter {
     /**
      * SMTP server address.

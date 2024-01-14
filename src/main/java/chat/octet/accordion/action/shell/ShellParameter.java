@@ -1,6 +1,8 @@
 package chat.octet.accordion.action.shell;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,6 +18,7 @@ import lombok.extern.jackson.Jacksonized;
 @ToString
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ShellParameter {
 
     /**

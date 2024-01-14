@@ -2,7 +2,8 @@ package chat.octet.accordion.action.model;
 
 import chat.octet.accordion.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,24 +24,19 @@ import java.util.List;
 @ToString
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ActionConfig {
 
-    @JsonProperty("id")
     private String id;
 
-    @JsonProperty("action_type")
     private String actionType;
 
-    @JsonProperty("action_name")
     private String actionName;
 
-    @JsonProperty("action_desc")
     private String actionDesc;
 
-    @JsonProperty("action_params")
     private Object actionParams;
 
-    @JsonProperty("action_output")
     @Setter
     private List<OutputParameter> actionOutput;
 

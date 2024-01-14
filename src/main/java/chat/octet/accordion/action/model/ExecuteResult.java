@@ -61,7 +61,7 @@ public class ExecuteResult implements Serializable {
         result.forEach((key, value) -> {
             outputParameter.forEach(parameter -> {
                 if (parameter.getName().equalsIgnoreCase(key)) {
-                    this.add(parameter.getName(), DataTypeConvert.getValue(parameter.getDatatype(), value));
+                    this.add(parameter.getName(), DataTypeConvert.getValue(parameter.getDataType(), value));
                 }
             });
             if (value instanceof Map) {

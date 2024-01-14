@@ -3,7 +3,8 @@ package chat.octet.accordion.graph.model;
 import chat.octet.accordion.core.enums.Constant;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,21 +13,17 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccordionConfig implements Serializable {
 
-    @JsonProperty("id")
     private String id;
 
-    @JsonProperty("name")
     private String name;
 
-    @JsonProperty("desc")
     private String desc;
 
-    @JsonProperty("graph_config")
     private AccordionGraphConfig graphConfig;
 
-    @JsonProperty("updatetime")
     @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME)
     private Date updatetime;
 

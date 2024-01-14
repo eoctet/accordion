@@ -1,6 +1,8 @@
 package chat.octet.accordion.action.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.google.common.collect.Lists;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +22,7 @@ import java.util.List;
 @ToString
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SwitchParameter {
 
     /**
@@ -58,6 +61,7 @@ public class SwitchParameter {
     @Builder
     @ToString
     @Jacksonized
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class Branch {
         /**
          * Branch name.

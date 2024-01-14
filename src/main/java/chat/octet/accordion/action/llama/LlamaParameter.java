@@ -3,7 +3,8 @@ package chat.octet.accordion.action.llama;
 import chat.octet.model.parameters.GenerateParameter;
 import chat.octet.model.parameters.ModelParameter;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,6 +22,7 @@ import javax.annotation.Nullable;
 @ToString
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class LlamaParameter {
 
     /**
@@ -28,7 +30,6 @@ public class LlamaParameter {
      *
      * @see ModelParameter
      */
-    @JsonProperty("model_parameters")
     private ModelParameter modelParameter;
 
     /**
@@ -37,14 +38,12 @@ public class LlamaParameter {
      * @see GenerateParameter
      */
     @Nullable
-    @JsonProperty("generate_parameters")
     private GenerateParameter generateParameter;
 
     /**
      * Use chat mode (default: true), Otherwise it will be in completion mode.
      */
     @Builder.Default
-    @JsonProperty("chat_mode")
     private boolean chatMode = true;
 
     /**

@@ -73,10 +73,10 @@ public abstract class AbstractAction implements ActionService, Serializable {
                 String key = param.getName();
                 Object value = param.getValue();
                 if (executeResult.contains(key)) {
-                    value = DataTypeConvert.getValue(param.getDatatype(), executeResult.getValue(key));
+                    value = DataTypeConvert.getValue(param.getDataType(), executeResult.getValue(key));
                 }
                 if (value != null) {
-                    result.add(new OutputParameter(param.getName(), param.getDatatype(), param.getDesc(), value));
+                    result.add(new OutputParameter(param.getName(), param.getDataType(), param.getDesc(), value));
                 }
             });
             this.session.add(PREV_ACTION_OUTPUT, result);

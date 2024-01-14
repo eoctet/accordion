@@ -2,7 +2,8 @@ package chat.octet.accordion.action.model;
 
 import chat.octet.accordion.core.enums.DataType;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 /**
@@ -12,31 +13,28 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OutputParameter {
-    @JsonProperty("name")
     private String name;
 
-    @JsonProperty("datatype")
-    private DataType datatype;
+    private DataType dataType;
 
-    @JsonProperty("desc")
     private String desc;
 
-    @JsonProperty("default_value")
     private Object defaultValue;
 
     private Object value;
 
-    public OutputParameter(String name, DataType datatype, String desc, Object value) {
+    public OutputParameter(String name, DataType dataType, String desc, Object value) {
         this.name = name;
-        this.datatype = datatype;
+        this.dataType = dataType;
         this.desc = desc;
         this.value = value;
     }
 
-    public OutputParameter(String name, DataType datatype, String desc) {
+    public OutputParameter(String name, DataType dataType, String desc) {
         this.name = name;
-        this.datatype = datatype;
+        this.dataType = dataType;
         this.desc = desc;
     }
 
