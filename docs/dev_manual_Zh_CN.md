@@ -567,7 +567,7 @@ ActionConfig action = ActionConfig.builder()
 | system            | N    | 系统提示词            |
 | memory            | N    | 是否开启记忆，默认：false  |
 
-> 关于 `modelParameter` 和 `generateParameter` 完整的参数请查阅 [`llama-java`](https://github.com/eoctet/llama-java) 文档。
+> 关于 `modelParameter` 和 `generateParameter` 完整的参数请查阅 [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) 文档。
 
 - __输出参数__
 

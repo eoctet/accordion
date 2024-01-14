@@ -575,7 +575,7 @@ ActionConfig action = ActionConfig.builder()
 | system            | N        | System prompt text                                                     |
 | memory            | N        | Use chat memory (default: false), Only available in chat mode          |
 
-> For the complete parameters of `modelParameter` and `generateParameter`, please refer to [`llama-java`](https://github.com/eoctet/llama-java) Documents.
+> For the complete parameters of `modelParameter` and `generateParameter`, please refer to [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) Documents.
 
 - __Action Output Parameters__
 
