@@ -44,9 +44,10 @@ Create the accordion score `AccordionPlan`, which is a complete execution plan t
 
 ```java
 AccordionPlan plan = AccordionPlan.of().start(myAction);
-Accordion accordion = new Accordion(plan);
-accordion.play(true);
-System.out.println("Accordion plan:\n" + accordion.verbose());
+try (Accordion accordion = new Accordion(plan)) {
+    accordion.play(true);
+    System.out.println("Accordion plan:\n" + accordion.verbose());
+}
 ```
 
 The completed output is as follows. The `verbose` method can be used to print the execution link and the execution status of each action.
@@ -67,13 +68,13 @@ The following is an introduction to the main functions of this project. You can 
 
 `AccordionPlan` is an Execution Plan (DAG) consisting of an Execution Chain and an Action. The execution plan starts with a starting action and then connects other actions through the `next` method to form an execution chain.
 
-> ℹ️ **TIPS**
->
+> [!NOTE]
 > - The execution chain connects each action, which in the DAG is the `Edge`, and the action is the specific `Node`.
->
 > - The execution of each action depends on the preceding action. If the preceding action fails, the following action will not be executed.
 
-`AccordionPlan` API
+<details>
+
+<summary>AccordionPlan API</summary>
 
 ```java
 /**
@@ -132,6 +133,8 @@ public AccordionPlan importConfig(AccordionConfig accordionConfig);
 
 ```
 
+</details>
+
 **Example**
 
 Here a complex execution plan is used for demo, as shown in the following figure, which includes a total of 10 actions, each connected through the `next` method.
@@ -151,9 +154,10 @@ AccordionPlan plan = AccordionPlan.of()
         .next(f, h)
         .next(g, h);
 
-Accordion accordion = new Accordion(plan);
-accordion.play(true);
-System.out.println("Accordion plan:\n" + accordion.verbose());
+try (Accordion accordion = new Accordion(plan)) {
+    accordion.play(true);
+    System.out.println("Accordion plan:\n" + accordion.verbose());
+}
 ```
 
 Output of execution plan:
@@ -176,6 +180,10 @@ Accordion plan:
 
 After creating an execution plan, you can export it as a `JSON` for persistence storage or import it into another execution plan.
 
+<details>
+
+<summary>accordion plan json example</summary>
+
 ```json
 {
   "id": "ACR-MDESSISDQB",
@@ -189,7 +197,7 @@ After creating an execution plan, you can export it as a `JSON` for persistence 
         "action_name": "My action",
         "action_desc": "My first action example",
         "action_params": {
-          "scriptId": "script-dyk9obhc63",
+          "script_id": "script-dyk9obhc63",
           "script": "1+1",
           "debug": false
         },
@@ -223,6 +231,8 @@ After creating an execution plan, you can export it as a `JSON` for persistence 
 }
 ```
 
+</details>
+
 ### Action
 
 Action is an execution unit that can do many things. Each action has three stages: `input`, `execution`, and `output`.
@@ -253,6 +263,7 @@ The following is a list of preset basic actions that you can expand as needed.
 
 By default, the timeout for requesting an API is 5 seconds, and you can adjust it according to the actual situation.
 
+> [!NOTE]
 > All actions use build mode to create object instances, including parameter templates for actions.
 
 ```java
@@ -355,8 +366,8 @@ such as:
 
 In conditional expressions, we can use `dynamic variables`. In the above example, parameters `a`, `b`, and `x` will be replaced with actual values for calculation.
 
-
-> ⚠️ **Attention**: Missing dynamic variable values will be replaced with `null`, which will result in the calculation conditions not being true.
+> [!WARNING]
+> Missing dynamic variable values will be replaced with `null`, which will result in the calculation conditions not being true.
 
 - __Action Parameters__
 
@@ -393,6 +404,7 @@ ActionConfig switchAction = ActionConfig.builder()
         .build();
 ```
 
+> [!NOTE]
 > In the above example, only the B and C branches will be executed.
 
 - __Action Parameters__
@@ -419,7 +431,8 @@ After the SwitchAction is executed, a list of objects containing the branch name
 
 By default, the content format of the email is in HTML format, and email attachments are not currently supported.
 
-> ⚠️ **Attention**: Please strictly check the content of your email to ensure that it does not contain script injections such as `js`, which are often intercepted by the email system.
+> [!WARNING]
+> Please strictly check the content of your email to ensure that it does not contain script injections such as `js`, which are often intercepted by the email system.
 
 ```java
 ActionConfig emailAction = ActionConfig.builder()
@@ -472,7 +485,7 @@ Email action has no output parameters.
 
 `ScriptAction` support `Java` language syntax, used to implement complex task scenarios.
 
-> ℹ️ **Features**
+> [!NOTE]
 >
 > - `Java` and `lambda` expression
 > - `Debug mode` Easy to track issues
@@ -480,8 +493,9 @@ Email action has no output parameters.
 > - `Functions` For example: `Mathlib`, `String processing`, etc
 >
 > Implement using the `com.googlecode.aviator` framework. For more syntax rules, please refer to the aviator user manual.
->
-> ⚠️ **Attention: By default, custom scripts disable some language features to ensure system security.**
+
+> [!IMPORTANT]
+> By default, custom scripts disable some language features to ensure system security.**
 
 ```java
 ActionConfig scriptAction = ActionConfig.builder()
@@ -575,6 +589,7 @@ ActionConfig action = ActionConfig.builder()
 | system            | N        | System prompt text                                                     |
 | memory            | N        | Use chat memory (default: false), Only available in chat mode          |
 
+> [!NOTE]
 > For the complete parameters of `modelParameter` and `generateParameter`, please refer to [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) Documents.
 
 - __Action Output Parameters__
@@ -612,12 +627,9 @@ public class MyAction extends AbstractAction {
 }
 ```
 
-> ℹ️ **TIPS**
-> 
+> [!TIP]
 > - All actions inherit `AbstractAction` and implement the `execute` method, initializing the required parameters in the constructor.
-> 
 > - `execute` method defaults to using `try-catch` to handle exceptions, and you can also choose to throw an exception.
-> 
 > - If you need to pass output parameters, please write them to `ExecuteResult`.
 
 
@@ -642,10 +654,8 @@ ActionRegister.getInstance().unregister("MyAction");
 
 `Event message` is a data source, and in some scenarios, we need to provide feedback on event messages sent from upstream and perform a series of complex actions.
 
-> ℹ️ **Scenario examples**
-> 
+> [!TIP]
 > - In streaming computing scenarios, we can perform real-time computation and processing on consumed event messages.
->
 > - In monitoring scenarios, we can alert for outliers and perform specific operations.
 
 **Example**
@@ -667,7 +677,8 @@ For example, requesting the return result field of a certain interface can be us
 
 __Globally available__, `Action session` is initialized at the beginning of task execution, which stores the status and messages of the execution chain. You can store the parameters that need to be passed globally in the session.
 
-> ⚠️ __Parameter naming convention__
+> [!IMPORTANT] 
+> __Parameter naming convention__
 >
 > Use clear and easy to understand parameter names as much as possible to avoid duplicate parameter names that may cause parameters to be overwritten.
 
@@ -687,9 +698,13 @@ During the parameter transfer process, parameter type conversion will be automat
 
 ## Appendix
 
-#### Reference Framework
+<details>
+
+<summary>Reference Framework</summary>
 
 In this project, I used `okhtp3` to implement lightweight HTTP requests and `aviator` to implement advanced scripting language functionality.
 
 - `aviator`
 - `okhttp3`
+
+</details>

@@ -17,6 +17,7 @@
 | 📝 自定义脚本   | 执行自定义脚本。             |
 | 💻 命令行     | 执行自定义命令行。            |
 | 🤖 LlamaAI | 使用Llama AI生成对话和续写文本。 |
+| ▶️ 测试      | 仅用于测试的特殊动作。          |
 
 ## 快速开始
 
@@ -35,6 +36,7 @@
 ```
 
 #### Gradle
+
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
@@ -56,9 +58,10 @@ public class HelloWorld {
                 .build();
 
         AccordionPlan plan = AccordionPlan.of().start(myAction);
-        Accordion accordion = new Accordion(plan);
-        accordion.play(true);
-        System.out.println("Accordion plan:\n" + accordion.verbose());
+        try (Accordion accordion = new Accordion(plan)) {
+            accordion.play(true);
+            System.out.println("Accordion plan:\n" + accordion.verbose());
+        }
     }
 }
 ```
@@ -72,6 +75,8 @@ Accordion plan:
 🅞───⨀ ✅ My Action (ACT-WD4J1ZK2IU)
 ```
 
+> [!TIP]
+> 
 > 更多示例: `chat.octet.accordion.examples.*`
 
 

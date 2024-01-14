@@ -17,6 +17,7 @@
 | 📝 Script    | Execute custom scripts.                                           |
 | 💻 Shell     | Execute custom command line.                                      |
 | 🤖 LlamaAI   | Generate dialogue and continuation text using Llama AI.           |
+| ▶️ Test      | Special actions used for testing.                                 |
 
 ## Quick start
 
@@ -35,6 +36,7 @@ Create your own project and use `Maven` or `Gradle` to import the accordion fram
 ```
 
 #### Gradle
+
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
@@ -56,9 +58,10 @@ public class HelloWorld {
                 .build();
 
         AccordionPlan plan = AccordionPlan.of().start(myAction);
-        Accordion accordion = new Accordion(plan);
-        accordion.play(true);
-        System.out.println("Accordion plan:\n" + accordion.verbose());
+        try (Accordion accordion = new Accordion(plan)) {
+            accordion.play(true);
+            System.out.println("Accordion plan:\n" + accordion.verbose());
+        }
     }
 }
 ```
@@ -72,6 +75,8 @@ Accordion plan:
 🅞───⨀ ✅ My Action (ACT-WD4J1ZK2IU)
 ```
 
+> [!TIP]
+> 
 > More examples: `chat.octet.accordion.examples.*`
 
 

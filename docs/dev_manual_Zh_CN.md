@@ -44,9 +44,10 @@ ActionConfig myAction = ActionConfig.builder()
 
 ```java
 AccordionPlan plan = AccordionPlan.of().start(myAction);
-Accordion accordion = new Accordion(plan);
-accordion.play(true);
-System.out.println("Accordion plan:\n" + accordion.verbose());
+try (Accordion accordion = new Accordion(plan)) {
+    accordion.play(true);
+    System.out.println("Accordion plan:\n" + accordion.verbose());
+}
 ```
 
 执行完成的输出如下，使用 `verbose` 方法可以打印执行链路和每个动作的执行状态。
@@ -67,13 +68,13 @@ Accordion plan:
 
 琴谱 `AccordionPlan` 是一个执行计划 (DAG)，由 `执行链` 和 `动作` 组成。执行计划由一个起始动作开始，然后通过 `next` 方法连接其他动作，形成一条执行链。
 
-> ℹ️ **TIPS**
-> 
+> [!NOTE]
 > - 执行链连接每一个动作，在DAG中它是边 `Edges`，而动作则是具体的每个节点 `Nodes`。
-> 
 > - 每一个动作的执行都依赖于前序动作，如果前序动作执行失败，那么后序动作将不会执行。
 
-`AccordionPlan` 的主要方法：
+<details>
+
+<summary>AccordionPlan 的主要方法</summary>
 
 ```java
 /**
@@ -132,6 +133,8 @@ public AccordionPlan importConfig(AccordionConfig accordionConfig);
 
 ```
 
+</details>
+
 **示例**
 
 这里使用一个复杂的执行计划进行演示，如下图所示，一共包含了 10 个动作，每个动作都通过 `next` 方法连接起来。
@@ -151,9 +154,10 @@ AccordionPlan plan = AccordionPlan.of()
         .next(f, h)
         .next(g, h);
 
-Accordion accordion = new Accordion(plan);
-accordion.play(true);
-System.out.println("Accordion plan:\n" + accordion.verbose());
+try (Accordion accordion = new Accordion(plan)) {
+    accordion.play(true);
+    System.out.println("Accordion plan:\n" + accordion.verbose());
+}
 ```
 
 执行计划的输出：
@@ -172,9 +176,13 @@ Accordion plan:
 				└───⨀ ✅ H (ACT-LERLLYDHQN)
 ```
 
-**导入导出执行计划**
+**导入 & 导出执行计划**
 
 当创建了执行计划后，你可以将其导出为 `JSON`，以便于持久化存储，或者将其导入到另一个执行计划中。
+
+<details>
+
+<summary>accordion plan json example</summary>
 
 ```json
 {
@@ -189,7 +197,7 @@ Accordion plan:
         "action_name": "My action",
         "action_desc": "My first action example",
         "action_params": {
-          "scriptId": "script-dyk9obhc63",
+          "script_id": "script-dyk9obhc63",
           "script": "1+1",
           "debug": false
         },
@@ -223,6 +231,8 @@ Accordion plan:
 }
 ```
 
+</details>
+
 ### 动作
 
 动作是一个执行单元，可以做很多事情。每个动作都拥有 `输入`，`执行`，`输出` 三个阶段。
@@ -252,6 +262,7 @@ Accordion plan:
 接口动作支持调用第三方 `Restful API`，支持 `JSON`、`XML` 数据格式的请求和响应，同时支持使用代理服务。
 默认情况下请求接口的超时时间是 `5秒`，你可以根据实际情况进行调整。
 
+> [!]
 > 所有动作使用建造模式创建对象实例，包括动作的参数模版。
 
 ```java
@@ -349,7 +360,8 @@ String expression = ConditionBuilder.getInstance().build(condition);
 
 在条件表达式中，我们可以使用 `动态变量`，在上面的例子中，参数 `a`，`b`，`x` 将被替换为实际值进行计算。
 
-> ⚠️ **注意**：缺失的动态变量值将使用 `null` 代替，这会导致计算的条件不成立。
+> [!WARNING]
+> 缺失的动态变量值将使用 `null` 代替，这会导致计算的条件不成立。
 
 - __参数说明__
 
@@ -386,6 +398,7 @@ ActionConfig switchAction = ActionConfig.builder()
         .build();
 ```
 
+> [!NOTE]
 > 在上面的例子中，只有 B 和 C 分支才会被执行。
 
 - __参数说明__
@@ -410,7 +423,8 @@ ActionConfig switchAction = ActionConfig.builder()
 
 支持向多个邮箱发送邮件，默认情况下邮件的内容格式采用 `html` 格式，暂不支持邮件附件。
 
-> ⚠️ **注意**：请严格检查你的邮件内容，确保不包含 `js` 等脚本注入，这类邮件通常会被邮箱系统拦截。
+> [!WARNING]
+> 请严格检查你的邮件内容，确保不包含 `js` 等脚本注入，这类邮件通常会被邮箱系统拦截。
 
 ```java
 ActionConfig emailAction = ActionConfig.builder()
@@ -463,7 +477,7 @@ ActionConfig emailAction = ActionConfig.builder()
 
 支持 `Java` 语法的脚本代码片段，用于实现一些复杂的任务场景。
 
-> ℹ️ **支持功能**
+> [!NOTE]
 >
 > - `Java` 语法，`lambda` 表达式
 > - `调试模式`，方便追踪问题
@@ -471,8 +485,9 @@ ActionConfig emailAction = ActionConfig.builder()
 > - `预置函数` 例如：`科学计算`，`字符串处理` 等
 >
 > 使用 `com.googlecode.aviator` 框架实现，更多语法规则请参阅 aviator 使用手册。
-> 
-> ⚠️ **注意：默认情况下自定义脚本关闭了一些语言特性，以保障系统的安全性。**
+
+> [!IMPORTANT]
+> 默认情况下自定义脚本关闭了一些语言特性，以保障系统的安全性。
 
 ```java
 ActionConfig scriptAction = ActionConfig.builder()
@@ -567,6 +582,7 @@ ActionConfig action = ActionConfig.builder()
 | system            | N    | 系统提示词            |
 | memory            | N    | 是否开启记忆，默认：false  |
 
+> [!NOTE]
 > 关于 `modelParameter` 和 `generateParameter` 完整的参数请查阅 [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) 文档。
 
 - __输出参数__
@@ -604,12 +620,9 @@ public class MyAction extends AbstractAction {
 }
 ```
 
-> ℹ️ **TIPS**
-> 
+> [!TIP]
 > - 所有动作都继承了 `AbstractAction` 并且实现 `execute` 方法，在构造方法中初始化所需要的参数。
-> 
 > - `execute` 方法默认使用 `try-catch` 处理，你也可以选择抛出异常。
-> 
 > - 如果需要传递输出参数，请将它们写入 `ExecuteResult`。
 
 
@@ -634,9 +647,8 @@ ActionRegister.getInstance().unregister("MyAction");
 
 事件消息 `Message` 是一个数据源，在某些场景中，我们需要对来自上游下发的事件消息进行反馈，执行一系列复杂的动作。
 
-> ℹ️ **举例**
+> [!TIP]
 > - 流计算场景，我们可以对消费的事件消息进行实时计算处理。
->
 > - 监控场景，我们可以对异常值进行告警、执行特定操作。
 
 **示例**
@@ -656,7 +668,8 @@ __仅限于动作与动作之间使用，上一个动作的输出参数默认会
 
 __全局可用__，在任务执行开始阶段会初始化 `session`，其中存储了执行链的状态和消息。你可以将需要全局传递的参数存储至会话中。
 
-> ⚠️ __参数命名规范__
+> [!IMPORTANT] 
+> __参数命名规范__
 >
 > 尽可能使用清晰易懂的参数命名，避免重复的参数名称导致参数被覆盖。
 
@@ -676,9 +689,13 @@ __全局可用__，在任务执行开始阶段会初始化 `session`，其中存
 
 ## 附录
 
-#### 引用框架
+<details>
+
+<summary>引用框架</summary>
 
 在本项目中，我使用了 `okhttp3` 实现轻量化的HTTP请求，`aviator` 实现高级脚本语言功能。
 
 - `aviator`
 - `okhttp3`
+
+</details>
