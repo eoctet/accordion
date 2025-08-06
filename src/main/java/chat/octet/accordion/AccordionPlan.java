@@ -15,7 +15,7 @@ import chat.octet.accordion.utils.JsonUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -40,28 +40,18 @@ public class AccordionPlan {
     private AccordionConfig accordionConfig;
     private GraphNode rootGraphNode;
 
-    private static volatile AccordionPlan instance;
-
-    private AccordionPlan() {
+    public AccordionPlan() {
         this.graphNodes = Lists.newArrayList();
         this.graphEdges = Lists.newArrayList();
     }
 
     /**
-     * Get an instance of the Accordion plan.
-     * If the instance does not exist, a new instance is created and returned.
+     * Create a new instance of the Accordion plan.
      *
      * @return AccordionPlan
      */
     public static AccordionPlan of() {
-        if (instance == null) {
-            synchronized (AccordionPlan.class) {
-                if (instance == null) {
-                    instance = new AccordionPlan();
-                }
-            }
-        }
-        return instance;
+        return new AccordionPlan();
     }
 
     /**
@@ -166,7 +156,7 @@ public class AccordionPlan {
                     CommonUtils.randomString("ACR").toUpperCase(),
                     "Default accordion name",
                     "Default accordion desc",
-                    graphConfig, new Date()
+                    graphConfig, LocalDateTime.now()
             );
             return JsonUtils.toJson(config);
         }

@@ -16,6 +16,7 @@ import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -43,8 +44,8 @@ public class EmailAction extends AbstractAction {
     private HtmlEmail createEmail(EmailParameter params, String contentId) {
         // setting email server config
         HtmlEmail email = new HtmlEmail();
-        email.setSocketTimeout(params.getTimeout().intValue());
-        email.setSocketConnectionTimeout(params.getTimeout().intValue());
+        email.setSocketTimeout(Duration.ofMillis(params.getTimeout()));
+        email.setSocketConnectionTimeout(Duration.ofMillis(params.getTimeout()));
         email.setDebug(params.isDebug());
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-ID", contentId);

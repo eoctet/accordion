@@ -4,7 +4,6 @@
 
 `手风琴` 是一个自动化任务框架，你可以将多个动作组合起来实现高效的自动化任务，就像 `IFTTT` 简单且直接，快速提升你的系统效率。
 
-
 ## 快速开始
 
 创建你自己的项目，使用 `Maven` 或 `Gradle` 引入手风琴框架。
@@ -22,6 +21,7 @@
 ```
 
 #### Gradle
+
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
@@ -69,6 +69,7 @@ Accordion plan:
 琴谱 `AccordionPlan` 是一个执行计划 (DAG)，由 `执行链` 和 `动作` 组成。执行计划由一个起始动作开始，然后通过 `next` 方法连接其他动作，形成一条执行链。
 
 > [!NOTE]
+>
 > - 执行链连接每一个动作，在DAG中它是边 `Edges`，而动作则是具体的每个节点 `Nodes`。
 > - 每一个动作的执行都依赖于前序动作，如果前序动作执行失败，那么后序动作将不会执行。
 
@@ -165,15 +166,15 @@ try (Accordion accordion = new Accordion(plan)) {
 ```text
 Accordion plan:
 🅞───⨀ ✅ A (ACT-M43B62QK56)
-	├───⨀ ✅ B (ACT-HBT8E98ZJP)
-	├───⨀ ✅ C (ACT-7239Z51LKX)
-	├───⨀ ✅ R (ACT-5VR1Y3WMBP)
-	└───⨀ ✅ W (ACT-T39P7JFIVL)
-		└───⨀ ✅ D (ACT-XUM24TLIBI)
-			├───⨀ ✅ E (ACT-0KSSQYF52E)
-			├───⨀ ✅ G (ACT-XU3OXGBZ5Y)
-			└───⨀ ✅ F (ACT-56Q2VNG5B4)
-				└───⨀ ✅ H (ACT-LERLLYDHQN)
+ ├───⨀ ✅ B (ACT-HBT8E98ZJP)
+ ├───⨀ ✅ C (ACT-7239Z51LKX)
+ ├───⨀ ✅ R (ACT-5VR1Y3WMBP)
+ └───⨀ ✅ W (ACT-T39P7JFIVL)
+  └───⨀ ✅ D (ACT-XUM24TLIBI)
+   ├───⨀ ✅ E (ACT-0KSSQYF52E)
+   ├───⨀ ✅ G (ACT-XU3OXGBZ5Y)
+   └───⨀ ✅ F (ACT-56Q2VNG5B4)
+    └───⨀ ✅ H (ACT-LERLLYDHQN)
 ```
 
 **导入 & 导出执行计划**
@@ -252,7 +253,6 @@ Accordion plan:
   - ✅ `SUCCESS` 执行完成
   - 🟡 `SKIP`    执行跳过，例如：当某个动作的执行发生错误时，下一个动作会被跳过
 
-
 以下是预置的基本动作列表，你可以根据需要进行扩展。
 
 #### 接口
@@ -280,11 +280,11 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称                     | 是否必填 | 说明                         |
 |--------------------------|------|----------------------------|
-| url                      | Y    | 请求地址 http://127.0.0.1/api  |
+| url                      | Y    | 请求地址 <http://127.0.0.1/api>  |
 | method                   | Y    | 请求方式 GET/POST/PUT...       |
 | headers                  | N    | 请求头参数列表 {"args": "value"}  |
 | request                  | N    | 请求参数列表 {"args": "value"}   |
@@ -297,7 +297,7 @@ ActionConfig action = ActionConfig.builder()
 | proxyServerAddress       | N    | 代理服务器地址 127.0.0.1          |
 | proxyServerPort          | N    | 代理服务器端口 8080               |
 
-- __输出参数__
+- **输出参数**
 
 根据请求接口的返回值指定所需要的输出参数，例如：请求接口的返回值中包含 `status` 字段，那么我们就可以将 `status` 作为输出参数，用于后续动作的输入参数。
 
@@ -326,7 +326,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __条件表达式__
+- **条件表达式**
 
 条件表达式有两种使用方式，第一种是直接写表达式，例如： `a+b==123`，第二种是使用 `Condition` 进行创建。
 
@@ -363,18 +363,17 @@ String expression = ConditionBuilder.getInstance().build(condition);
 > [!WARNING]
 > 缺失的动态变量值将使用 `null` 代替，这会导致计算的条件不成立。
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称       | 是否必填 | 说明    |
 |------------|------|-------|
 | expression | Y    | 条件表达式 |
 
-- __输出参数__
+- **输出参数**
 
 条件动作执行后，将返回 `true` 或 `false`。
 
 ----
-
 
 #### 条件分支
 
@@ -401,7 +400,7 @@ ActionConfig switchAction = ActionConfig.builder()
 > [!NOTE]
 > 在上面的例子中，只有 B 和 C 分支才会被执行。
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称       | 是否必填 | 说明                |
 |------------|------|-------------------|
@@ -411,7 +410,7 @@ ActionConfig switchAction = ActionConfig.builder()
 | expression | Y    | 条件表达式             |
 | negation   | Y    | 条件反转 true / false |
 
-- __输出参数__
+- **输出参数**
 
 条件分支动作执行后，将返回一组包含分支名称和执行结果的对象列表。
 
@@ -447,7 +446,7 @@ ActionConfig emailAction = ActionConfig.builder()
         .build();
 ```
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称     | 是否必填 | 说明                |
 |----------|------|-------------------|
@@ -465,7 +464,7 @@ ActionConfig emailAction = ActionConfig.builder()
 | timeout  | N    | 发送超时时间，默认5000毫秒   |
 | debug    | N    | 是否调试              |
 
-- __输出参数__
+- **输出参数**
 
 邮件动作没有输出参数。
 
@@ -501,7 +500,7 @@ ActionConfig scriptAction = ActionConfig.builder()
         .build();
 ```
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称     | 是否必填 | 说明          |
 |----------|------|-------------|
@@ -509,7 +508,7 @@ ActionConfig scriptAction = ActionConfig.builder()
 | script   | Y    | 脚本代码        |
 | debug    | N    | 开启调试，默认关闭   |
 
-- __输出参数__
+- **输出参数**
 
 在不指定输出参数的情况下，自定义动作将使用默认的输出参数 `ACTION_SCRIPT_RESULT`，类型为 `String`，用于保存脚本执行的结果。
 
@@ -536,7 +535,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称    | 是否必填 | 说明                 |
 |---------|------|--------------------|
@@ -544,7 +543,7 @@ ActionConfig action = ActionConfig.builder()
 | shell   | Y    | 命令行代码片段            |
 | timeout | N    | 执行超时时间，默认：60000 ms |
 
-- __输出参数__
+- **输出参数**
 
 可以指定一个输出参数或留空。
 
@@ -572,7 +571,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __参数说明__
+- **参数说明**
 
 | 参数名称              | 是否必填 | 说明               |
 |-------------------|------|------------------|
@@ -585,7 +584,7 @@ ActionConfig action = ActionConfig.builder()
 > [!NOTE]
 > 关于 `modelParameter` 和 `generateParameter` 完整的参数请查阅 [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) 文档。
 
-- __输出参数__
+- **输出参数**
 
 | 参数名称         | 参数类型   | 说明      |
 |--------------|--------|---------|
@@ -621,10 +620,10 @@ public class MyAction extends AbstractAction {
 ```
 
 > [!TIP]
+>
 > - 所有动作都继承了 `AbstractAction` 并且实现 `execute` 方法，在构造方法中初始化所需要的参数。
 > - `execute` 方法默认使用 `try-catch` 处理，你也可以选择抛出异常。
 > - 如果需要传递输出参数，请将它们写入 `ExecuteResult`。
-
 
 - 注册自定义动作
 
@@ -642,12 +641,12 @@ ActionRegister.getInstance().register("MyAction", MyAction.class.getName());
 ActionRegister.getInstance().unregister("MyAction");
 ```
 
-
 ### 事件消息
 
 事件消息 `Message` 是一个数据源，在某些场景中，我们需要对来自上游下发的事件消息进行反馈，执行一系列复杂的动作。
 
 > [!TIP]
+>
 > - 流计算场景，我们可以对消费的事件消息进行实时计算处理。
 > - 监控场景，我们可以对异常值进行告警、执行特定操作。
 
@@ -655,21 +654,20 @@ ActionRegister.getInstance().unregister("MyAction");
 
 > chat.octet.accordion.examples.[MessageExample](../src/test/java/chat/octet/accordion/examples/MessageExample.java)
 
-
 ### 参数传递
 
 在整个任务执行过程中，我们可以使用 `输出参数` 或 `会话` 进行参数值的传递。
 
 - 输出参数
 
-__仅限于动作与动作之间使用，上一个动作的输出参数默认会作为下一个动作的输入参数进行传递使用__。例如：请求某个接口的返回结果字段，可以作用在下一个动作的条件判断。
+**仅限于动作与动作之间使用，上一个动作的输出参数默认会作为下一个动作的输入参数进行传递使用**。例如：请求某个接口的返回结果字段，可以作用在下一个动作的条件判断。
 
 - 会话
 
-__全局可用__，在任务执行开始阶段会初始化 `session`，其中存储了执行链的状态和消息。你可以将需要全局传递的参数存储至会话中。
+**全局可用**，在任务执行开始阶段会初始化 `session`，其中存储了执行链的状态和消息。你可以将需要全局传递的参数存储至会话中。
 
-> [!IMPORTANT] 
-> __参数命名规范__
+> [!IMPORTANT]
+> **参数命名规范**
 >
 > 尽可能使用清晰易懂的参数命名，避免重复的参数名称导致参数被覆盖。
 
@@ -677,13 +675,11 @@ __全局可用__，在任务执行开始阶段会初始化 `session`，其中存
 
 > chat.octet.accordion.examples.[SimpleExample](../src/test/java/chat/octet/accordion/examples/SimpleExample.java)
 
-
 ### 数据类型
 
 支持主要的数据类型 `chat.octet.accordion.core.enums.DataType`
 
 在参数传递过程中将自动进行参数类型转换，对未指定数据类型的参数将统一使用 `String`。
-
 
 ----
 

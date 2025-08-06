@@ -4,7 +4,6 @@
 
 `Accordion` is an automated task framework. You can combine multiple actions to achieve an efficient automation task, just like the `IFTTT` simple and straightforward, quickly improving the efficiency of your system.
 
-
 ## Quick start
 
 Create your own project and use `Maven` or `Gradle` to import the accordion framework.
@@ -22,6 +21,7 @@ Create your own project and use `Maven` or `Gradle` to import the accordion fram
 ```
 
 #### Gradle
+
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
@@ -69,6 +69,7 @@ The following is an introduction to the main functions of this project. You can 
 `AccordionPlan` is an Execution Plan (DAG) consisting of an Execution Chain and an Action. The execution plan starts with a starting action and then connects other actions through the `next` method to form an execution chain.
 
 > [!NOTE]
+>
 > - The execution chain connects each action, which in the DAG is the `Edge`, and the action is the specific `Node`.
 > - The execution of each action depends on the preceding action. If the preceding action fails, the following action will not be executed.
 
@@ -165,15 +166,15 @@ Output of execution plan:
 ```text
 Accordion plan:
 🅞───⨀ ✅ A (ACT-M43B62QK56)
-	├───⨀ ✅ B (ACT-HBT8E98ZJP)
-	├───⨀ ✅ C (ACT-7239Z51LKX)
-	├───⨀ ✅ R (ACT-5VR1Y3WMBP)
-	└───⨀ ✅ W (ACT-T39P7JFIVL)
-		└───⨀ ✅ D (ACT-XUM24TLIBI)
-			├───⨀ ✅ E (ACT-0KSSQYF52E)
-			├───⨀ ✅ G (ACT-XU3OXGBZ5Y)
-			└───⨀ ✅ F (ACT-56Q2VNG5B4)
-				└───⨀ ✅ H (ACT-LERLLYDHQN)
+ ├───⨀ ✅ B (ACT-HBT8E98ZJP)
+ ├───⨀ ✅ C (ACT-7239Z51LKX)
+ ├───⨀ ✅ R (ACT-5VR1Y3WMBP)
+ └───⨀ ✅ W (ACT-T39P7JFIVL)
+  └───⨀ ✅ D (ACT-XUM24TLIBI)
+   ├───⨀ ✅ E (ACT-0KSSQYF52E)
+   ├───⨀ ✅ G (ACT-XU3OXGBZ5Y)
+   └───⨀ ✅ F (ACT-56Q2VNG5B4)
+    └───⨀ ✅ H (ACT-LERLLYDHQN)
 ```
 
 **Import & Export accordion plan**
@@ -238,20 +239,19 @@ After creating an execution plan, you can export it as a `JSON` for persistence 
 Action is an execution unit that can do many things. Each action has three stages: `input`, `execution`, and `output`.
 
 - **Input**
-    - The input parameters of an action can be the output result of the previous action or the event message. In development, we do not need to declare, `AbstractAction` will be automatically processed.
+  - The input parameters of an action can be the output result of the previous action or the event message. In development, we do not need to declare, `AbstractAction` will be automatically processed.
 
 - **Execution**
-    - This is the execution module for actions, where you can implement your business functions. You can refer to the code for preset actions for details.
+  - This is the execution module for actions, where you can implement your business functions. You can refer to the code for preset actions for details.
 
 - **Output**
-    - The output parameters of the action need to be specified in the action configuration template as `actionOutput`.
+  - The output parameters of the action need to be specified in the action configuration template as `actionOutput`.
 
 - **Status**
-    - ⚪️ `NORMAL`  Default state
-    - 🅾️ `ERROR`   Execution error occurred
-    - ✅ `SUCCESS` Execution completed
-    - 🟡 `SKIP`    Execution skipped, for example: when an error occurs in the execution of an action, the next action will be skipped.
-
+  - ⚪️ `NORMAL`  Default state
+  - 🅾️ `ERROR`   Execution error occurred
+  - ✅ `SUCCESS` Execution completed
+  - 🟡 `SKIP`    Execution skipped, for example: when an error occurs in the execution of an action, the next action will be skipped.
 
 The following is a list of preset basic actions that you can expand as needed.
 
@@ -281,11 +281,11 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter                | Required | Description                                           |
 |--------------------------|----------|-------------------------------------------------------|
-| url                      | Y        | Request url, http://127.0.0.1/api                     |
+| url                      | Y        | Request url, <http://127.0.0.1/api>                     |
 | method                   | Y        | Request methods, GET/POST/PUT...                      |
 | headers                  | N        | Request header parameter list {"args": "value"}       |
 | request                  | N        | Request parameter list {"args": "value"}              |
@@ -298,9 +298,9 @@ ActionConfig action = ActionConfig.builder()
 | proxyServerAddress       | N        | Proxy server address 127.0.0.1                        |
 | proxyServerPort          | N        | Proxy server port 8080                                |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
-According to the return value of the request, specify the required output parameters. 
+According to the return value of the request, specify the required output parameters.
 
 For example, if the response data of the request contains the `status` field, then we can use `status` as the output parameter for subsequent actions.
 
@@ -330,7 +330,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __Conditional expressions__
+- **Conditional expressions**
 
 There are two ways to use conditional expressions. The first is to write the expression directly, and the second is to create it using `Condition`.
 
@@ -369,18 +369,17 @@ In conditional expressions, we can use `dynamic variables`. In the above example
 > [!WARNING]
 > Missing dynamic variable values will be replaced with `null`, which will result in the calculation conditions not being true.
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter  | Required | Description             |
 |------------|----------|-------------------------|
 | expression | Y        | Conditional expressions |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 After the conditional action is executed, it will return either `true` or `false`.
 
 ----
-
 
 #### SwitchAction
 
@@ -407,7 +406,7 @@ ActionConfig switchAction = ActionConfig.builder()
 > [!NOTE]
 > In the above example, only the B and C branches will be executed.
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter  | Required | Description                        |
 |------------|----------|------------------------------------|
@@ -417,7 +416,7 @@ ActionConfig switchAction = ActionConfig.builder()
 | expression | Y        | Conditional expressions            |
 | negation   | Y        | Conditional reversal: true / false |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 After the SwitchAction is executed, a list of objects containing the branch name and execution result will be returned.
 
@@ -455,7 +454,7 @@ ActionConfig emailAction = ActionConfig.builder()
         .build();
 ```
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter | Required | Description                                               |
 |-----------|----------|-----------------------------------------------------------|
@@ -473,7 +472,7 @@ ActionConfig emailAction = ActionConfig.builder()
 | timeout   | N        | Connection timeout, default: 5000 ms                      |
 | debug     | N        | Debug mode, default: false                                |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 Email action has no output parameters.
 
@@ -509,7 +508,7 @@ ActionConfig scriptAction = ActionConfig.builder()
         .build();
 ```
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter | Required | Description                                   |
 |-----------|----------|-----------------------------------------------|
@@ -517,14 +516,13 @@ ActionConfig scriptAction = ActionConfig.builder()
 | script    | Y        | Script code snippets                          |
 | debug     | N        | Debug mode, default: false                    |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 Without specifying output parameters, custom actions will use the default output parameters `ACTION_SCRIPT_RESULT`, of type `String`, is used to save the result of script execution.
 
 | Parameter            | DataType | Description              |
 |----------------------|----------|--------------------------|
 | ACTION_SCRIPT_RESULT | String   | Default output parameter |
-
 
 #### ShellAction
 
@@ -543,7 +541,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter | Required | Description                          |
 |-----------|----------|--------------------------------------|
@@ -551,7 +549,7 @@ ActionConfig action = ActionConfig.builder()
 | shell     | Y        | Shell code snippets                  |
 | timeout   | N        | Execution timeout, default: 60000 ms |
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 You can specify an output parameter or leave it blank.
 
@@ -579,7 +577,7 @@ ActionConfig action = ActionConfig.builder()
         .build();
 ```
 
-- __Action Parameters__
+- **Action Parameters**
 
 | Parameter         | Required | Description                                                            |
 |-------------------|----------|------------------------------------------------------------------------|
@@ -592,7 +590,7 @@ ActionConfig action = ActionConfig.builder()
 > [!NOTE]
 > For the complete parameters of `modelParameter` and `generateParameter`, please refer to [`llama-java`](https://github.com/eoctet/llama-java/wiki/Llama-Java-parameters) Documents.
 
-- __Action Output Parameters__
+- **Action Output Parameters**
 
 | Parameter    | DataType | Description           |
 |--------------|----------|-----------------------|
@@ -628,10 +626,10 @@ public class MyAction extends AbstractAction {
 ```
 
 > [!TIP]
+>
 > - All actions inherit `AbstractAction` and implement the `execute` method, initializing the required parameters in the constructor.
 > - `execute` method defaults to using `try-catch` to handle exceptions, and you can also choose to throw an exception.
 > - If you need to pass output parameters, please write them to `ExecuteResult`.
-
 
 - Register custom actions
 
@@ -649,12 +647,12 @@ For unnecessary actions, you can remove them through the `unregister` method.
 ActionRegister.getInstance().unregister("MyAction");
 ```
 
-
 ### Event messages
 
 `Event message` is a data source, and in some scenarios, we need to provide feedback on event messages sent from upstream and perform a series of complex actions.
 
 > [!TIP]
+>
 > - In streaming computing scenarios, we can perform real-time computation and processing on consumed event messages.
 > - In monitoring scenarios, we can alert for outliers and perform specific operations.
 
@@ -662,23 +660,22 @@ ActionRegister.getInstance().unregister("MyAction");
 
 > chat.octet.accordion.examples.[MessageExample](../src/test/java/chat/octet/accordion/examples/MessageExample.java)
 
-
 ### Parameter passing
 
 Throughout the entire task execution process, we can use `Action output parameters` or `Action session` to pass parameter values.
 
 - Action output parameters
 
-__Only used between actions, the output parameter of the previous action will be passed as the input parameter of the next action by default.__ 
+**Only used between actions, the output parameter of the previous action will be passed as the input parameter of the next action by default.**
 
 For example, requesting the return result field of a certain interface can be used to determine the condition of the next action.
 
 - Action session
 
-__Globally available__, `Action session` is initialized at the beginning of task execution, which stores the status and messages of the execution chain. You can store the parameters that need to be passed globally in the session.
+**Globally available**, `Action session` is initialized at the beginning of task execution, which stores the status and messages of the execution chain. You can store the parameters that need to be passed globally in the session.
 
-> [!IMPORTANT] 
-> __Parameter naming convention__
+> [!IMPORTANT]
+> **Parameter naming convention**
 >
 > Use clear and easy to understand parameter names as much as possible to avoid duplicate parameter names that may cause parameters to be overwritten.
 
@@ -686,13 +683,11 @@ __Globally available__, `Action session` is initialized at the beginning of task
 
 > chat.octet.accordion.examples.[SimpleExample](../src/test/java/chat/octet/accordion/examples/SimpleExample.java)
 
-
 ### Data type
 
 Supports data types `chat.octet.accordion.core.enums.DataType`
 
 During the parameter transfer process, parameter type conversion will be automatically performed, and `String` will be used uniformly for parameters without specified data types.
-
 
 ----
 

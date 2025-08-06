@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -25,9 +25,9 @@ public class AccordionConfig implements Serializable {
     private AccordionGraphConfig graphConfig;
 
     @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME)
-    private Date updatetime;
+    private LocalDateTime updatetime;
 
-    public AccordionConfig(String id, String name, String desc, AccordionGraphConfig graphConfig, Date updatetime) {
+    public AccordionConfig(String id, String name, String desc, AccordionGraphConfig graphConfig, LocalDateTime updatetime) {
         this.id = id;
         this.name = name;
         this.desc = desc;

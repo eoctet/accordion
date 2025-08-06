@@ -13,6 +13,5 @@ public enum ActionType {
     EMAIL,
     SCRIPT,
     TEST,
-    LLAMA,
     SHELL
 }

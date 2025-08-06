@@ -6,8 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -40,7 +40,7 @@ public enum DataType {
     /**
      * DATETIME java data type
      */
-    DATETIME(new Date()),
+    DATETIME(LocalDateTime.now()),
     /**
      * BOOLEAN java data type
      */

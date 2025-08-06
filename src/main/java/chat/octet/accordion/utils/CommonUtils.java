@@ -18,6 +18,9 @@ public class CommonUtils {
 
     public static String randomString(String prefixString) {
         String randomString = IntStream.range(0, 10).map(i -> new SecureRandom().nextInt(CHARACTER_SET.length())).mapToObj(randomInt -> CHARACTER_SET.substring(randomInt, randomInt + 1)).collect(Collectors.joining());
+        if (prefixString == null) {
+            return "null-" + randomString;
+        }
         return StringUtils.join(prefixString, "-", randomString);
     }
 

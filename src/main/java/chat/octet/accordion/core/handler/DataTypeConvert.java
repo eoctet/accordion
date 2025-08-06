@@ -5,14 +5,13 @@ import chat.octet.accordion.core.enums.DataType;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.MessageFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 
 /**
@@ -78,7 +77,7 @@ public class DataTypeConvert {
             return clazz.cast(b);
         } else if (clazz == BigDecimal.class) {
             return clazz.cast(new BigDecimal(value).setScale(DECIMAL_SCALE, RoundingMode.HALF_UP));
-        } else if (clazz == Date.class) {
+        } else if (clazz == LocalDateTime.class) {
             String format = null;
             if (value.contains(TIME) && value.contains(ZONE)) {
                 value = value.replace(TIME, StringUtils.SPACE).replace(ZONE, StringUtils.EMPTY);
@@ -100,10 +99,15 @@ public class DataTypeConvert {
                     format = Constant.DATE_FORMAT;
                 }
             }
-            if (format == null) {
-                return clazz.cast(DateTime.parse(value).toDate());
+            try {
+                if (format == null) {
+                    return clazz.cast(LocalDateTime.parse(value));
+                }
+                return clazz.cast(LocalDateTime.parse(value, DateTimeFormatter.ofPattern(format)));
+            } catch (DateTimeParseException e) {
+                log.warn("Failed to parse date value: {}, using default", value);
+                return clazz.cast(LocalDateTime.now());
             }
-            return clazz.cast(DateTime.parse(value, DateTimeFormat.forPattern(format)).toDate());
         }
         return clazz.cast(value);
     }
