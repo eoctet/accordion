@@ -4,6 +4,10 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   # maven build & deploy
   maven-build-deploy:
@@ -12,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Maven Central Repository
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          java-version: '18'
-          distribution: 'oracle'
+          java-version: '17'
+          distribution: 'temurin'
           architecture: 'x64'
           cache: 'maven'
           server-id: 'ossrh'
@@ -33,7 +37,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_PRIVATE_KEY_PASS }}
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           body_path: CHANGELOG.md

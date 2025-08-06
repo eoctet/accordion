@@ -237,26 +237,37 @@ class AccordionIntegrationTest extends AccordionTestBase {
         @DisplayName("Should handle action failures gracefully")
         void should_handle_action_failures_gracefully() {
             // Given - Create a workflow with a failing action
-            ActionConfig successAction = ActionConfig.builder()
-                    .id(createTestActionId("SUCCESS"))
+            ActionConfig failingAction = ActionConfig.builder()
+                    .id(createTestActionId("FAILING"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Success Action")
-                    .actionDesc("This action should succeed")
+                    .actionName("Failing Action")
+                    .actionDesc("This action should fail")
                     .actionParams(ScriptParameter.builder()
-                            .script("'Success!'")
+                            .script("throw new RuntimeException('Intentional failure for testing')")
+                            .build())
+                    .build();
+
+            ActionConfig recoveryAction = ActionConfig.builder()
+                    .id(createTestActionId("RECOVERY"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("Recovery Action")
+                    .actionDesc("This action should handle recovery")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'Recovery completed'")
                             .build())
                     .build();
 
             AccordionPlan plan = AccordionPlan.of()
-                    .start(successAction);
+                    .start(failingAction)
+                    .next(failingAction, recoveryAction);
 
-            // When & Then - Should handle failure without crashing
+            // When & Then - Should handle failure without crashing the entire workflow
             try (Accordion accordion = new Accordion(plan)) {
                 assertThatCode(() -> accordion.play(true))
                         .doesNotThrowAnyException();
                 
                 String executionLog = accordion.verbose();
-                assertThat(executionLog).contains("Success Action");
+                assertThat(executionLog).contains("Failing Action");
                 
                 logger.info("Error handling execution:\n{}", executionLog);
             }
