@@ -80,6 +80,17 @@ public class AccordionPlan {
      * @return GraphNode
      */
     private GraphNode findRootGraphNode() {
+        // If there are no edges and only one node, that node is the root
+        if (graphEdges.isEmpty() && graphNodes.size() == 1) {
+            return graphNodes.get(0);
+        }
+        
+        // If there are no edges but multiple nodes, throw an exception
+        if (graphEdges.isEmpty() && graphNodes.size() > 1) {
+            throw new AccordionException("Multiple actions found without edges. Please specify the starting action.");
+        }
+        
+        // Standard case: find node that is not a target of any edge
         Set<GraphNode> nextGraphNodes = graphEdges.stream().map(GraphEdge::getNextNode).collect(Collectors.toSet());
         return graphNodes.stream().filter(node -> !nextGraphNodes.contains(node)).findFirst()
                 .orElseThrow(() -> new AccordionException("No starting action found."));
@@ -188,6 +199,14 @@ public class AccordionPlan {
 
         AccordionGraphConfig graphConfig = accordionConfig.getGraphConfig();
         List<ActionConfig> actionConfigs = graphConfig.getActions();
+
+        // Handle case with no edges (single action)
+        if (graphConfig.getEdges().isEmpty() && !actionConfigs.isEmpty()) {
+            // If there are no edges but there are actions, treat the first action as the start action
+            ActionConfig singleAction = actionConfigs.get(0);
+            start(singleAction);
+            return this;
+        }
 
         String message = "Unable to find the action config, please check your parameter.";
         for (EdgeConfig edgeConfig : graphConfig.getEdges()) {

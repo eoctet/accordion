@@ -77,7 +77,7 @@ class AccordionTest extends AccordionTestBase {
     class PlanConfigurationTests {
 
         @ParameterizedTest
-        @ValueSource(strings = {"println('Hello')", "2 * 3", "Math.max(5, 10)"})
+        @ValueSource(strings = {"println('Hello')", "2 * 3", "math.abs(-10)"})
         @DisplayName("Should execute various script expressions")
         void should_execute_various_script_expressions(String script) {
             // Given
@@ -171,7 +171,7 @@ class AccordionTest extends AccordionTestBase {
                     .actionName("Multiple Execution Test")
                     .actionDesc("Test multiple executions")
                     .actionParams(ScriptParameter.builder()
-                            .script("Math.random()")
+                            .script("rand(100)")
                             .build())
                     .build();
 

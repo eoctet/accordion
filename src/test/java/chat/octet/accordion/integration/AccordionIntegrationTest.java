@@ -185,7 +185,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
                     .actionName("Step 1")
                     .actionDesc("First step")
                     .actionParams(ScriptParameter.builder()
-                            .script("let step1Result = 'Step 1 completed'")
+                            .script("let step1Result = 'Step 1 completed'; step1Result")
                             .build())
                     .build();
 
@@ -195,7 +195,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
                     .actionName("Step 2")
                     .actionDesc("Second step")
                     .actionParams(ScriptParameter.builder()
-                            .script("let step2Result = 'Step 2 completed'")
+                            .script("let step2Result = 'Step 2 completed'; step2Result")
                             .build())
                     .build();
 
@@ -243,7 +243,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
                     .actionName("Failing Action")
                     .actionDesc("This action should fail")
                     .actionParams(ScriptParameter.builder()
-                            .script("throw new RuntimeException('Intentional failure for testing')")
+                            .script("let result = 1 / 0; result")
                             .build())
                     .build();
 
