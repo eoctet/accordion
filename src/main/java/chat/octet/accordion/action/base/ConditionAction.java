@@ -35,12 +35,26 @@ public class ConditionAction extends AbstractAction {
 
         try {
             String expression = params.getExpression();
+            if (StringUtils.isBlank(expression)) {
+                throw new ActionException("Condition expression cannot be empty");
+            }
+
+            log.debug("({}) -> Evaluating condition expression: {}", getConfig().getId(), expression);
             flag = ConditionBuilder.getInstance().test(getInputParameter(), expression, params.isDebug());
-            log.debug("Condition action execution result: " + flag);
+            log.debug("({}) -> Condition evaluation result: {}", getConfig().getId(), flag);
+
+        } catch (ActionException e) {
+            setExecuteThrowable(e);
+            throw e;
         } catch (Exception e) {
-            setExecuteThrowable(new ActionException(e.getMessage(), e));
+            ActionException actionException = new ActionException(
+                    "Failed to evaluate condition expression '" + params.getExpression() + "': " + e.getMessage(), e);
+            setExecuteThrowable(actionException);
+            throw actionException;
         }
+
         executeResult.add(ACTION_CONDITION_STATE, flag);
+        // The break flag is automatically determined by isBreak() method based on ACTION_CONDITION_STATE
         return executeResult;
     }
 }

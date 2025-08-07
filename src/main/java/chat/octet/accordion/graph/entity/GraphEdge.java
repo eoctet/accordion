@@ -27,10 +27,9 @@ public class GraphEdge {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GraphEdge)) {
+        if (!(o instanceof GraphEdge edge)) {
             return false;
         }
-        GraphEdge edge = (GraphEdge) o;
         return Objects.equals(id, edge.id);
     }
 

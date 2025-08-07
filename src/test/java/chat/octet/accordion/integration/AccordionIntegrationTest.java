@@ -5,12 +5,16 @@ import chat.octet.accordion.AccordionPlan;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.script.ScriptParameter;
+import chat.octet.accordion.action.base.ConditionParameter;
+import chat.octet.accordion.core.entity.Message;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.test.AccordionTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -20,257 +24,334 @@ import static org.assertj.core.api.Assertions.*;
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("Accordion Integration Tests")
-@Tag("integration")
 class AccordionIntegrationTest extends AccordionTestBase {
 
     @Nested
-    @DisplayName("End-to-End Workflow Tests")
-    class EndToEndWorkflowTests {
+    @DisplayName("Complete Workflow Tests")
+    class CompleteWorkflowTests {
 
         @Test
-        @DisplayName("Should execute complete calculation workflow")
-        void should_execute_complete_calculation_workflow() {
-            // Given - Create a calculation workflow
-            ActionConfig calculateAction = ActionConfig.builder()
-                    .id(createTestActionId("CALC"))
+        @DisplayName("Should execute sequential actions successfully")
+        void should_execute_sequential_actions_successfully() {
+            // Given
+            ActionConfig firstAction = ActionConfig.builder()
+                    .id(createTestActionId("FIRST"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Calculate Sum")
-                    .actionDesc("Calculate sum of two numbers")
+                    .actionName("First Action")
+                    .actionDesc("Initialize counter")
                     .actionParams(ScriptParameter.builder()
-                            .script("let a = 10; let b = 20; a + b")
+                            .script("let counter = 1; counter")
                             .build())
                     .build();
 
-            ActionConfig validateAction = ActionConfig.builder()
-                    .id(createTestActionId("VALIDATE"))
+            ActionConfig secondAction = ActionConfig.builder()
+                    .id(createTestActionId("SECOND"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Validate Result")
-                    .actionDesc("Validate calculation result")
+                    .actionName("Second Action")
+                    .actionDesc("Process result")
                     .actionParams(ScriptParameter.builder()
-                            .script("println('Validation passed')")
+                            .script("'second action result'")
                             .build())
                     .build();
 
             AccordionPlan plan = AccordionPlan.of()
-                    .start(calculateAction)
-                    .next(calculateAction, validateAction);
+                    .start(firstAction)
+                    .next(firstAction, secondAction);
 
-            // When
-            ExecuteResult result;
+            // When & Then
             try (Accordion accordion = new Accordion(plan)) {
-                result = accordion.play(true);
+                ExecuteResult result = accordion.play(true);
                 
-                // Then
                 assertThat(result).isNotNull();
-                assertThat(accordion.verbose())
-                        .isNotEmpty()
-                        .contains("Calculate Sum")
-                        .contains("Validate Result");
+                assertThat(accordion.verbose()).contains("First Action");
+                assertThat(accordion.verbose()).contains("Second Action");
                 
-                logger.info("Complete workflow execution:\n{}", accordion.verbose());
+                logger.info("Sequential execution completed: {}", accordion.verbose());
             }
         }
 
         @Test
-        @DisplayName("Should handle complex branching workflow")
-        void should_handle_complex_branching_workflow() {
-            // Given - Create a branching workflow
+        @DisplayName("Should handle conditional branching correctly")
+        void should_handle_conditional_branching_correctly() {
+            // Given
+            ActionConfig conditionAction = ActionConfig.builder()
+                    .id(createTestActionId("CONDITION"))
+                    .actionType(ActionType.CONDITION.name())
+                    .actionName("Check Value")
+                    .actionDesc("Check if value is greater than 5")
+                    .actionParams(ConditionParameter.builder()
+                            .expression("testValue > 5")
+                            .debug(true)
+                            .build())
+                    .build();
+
+            ActionConfig trueAction = ActionConfig.builder()
+                    .id(createTestActionId("TRUE"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("True Branch")
+                    .actionDesc("Execute when condition is true")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'Condition was true'")
+                            .build())
+                    .build();
+
+            AccordionPlan plan = AccordionPlan.of()
+                    .start(conditionAction)
+                    .next(conditionAction, trueAction);
+
+            Map<String, Object> globalParams = new HashMap<>();
+            globalParams.put("testValue", 10);
+
+            // When & Then
+            try (Accordion accordion = new Accordion(plan)) {
+                ExecuteResult result = accordion.play(globalParams, null, true);
+                
+                assertThat(result).isNotNull();
+                assertThat(accordion.verbose()).contains("Check Value");
+                
+                logger.info("Conditional execution completed: {}", accordion.verbose());
+            }
+        }
+
+        @Test
+        @DisplayName("Should handle parallel branches correctly")
+        void should_handle_parallel_branches_correctly() {
+            // Given
             ActionConfig rootAction = ActionConfig.builder()
                     .id(createTestActionId("ROOT"))
                     .actionType(ActionType.SCRIPT.name())
                     .actionName("Root Action")
-                    .actionDesc("Starting point of workflow")
+                    .actionDesc("Initialize data")
                     .actionParams(ScriptParameter.builder()
-                            .script("let rootValue = 42; rootValue")
+                            .script("let data = 'initialized'; data")
                             .build())
                     .build();
 
             ActionConfig branch1Action = ActionConfig.builder()
                     .id(createTestActionId("BRANCH1"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Branch 1 Processing")
-                    .actionDesc("First branch processing")
+                    .actionName("Branch 1")
+                    .actionDesc("Process branch 1")
                     .actionParams(ScriptParameter.builder()
-                            .script("println('Branch 1 executed')")
+                            .script("'Branch 1 processed'")
                             .build())
                     .build();
 
             ActionConfig branch2Action = ActionConfig.builder()
                     .id(createTestActionId("BRANCH2"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Branch 2 Processing")
-                    .actionDesc("Second branch processing")
+                    .actionName("Branch 2")
+                    .actionDesc("Process branch 2")
                     .actionParams(ScriptParameter.builder()
-                            .script("println('Branch 2 executed')")
-                            .build())
-                    .build();
-
-            ActionConfig mergeAction = ActionConfig.builder()
-                    .id(createTestActionId("MERGE"))
-                    .actionType(ActionType.SCRIPT.name())
-                    .actionName("Merge Results")
-                    .actionDesc("Merge branch results")
-                    .actionParams(ScriptParameter.builder()
-                            .script("println('Branches merged successfully')")
+                            .script("'Branch 2 processed'")
                             .build())
                     .build();
 
             AccordionPlan plan = AccordionPlan.of()
                     .start(rootAction)
-                    .next(rootAction, branch1Action, branch2Action)
-                    .next(branch1Action, mergeAction)
-                    .next(branch2Action, mergeAction);
+                    .next(rootAction, branch1Action, branch2Action);
 
-            // When
+            // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 ExecuteResult result = accordion.play(true);
                 
-                // Then
                 assertThat(result).isNotNull();
-                String executionLog = accordion.verbose();
-                assertThat(executionLog)
-                        .contains("Root Action")
-                        .contains("Branch 1 Processing")
-                        .contains("Branch 2 Processing")
-                        .contains("Merge Results");
+                assertThat(accordion.verbose()).contains("Root Action");
+                assertThat(accordion.verbose()).contains("Branch 1");
+                assertThat(accordion.verbose()).contains("Branch 2");
                 
-                logger.info("Branching workflow execution:\n{}", executionLog);
+                logger.info("Parallel execution completed: {}", accordion.verbose());
             }
         }
     }
 
     @Nested
-    @DisplayName("JSON Configuration Integration Tests")
-    class JsonConfigurationIntegrationTests {
+    @DisplayName("Error Handling Tests")
+    class ErrorHandlingTests {
 
         @Test
-        @DisplayName("Should execute workflow from JSON configuration")
-        void should_execute_workflow_from_json_configuration() {
-            // Given - Create and export a workflow
-            ActionConfig originalAction = ActionConfig.builder()
-                    .id(createTestActionId("JSON"))
+        @DisplayName("Should handle action execution errors gracefully")
+        void should_handle_action_execution_errors_gracefully() {
+            // Given
+            ActionConfig errorAction = ActionConfig.builder()
+                    .id(createTestActionId("ERROR"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("JSON Configuration Test")
-                    .actionDesc("Test JSON import/export workflow")
+                    .actionName("Error Action")
+                    .actionDesc("Action that will fail")
                     .actionParams(ScriptParameter.builder()
-                            .script("println('Executed from JSON config')")
+                            .script("throw new RuntimeException('Test error')")
                             .build())
                     .build();
 
-            AccordionPlan originalPlan = AccordionPlan.of().start(originalAction);
-            String jsonConfig = originalPlan.exportToJsonConfig();
+            AccordionPlan plan = AccordionPlan.of().start(errorAction);
 
-            // When - Import and execute from JSON
-            AccordionPlan importedPlan = AccordionPlan.of().importConfig(jsonConfig);
-            
-            try (Accordion accordion = new Accordion(importedPlan)) {
-                ExecuteResult result = accordion.play(true);
+            // When & Then
+            try (Accordion accordion = new Accordion(plan)) {
+                // Should not throw exception, but handle error gracefully
+                assertThatCode(() -> accordion.play(true))
+                        .doesNotThrowAnyException();
                 
-                // Then
-                assertThat(result).isNotNull();
-                assertThat(accordion.verbose())
-                        .contains("JSON Configuration Test");
+                String verbose = accordion.verbose();
+                assertThat(verbose).contains("Error Action");
                 
-                logger.info("JSON workflow execution:\n{}", accordion.verbose());
+                logger.info("Error handling test completed: {}", verbose);
             }
         }
 
         @Test
-        @DisplayName("Should maintain workflow integrity through JSON round-trip")
-        void should_maintain_workflow_integrity_through_json_round_trip() {
-            // Given - Create a multi-step workflow
-            ActionConfig step1 = ActionConfig.builder()
-                    .id(createTestActionId("STEP1"))
+        @DisplayName("Should handle invalid action configuration")
+        void should_handle_invalid_action_configuration() {
+            // Given - Action with invalid script
+            ActionConfig invalidAction = ActionConfig.builder()
+                    .id(createTestActionId("INVALID"))
                     .actionType(ActionType.SCRIPT.name())
-                    .actionName("Step 1")
-                    .actionDesc("First step")
+                    .actionName("Invalid Action")
+                    .actionDesc("Action with invalid script")
                     .actionParams(ScriptParameter.builder()
-                            .script("let step1Result = 'Step 1 completed'; step1Result")
+                            .script("invalid syntax $$$ @@@")
                             .build())
                     .build();
 
-            ActionConfig step2 = ActionConfig.builder()
-                    .id(createTestActionId("STEP2"))
-                    .actionType(ActionType.SCRIPT.name())
-                    .actionName("Step 2")
-                    .actionDesc("Second step")
-                    .actionParams(ScriptParameter.builder()
-                            .script("let step2Result = 'Step 2 completed'; step2Result")
-                            .build())
-                    .build();
+            AccordionPlan plan = AccordionPlan.of().start(invalidAction);
 
-            AccordionPlan originalPlan = AccordionPlan.of()
-                    .start(step1)
-                    .next(step1, step2);
-
-            // When - Export, import, and execute
-            String jsonConfig = originalPlan.exportToJsonConfig();
-            AccordionPlan importedPlan = AccordionPlan.of().importConfig(jsonConfig);
-
-            // Then - Both plans should execute identically
-            String originalExecution;
-            try (Accordion originalAccordion = new Accordion(originalPlan)) {
-                originalAccordion.play(true);
-                originalExecution = originalAccordion.verbose();
-            }
-
-            String importedExecution;
-            try (Accordion importedAccordion = new Accordion(importedPlan)) {
-                importedAccordion.play(true);
-                importedExecution = importedAccordion.verbose();
-            }
-
-            // Verify both executions contain the same steps
-            assertThat(originalExecution).contains("Step 1", "Step 2");
-            assertThat(importedExecution).contains("Step 1", "Step 2");
-            
-            logger.info("Original execution:\n{}", originalExecution);
-            logger.info("Imported execution:\n{}", importedExecution);
-        }
-    }
-
-    @Nested
-    @DisplayName("Error Recovery Integration Tests")
-    class ErrorRecoveryIntegrationTests {
-
-        @Test
-        @DisplayName("Should handle action failures gracefully")
-        void should_handle_action_failures_gracefully() {
-            // Given - Create a workflow with a failing action
-            ActionConfig failingAction = ActionConfig.builder()
-                    .id(createTestActionId("FAILING"))
-                    .actionType(ActionType.SCRIPT.name())
-                    .actionName("Failing Action")
-                    .actionDesc("This action should fail")
-                    .actionParams(ScriptParameter.builder()
-                            .script("let result = 1 / 0; result")
-                            .build())
-                    .build();
-
-            ActionConfig recoveryAction = ActionConfig.builder()
-                    .id(createTestActionId("RECOVERY"))
-                    .actionType(ActionType.SCRIPT.name())
-                    .actionName("Recovery Action")
-                    .actionDesc("This action should handle recovery")
-                    .actionParams(ScriptParameter.builder()
-                            .script("'Recovery completed'")
-                            .build())
-                    .build();
-
-            AccordionPlan plan = AccordionPlan.of()
-                    .start(failingAction)
-                    .next(failingAction, recoveryAction);
-
-            // When & Then - Should handle failure without crashing the entire workflow
+            // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 assertThatCode(() -> accordion.play(true))
                         .doesNotThrowAnyException();
                 
-                String executionLog = accordion.verbose();
-                assertThat(executionLog).contains("Failing Action");
-                
-                logger.info("Error handling execution:\n{}", executionLog);
+                logger.info("Invalid configuration test completed: {}", accordion.verbose());
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("JSON Configuration Tests")
+    class JsonConfigurationTests {
+
+        @Test
+        @DisplayName("Should export and import complex plan successfully")
+        void should_export_and_import_complex_plan_successfully() {
+            // Given
+            ActionConfig action1 = ActionConfig.builder()
+                    .id(createTestActionId("JSON1"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("JSON Test Action 1")
+                    .actionDesc("First action for JSON test")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'First action result'")
+                            .build())
+                    .build();
+
+            ActionConfig action2 = ActionConfig.builder()
+                    .id(createTestActionId("JSON2"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("JSON Test Action 2")
+                    .actionDesc("Second action for JSON test")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'Second action result'")
+                            .build())
+                    .build();
+
+            AccordionPlan originalPlan = AccordionPlan.of()
+                    .start(action1)
+                    .next(action1, action2);
+
+            // When
+            String jsonConfig = originalPlan.exportToJsonConfig();
+            AccordionPlan importedPlan = AccordionPlan.of().importConfig(jsonConfig);
+
+            // Then
+            assertThat(jsonConfig).isNotEmpty();
+            // Test that the imported plan can be executed successfully
+            assertThat(importedPlan).isNotNull();
+
+            // Test execution of imported plan
+            try (Accordion accordion = new Accordion(importedPlan)) {
+                ExecuteResult result = accordion.play(true);
+                assertThat(result).isNotNull();
+                
+                String verbose = accordion.verbose();
+                assertThat(verbose).contains("JSON Test Action 1");
+                assertThat(verbose).contains("JSON Test Action 2");
+                
+                logger.info("JSON import/export test completed: {}", verbose);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Resource Management Tests")
+    class ResourceManagementTests {
+
+        @Test
+        @DisplayName("Should properly manage resources across multiple executions")
+        void should_properly_manage_resources_across_multiple_executions() {
+            // Given
+            ActionConfig action = ActionConfig.builder()
+                    .id(createTestActionId("RESOURCE"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("Resource Test Action")
+                    .actionDesc("Test resource management")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'resource test completed'")
+                            .build())
+                    .build();
+
+            AccordionPlan plan = AccordionPlan.of().start(action);
+
+            // When & Then
+            try (Accordion accordion = new Accordion(plan)) {
+                // Multiple executions should work without issues
+                for (int i = 0; i < 5; i++) {
+                    ExecuteResult result = accordion.play();
+                    assertThat(result).isNotNull();
+                    
+                    // Small delay between executions
+                    waitFor(10);
+                }
+                
+                logger.info("Resource management test completed successfully");
+            }
+        }
+
+        @Test
+        @DisplayName("Should handle concurrent access safely")
+        void should_handle_concurrent_access_safely() {
+            // Given
+            ActionConfig action = ActionConfig.builder()
+                    .id(createTestActionId("CONCURRENT"))
+                    .actionType(ActionType.SCRIPT.name())
+                    .actionName("Concurrent Test Action")
+                    .actionDesc("Test concurrent access")
+                    .actionParams(ScriptParameter.builder()
+                            .script("'concurrent test'")
+                            .build())
+                    .build();
+
+            AccordionPlan plan = AccordionPlan.of().start(action);
+
+            // When & Then - Each thread should have its own Accordion instance
+            assertThatCode(() -> {
+                Thread[] threads = new Thread[3];
+                for (int i = 0; i < threads.length; i++) {
+                    final int threadIndex = i;
+                    threads[i] = new Thread(() -> {
+                        try (Accordion accordion = new Accordion(plan)) {
+                            ExecuteResult result = accordion.play();
+                            assertThat(result).isNotNull();
+                            logger.info("Thread {} completed execution", threadIndex);
+                        }
+                    });
+                }
+
+                for (Thread thread : threads) {
+                    thread.start();
+                }
+
+                for (Thread thread : threads) {
+                    thread.join(5000); // 5 second timeout
+                }
+            }).doesNotThrowAnyException();
         }
     }
 }

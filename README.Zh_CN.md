@@ -6,7 +6,7 @@
 
 `手风琴` 是一个自动化任务框架，你可以将多个动作组合起来实现高效的自动化任务，就像 `IFTTT` 简单且直接，快速提升你的系统效率。
 
-#### 支持的动作清单
+## 支持的动作清单
 
 | 动作名称       | 功能                   |
 |------------|----------------------|
@@ -16,7 +16,6 @@
 | ✉️ 发送邮件    | 可以发送自定义的邮件。          |
 | 📝 自定义脚本   | 执行自定义脚本。             |
 | 💻 命令行     | 执行自定义命令行。            |
-| 🤖 LlamaAI | 使用Llama AI生成对话和续写文本。 |
 | ▶️ 测试      | 仅用于测试的特殊动作。          |
 
 ## 快速开始
@@ -25,7 +24,7 @@
 
 > 最新的版本请查阅 GitHub Release 或搜索 Maven repository。
 
-#### Maven
+### Maven
 
 ```xml
 <dependency>
@@ -35,13 +34,13 @@
 </dependency>
 ```
 
-#### Gradle
+### Gradle
 
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
 
-#### Examples
+### Examples
 
 另一个简单的 `Hello world` 示例。
 
@@ -66,7 +65,6 @@ public class HelloWorld {
 }
 ```
 
-
 ```text
 Hello world
 ... ...
@@ -76,15 +74,13 @@ Accordion plan:
 ```
 
 > [!TIP]
-> 
+>
 > 更多示例: `chat.octet.accordion.examples.*`
-
 
 ## 开发文档
 
 - __[开发手册](https://github.com/eoctet/accordion/wiki/开发手册)__
 - __[Development manual](https://github.com/eoctet/accordion/wiki/Development-manual)__
-
 
 ## 问题反馈
 

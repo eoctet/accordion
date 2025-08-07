@@ -5,6 +5,7 @@ import chat.octet.accordion.core.enums.DataType;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

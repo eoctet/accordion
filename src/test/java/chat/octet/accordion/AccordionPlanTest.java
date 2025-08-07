@@ -3,6 +3,7 @@ package chat.octet.accordion;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.script.ScriptParameter;
 import chat.octet.accordion.core.enums.ActionType;
+import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.test.AccordionTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -174,7 +175,8 @@ class AccordionPlanTest extends AccordionTestBase {
         void should_handle_null_action_config_gracefully() {
             // When & Then
             assertThatThrownBy(() -> AccordionPlan.of().start(null))
-                    .isInstanceOf(NullPointerException.class);
+                    .isInstanceOf(ActionException.class)
+                    .hasMessageContaining("Action config cannot be null");
         }
     }
 

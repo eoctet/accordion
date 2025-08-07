@@ -29,6 +29,12 @@ public class GraphNode {
     }
 
     public void addEdge(GraphEdge edge) {
+        if (edge == null) {
+            throw new IllegalArgumentException("Edge cannot be null");
+        }
+        if (edge.getPreviousNode() != this) {
+            throw new IllegalArgumentException("Edge previous node must be this node");
+        }
         edges.add(edge);
     }
 
@@ -45,10 +51,9 @@ public class GraphNode {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GraphNode)) {
+        if (!(o instanceof GraphNode graphNode)) {
             return false;
         }
-        GraphNode graphNode = (GraphNode) o;
         return actionId.equals(graphNode.actionId);
     }
 
@@ -62,8 +67,7 @@ public class GraphNode {
         return "GraphNode{" +
                 "actionId='" + actionId + '\'' +
                 ", actionName='" + actionName + '\'' +
-                ", edges=" + edges +
-                ", actionService=" + actionService +
+                ", edgeCount=" + (edges != null ? edges.size() : 0) +
                 ", status=" + status +
                 '}';
     }

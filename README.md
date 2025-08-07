@@ -6,7 +6,7 @@
 
 `Accordion` is an automated task framework. You can combine multiple actions to achieve an efficient automation task, just like the `IFTTT` simple and straightforward, quickly improving the efficiency of your system.
 
-#### Supported actions
+## Supported actions
 
 | Action       | Description                                                       |
 |--------------|-------------------------------------------------------------------|
@@ -16,7 +16,6 @@
 | ✉️ Email     | You can send custom emails.                                       |
 | 📝 Script    | Execute custom scripts.                                           |
 | 💻 Shell     | Execute custom command line.                                      |
-| 🤖 LlamaAI   | Generate dialogue and continuation text using Llama AI.           |
 | ▶️ Test      | Special actions used for testing.                                 |
 
 ## Quick start
@@ -25,7 +24,7 @@ Create your own project and use `Maven` or `Gradle` to import the accordion fram
 
 > For the latest version, check out GitHub Release or search the Maven repository.
 
-#### Maven
+### Maven
 
 ```xml
 <dependency>
@@ -35,13 +34,13 @@ Create your own project and use `Maven` or `Gradle` to import the accordion fram
 </dependency>
 ```
 
-#### Gradle
+### Gradle
 
 ```txt
 implementation group: 'chat.octet', name: 'accordion', version: 'LAST_RELEASE_VERSION'
 ```
 
-#### Examples
+### Examples
 
 Another simple example of `Hello world`
 
@@ -66,7 +65,6 @@ public class HelloWorld {
 }
 ```
 
-
 ```text
 Hello world
 ... ...
@@ -76,15 +74,13 @@ Accordion plan:
 ```
 
 > [!TIP]
-> 
+>
 > More examples: `chat.octet.accordion.examples.*`
-
 
 ## Documentation
 
 - __[开发手册](https://github.com/eoctet/accordion/wiki/开发手册)__
 - __[Development manual](https://github.com/eoctet/accordion/wiki/Development-manual)__
-
 
 ## Feedback
 

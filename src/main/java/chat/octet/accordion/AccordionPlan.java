@@ -16,22 +16,70 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This is an execution plan used to specify the execution of one or more actions.
- * In addition to specifying the connection order of each action through the API,
- * you can quickly create an execution plan using the method of importing and exporting JSON.
- * <p><p>
- * The execution plan is a directed acyclic graph, therefore, a start action must be specified.
- * If you specify an execution plan that is end-to-end, it will result in the plan being unable to execute.
- * The execution of each action depends on the preceding action.
- * If the preceding action is not executed correctly, subsequent actions will terminate execution.
+ * Execution plan builder for defining and managing automation workflows.
+ *
+ * <p>AccordionPlan is a fluent API builder that allows you to construct directed acyclic graphs (DAG)
+ * of actions for automation workflows. It provides both programmatic construction through method chaining
+ * and configuration-based construction through JSON import/export.</p>
+ *
+ * <p>Key Features:</p>
+ * <ul>
+ *   <li><strong>Fluent API</strong>: Chain method calls to build complex workflows</li>
+ *   <li><strong>DAG Structure</strong>: Ensures no circular dependencies in execution flow</li>
+ *   <li><strong>JSON Support</strong>: Import/export plans as JSON for persistence and sharing</li>
+ *   <li><strong>Validation</strong>: Automatic validation of plan structure and dependencies</li>
+ *   <li><strong>Cycle Detection</strong>: Prevents creation of circular dependencies</li>
+ * </ul>
+ *
+ * <p>Usage Examples:</p>
+ *
+ * <p><strong>Simple Sequential Plan:</strong></p>
+ * <pre>{@code
+ * AccordionPlan plan = AccordionPlan.of()
+ *     .start(fetchDataAction)
+ *     .next(fetchDataAction, processDataAction)
+ *     .next(processDataAction, sendEmailAction);
+ * }</pre>
+ *
+ * <p><strong>Parallel Execution Plan:</strong></p>
+ * <pre>{@code
+ * AccordionPlan plan = AccordionPlan.of()
+ *     .start(triggerAction)
+ *     .next(triggerAction, apiAction1, apiAction2)  // Parallel execution
+ *     .next(apiAction1, mergeAction)
+ *     .next(apiAction2, mergeAction);
+ * }</pre>
+ *
+ * <p><strong>JSON Configuration:</strong></p>
+ * <pre>{@code
+ * String jsonConfig = plan.exportToJsonConfig();
+ * AccordionPlan importedPlan = AccordionPlan.of().importConfig(jsonConfig);
+ * }</pre>
+ *
+ * <p><strong>Constraints and Rules:</strong></p>
+ * <ul>
+ *   <li>Plans must form a directed acyclic graph (no cycles allowed)</li>
+ *   <li>Each action must have a unique ID within the plan</li>
+ *   <li>Plans with multiple actions must have exactly one root action</li>
+ *   <li>Actions depend on successful completion of their predecessors</li>
+ * </ul>
+ *
+ * <p>Thread Safety: This class is not thread-safe. Plan construction should be done
+ * in a single thread or with external synchronization.</p>
  *
  * @author <a href="https://github.com/eoctet">William</a>
+ * @see ActionConfig
+ * @see GraphNode
+ * @see GraphEdge
+ * @see Accordion
+ * @since 1.0.0
  */
 @Slf4j
 public class AccordionPlan {
@@ -46,61 +94,127 @@ public class AccordionPlan {
     }
 
     /**
-     * Create a new instance of the Accordion plan.
+     * Creates a new empty AccordionPlan instance.
      *
-     * @return AccordionPlan
+     * <p>This is the entry point for building execution plans using the fluent API.
+     * The returned plan is empty and ready for action configuration.</p>
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * AccordionPlan plan = AccordionPlan.of()
+     *     .start(firstAction)
+     *     .next(firstAction, secondAction);
+     * }</pre>
+     *
+     * @return a new empty AccordionPlan instance ready for configuration
+     * @since 1.0.0
      */
     public static AccordionPlan of() {
         return new AccordionPlan();
     }
 
     /**
-     * Create a new GraphNode.
+     * Creates a new GraphNode from an ActionConfig.
      *
-     * @param action Action config
-     * @return GraphNode
+     * <p>This method wraps an ActionConfig in a GraphNode, which is the internal
+     * representation used by the execution engine. The GraphNode contains the
+     * action service and manages execution state.</p>
+     *
+     * @param action the action configuration to wrap in a graph node
+     * @return a new GraphNode containing the specified action
+     * @throws ActionException if the action cannot be built from the configuration
      */
     private GraphNode createGraphNode(ActionConfig action) {
         return new GraphNode(ActionRegister.getInstance().build(action));
     }
 
     /**
-     * Find a GraphNode by actionId.
+     * Finds a GraphNode by its action ID.
      *
-     * @param actionId Action id
-     * @return GraphNode
+     * <p>Searches through all registered graph nodes to find one with the
+     * specified action ID. This is used internally for plan construction
+     * and validation.</p>
+     *
+     * @param actionId the unique identifier of the action to find
+     * @return the GraphNode with the specified ID, or null if not found
      */
     private GraphNode findGraphNode(String actionId) {
         return graphNodes.stream().filter(node -> node.getActionId().equals(actionId)).findFirst().orElse(null);
     }
 
     /**
-     * Find the root GraphNode.
+     * Finds and returns the root GraphNode of the execution plan.
      *
-     * @return GraphNode
+     * <p>The root node is the starting point of execution and is determined by:</p>
+     * <ul>
+     *   <li>For single-action plans: the only action is the root</li>
+     *   <li>For multi-action plans: the action that is not a target of any edge</li>
+     * </ul>
+     *
+     * <p>This method validates the plan structure and ensures there is exactly
+     * one root node, preventing ambiguous execution flows.</p>
+     *
+     * @return the root GraphNode where execution should begin
+     * @throws AccordionException if no actions exist, multiple roots found, or circular dependencies detected
      */
     private GraphNode findRootGraphNode() {
+        if (graphNodes.isEmpty()) {
+            throw new AccordionException("No actions found in the plan.");
+        }
+
         // If there are no edges and only one node, that node is the root
         if (graphEdges.isEmpty() && graphNodes.size() == 1) {
             return graphNodes.get(0);
         }
-        
+
         // If there are no edges but multiple nodes, throw an exception
         if (graphEdges.isEmpty() && graphNodes.size() > 1) {
-            throw new AccordionException("Multiple actions found without edges. Please specify the starting action.");
+            throw new AccordionException("Multiple actions found without edges. Please specify the starting action using start() method.");
         }
-        
+
         // Standard case: find node that is not a target of any edge
-        Set<GraphNode> nextGraphNodes = graphEdges.stream().map(GraphEdge::getNextNode).collect(Collectors.toSet());
-        return graphNodes.stream().filter(node -> !nextGraphNodes.contains(node)).findFirst()
-                .orElseThrow(() -> new AccordionException("No starting action found."));
+        Set<GraphNode> targetNodes = graphEdges.stream()
+                .map(GraphEdge::getNextNode)
+                .collect(Collectors.toSet());
+
+        List<GraphNode> rootCandidates = graphNodes.stream()
+                .filter(node -> !targetNodes.contains(node))
+                .collect(Collectors.toList());
+
+        if (rootCandidates.isEmpty()) {
+            throw new AccordionException("Circular dependency detected. No starting action found.");
+        }
+
+        if (rootCandidates.size() > 1) {
+            throw new AccordionException("Multiple root actions found: " +
+                    rootCandidates.stream().map(GraphNode::getActionId).collect(Collectors.joining(", ")) +
+                    ". Please ensure there is only one starting action.");
+        }
+
+        return rootCandidates.get(0);
     }
 
     /**
-     * Add a start action.
+     * Adds the starting action to the execution plan.
      *
-     * @param actionConfig Action config
-     * @return AccordionPlan
+     * <p>This method explicitly defines the first action in the execution sequence.
+     * It can only be called on an empty plan and sets the root node for execution.</p>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * AccordionPlan plan = AccordionPlan.of()
+     *     .start(ActionConfig.builder()
+     *         .id("init")
+     *         .actionType("API")
+     *         .actionName("Initialize System")
+     *         .build());
+     * }</pre>
+     *
+     * @param actionConfig the configuration for the starting action
+     * @return this AccordionPlan instance for method chaining
+     * @throws IllegalArgumentException if the plan already contains actions
+     * @throws ActionException          if the action configuration is invalid
+     * @since 1.0.0
      */
     public AccordionPlan start(ActionConfig actionConfig) {
         if (!graphNodes.isEmpty()) {
@@ -112,26 +226,64 @@ public class AccordionPlan {
     }
 
     /**
-     * Add a next action.
+     * Adds a dependency relationship between two actions.
      *
-     * @param previousAction Previous action
-     * @param nextAction     Next action
-     * @return AccordionPlan
+     * <p>Creates an execution dependency where the next action will only execute
+     * after the previous action completes successfully. This method automatically
+     * handles action registration and cycle detection.</p>
+     *
+     * <p>Behavior:</p>
+     * <ul>
+     *   <li>If previous action doesn't exist, it's added to the plan</li>
+     *   <li>If next action doesn't exist, it's added to the plan</li>
+     *   <li>Creates a directed edge from previous to next action</li>
+     *   <li>Validates that no cycles are created</li>
+     * </ul>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * plan.next(fetchDataAction, processDataAction)
+     *     .next(processDataAction, sendEmailAction);
+     * }</pre>
+     *
+     * @param previousAction the action that must complete before nextAction executes
+     * @param nextAction     the action that depends on previousAction
+     * @return this AccordionPlan instance for method chaining
+     * @throws IllegalArgumentException if either action is null or if actions have the same ID
+     * @throws AccordionException       if adding the dependency would create a cycle
+     * @since 1.0.0
      */
     public AccordionPlan next(ActionConfig previousAction, ActionConfig nextAction) {
+        if (previousAction == null || nextAction == null) {
+            throw new IllegalArgumentException("Previous action and next action cannot be null");
+        }
+
+        if (previousAction.getId().equals(nextAction.getId())) {
+            throw new IllegalArgumentException("Self-referencing action detected: " + previousAction.getId());
+        }
+
         GraphNode previousNode = findGraphNode(previousAction.getId());
         if (previousNode == null) {
             if (!graphNodes.isEmpty()) {
-                throw new IllegalArgumentException("Unable to find the previous action, please check your parameter.");
+                throw new IllegalArgumentException("Unable to find the previous action: " + previousAction.getId() +
+                        ". Please ensure the action is added to the plan first.");
             }
             previousNode = createGraphNode(previousAction);
             graphNodes.add(previousNode);
         }
+
         GraphNode nextNode = findGraphNode(nextAction.getId());
         if (nextNode == null) {
             nextNode = createGraphNode(nextAction);
             graphNodes.add(nextNode);
         }
+
+        // Check for direct cycle
+        if (wouldCreateCycle(previousNode, nextNode)) {
+            throw new AccordionException("Adding edge from " + previousAction.getId() +
+                    " to " + nextAction.getId() + " would create a cycle");
+        }
+
         GraphEdge edge = new GraphEdge(previousNode, nextNode);
         graphEdges.add(edge);
         previousNode.addEdge(edge);
@@ -139,11 +291,74 @@ public class AccordionPlan {
     }
 
     /**
-     * Add one or more next actions.
+     * Checks if adding an edge would create a cycle using depth-first search.
      *
-     * @param previousAction Previous action
-     * @param nextActions    One or more next actions
-     * @return AccordionPlan
+     * <p>This method prevents the creation of circular dependencies by checking
+     * if the target node can reach the source node through existing edges.
+     * If such a path exists, adding the new edge would create a cycle.</p>
+     *
+     * @param from the source node of the proposed edge
+     * @param to   the target node of the proposed edge
+     * @return true if adding the edge would create a cycle, false otherwise
+     */
+    private boolean wouldCreateCycle(GraphNode from, GraphNode to) {
+        Set<GraphNode> visited = new HashSet<>();
+        return hasCycleDFS(to, from, visited);
+    }
+
+    /**
+     * Performs depth-first search to detect cycles in the graph.
+     *
+     * <p>Recursively traverses the graph from the current node to determine
+     * if the target node can be reached, which would indicate a cycle if
+     * an edge were added from target to current.</p>
+     *
+     * @param current the current node being visited
+     * @param target  the target node we're trying to reach
+     * @param visited set of already visited nodes to prevent infinite loops
+     * @return true if target can be reached from current, false otherwise
+     */
+    private boolean hasCycleDFS(GraphNode current, GraphNode target, Set<GraphNode> visited) {
+        if (current.equals(target)) {
+            return true;
+        }
+
+        if (visited.contains(current)) {
+            return false;
+        }
+
+        visited.add(current);
+
+        for (GraphEdge edge : current.getEdges()) {
+            if (hasCycleDFS(edge.getNextNode(), target, visited)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Adds multiple dependency relationships from one action to several next actions.
+     *
+     * <p>This is a convenience method for creating parallel execution paths where
+     * multiple actions depend on the same previous action. All next actions will
+     * execute in parallel once the previous action completes successfully.</p>
+     *
+     * <p>Example for parallel processing:</p>
+     * <pre>{@code
+     * plan.next(dataFetchAction,
+     *          processAction1,
+     *          processAction2,
+     *          processAction3);
+     * }</pre>
+     *
+     * @param previousAction the action that must complete before any next actions execute
+     * @param nextActions    variable number of actions that depend on the previous action
+     * @return this AccordionPlan instance for method chaining
+     * @throws IllegalArgumentException if previousAction is null or nextActions is empty
+     * @throws AccordionException       if any dependency would create a cycle
+     * @since 1.0.0
      */
     public AccordionPlan next(ActionConfig previousAction, ActionConfig... nextActions) {
         for (ActionConfig config : nextActions) {
@@ -153,9 +368,35 @@ public class AccordionPlan {
     }
 
     /**
-     * Export the plan to JSON.
+     * Exports the execution plan to JSON format for persistence or sharing.
      *
-     * @return String
+     * <p>The exported JSON contains complete plan configuration including:</p>
+     * <ul>
+     *   <li>Plan metadata (ID, name, description, creation time)</li>
+     *   <li>All action configurations with parameters</li>
+     *   <li>Dependency relationships between actions</li>
+     * </ul>
+     *
+     * <p>The JSON format is compatible with {@link #importConfig(String)} and
+     * can be used to recreate the exact same execution plan.</p>
+     *
+     * <p>Example output structure:</p>
+     * <pre>{@code
+     * {
+     *   "id": "ACR_12345",
+     *   "name": "Data Processing Pipeline",
+     *   "description": "Automated data processing workflow",
+     *   "graphConfig": {
+     *     "actions": [...],
+     *     "edges": [...]
+     *   },
+     *   "createTime": "2024-01-01T10:00:00"
+     * }
+     * }</pre>
+     *
+     * @return JSON string representation of the execution plan
+     * @throws AccordionException if plan structure is invalid or JSON serialization fails
+     * @since 1.0.0
      */
     public String exportToJsonConfig() {
         if (accordionConfig == null) {
@@ -175,10 +416,30 @@ public class AccordionPlan {
     }
 
     /**
-     * Import the plan from JSON.
+     * Imports an execution plan from JSON configuration.
      *
-     * @param accordionConfigJson Accordion config JSON.
-     * @return AccordionPlan
+     * <p>This method parses a JSON string (typically created by {@link #exportToJsonConfig()})
+     * and reconstructs the complete execution plan including all actions and dependencies.</p>
+     *
+     * <p>The import process:</p>
+     * <ol>
+     *   <li>Parses JSON to AccordionConfig object</li>
+     *   <li>Clears current plan state</li>
+     *   <li>Recreates all actions and dependencies</li>
+     *   <li>Validates plan structure</li>
+     * </ol>
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * String savedPlan = "{ ... }"; // JSON from exportToJsonConfig()
+     * AccordionPlan plan = AccordionPlan.of().importConfig(savedPlan);
+     * }</pre>
+     *
+     * @param accordionConfigJson JSON string containing the plan configuration
+     * @return this AccordionPlan instance for method chaining
+     * @throws AccordionException   if JSON is invalid or plan structure is malformed
+     * @throws NullPointerException if accordionConfigJson is null
+     * @since 1.0.0
      */
     public AccordionPlan importConfig(String accordionConfigJson) {
         AccordionConfig config = Objects.requireNonNull(JsonUtils.parseToObject(accordionConfigJson, AccordionConfig.class));
@@ -186,10 +447,23 @@ public class AccordionPlan {
     }
 
     /**
-     * Import the plan from AccordionConfig.
+     * Imports an execution plan from an AccordionConfig object.
      *
-     * @param accordionConfig Accordion config.
-     * @return AccordionPlan
+     * <p>This method reconstructs the execution plan from a structured configuration
+     * object. It handles both single-action plans (no edges) and complex multi-action
+     * plans with dependencies.</p>
+     *
+     * <p>Special cases handled:</p>
+     * <ul>
+     *   <li>Single action with no edges: treated as standalone execution</li>
+     *   <li>Multiple actions with no edges: throws exception (ambiguous start)</li>
+     *   <li>Complex dependency graphs: validates and constructs full DAG</li>
+     * </ul>
+     *
+     * @param accordionConfig the configuration object containing plan definition
+     * @return this AccordionPlan instance for method chaining
+     * @throws AccordionException if configuration is invalid or actions cannot be found
+     * @since 1.0.0
      */
     public AccordionPlan importConfig(AccordionConfig accordionConfig) {
         this.accordionConfig = accordionConfig;
@@ -221,17 +495,41 @@ public class AccordionPlan {
     }
 
     /**
-     * Reset the plan status.
+     * Resets the execution status of all actions in the plan.
+     *
+     * <p>This method clears the execution state of all graph nodes, allowing
+     * the plan to be executed again with fresh state. It's automatically called
+     * by the Accordion engine when needed.</p>
+     *
+     * <p>Reset operations include:</p>
+     * <ul>
+     *   <li>Clearing action execution status</li>
+     *   <li>Resetting error states</li>
+     *   <li>Clearing temporary execution data</li>
+     * </ul>
+     *
+     * @since 1.0.0
      */
     public void reset() {
         graphNodes.forEach(GraphNode::reset);
     }
 
     /**
-     * Check if all previous nodes are finished.
+     * Checks if all prerequisite actions for a given node have completed successfully.
      *
-     * @param graphNode Dependent graph node.
-     * @return boolean, Returns true if all previous nodes have been completed, otherwise false is returned.
+     * <p>This method is used by the execution engine to determine if an action
+     * is ready to execute. An action can only execute when all its dependencies
+     * have completed with SUCCESS status.</p>
+     *
+     * <p>Logic:</p>
+     * <ul>
+     *   <li>Root node: always ready (returns true)</li>
+     *   <li>Other nodes: ready only if all predecessor nodes have SUCCESS status</li>
+     * </ul>
+     *
+     * @param graphNode the node to check for execution readiness
+     * @return true if all prerequisite actions have completed successfully, false otherwise
+     * @since 1.0.0
      */
     protected boolean prevGraphNodesFinished(GraphNode graphNode) {
         if (graphNode.equals(rootGraphNode)) {
@@ -248,19 +546,30 @@ public class AccordionPlan {
     }
 
     /**
-     * Update the status of the graph node.
+     * Updates the execution status of a graph node.
      *
-     * @param graphNode Graph node.
-     * @param status    Graph node status.
+     * <p>This method is called by the execution engine to track the progress
+     * and status of individual actions during plan execution.</p>
+     *
+     * @param graphNode the node whose status should be updated
+     * @param status    the new execution status for the node
+     * @see GraphNodeStatus
+     * @since 1.0.0
      */
     protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
         graphNode.setStatus(status);
     }
 
     /**
-     * Get the root GraphNode.
+     * Returns the root GraphNode for execution.
      *
-     * @return GraphNode
+     * <p>This method is used by the execution engine to determine the starting
+     * point for plan execution. The root node is cached after first determination
+     * for performance.</p>
+     *
+     * @return the root GraphNode where execution should begin
+     * @throws AccordionException if no root node can be determined
+     * @since 1.0.0
      */
     protected GraphNode getRootGraphNode() {
         if (rootGraphNode == null) {
@@ -270,9 +579,13 @@ public class AccordionPlan {
     }
 
     /**
-     * Get the graph nodes.
+     * Returns all graph nodes in the execution plan.
      *
-     * @return List, graph nodes.
+     * <p>This method provides access to the complete list of actions in the plan.
+     * It's primarily used by the execution engine for resource management and cleanup.</p>
+     *
+     * @return immutable view of all graph nodes in the plan
+     * @since 1.0.0
      */
     protected List<GraphNode> getGraphNodes() {
         return graphNodes;

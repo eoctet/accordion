@@ -120,31 +120,61 @@ public class ApiAction extends AbstractAction {
         ExecuteResult executeResult = new ExecuteResult();
         try {
             String responseBody = exchange(getInputParameter());
-            // System.out.println("responseBody: " + responseBody);
+
             if (StringUtils.isBlank(responseBody)) {
-                log.warn("Response result is empty, please check if the API is normal.");
+                log.warn("({}) -> Response result is empty, please check if the API is normal.", getConfig().getId());
                 return executeResult;
             }
+
             LinkedHashMap<String, Object> responseMaps = null;
-            switch (params.getResponseDataFormat()) {
-                case JSON:
-                    responseMaps = JsonUtils.parseJsonToMap(responseBody, String.class, Object.class);
-                    break;
-                case XML:
-                    responseMaps = XmlParser.parseXmlToMap(responseBody);
-                    break;
+            try {
+                switch (params.getResponseDataFormat()) {
+                    case JSON:
+                        responseMaps = JsonUtils.parseJsonToMap(responseBody, String.class, Object.class);
+                        break;
+                    case XML:
+                        responseMaps = XmlParser.parseXmlToMap(responseBody);
+                        break;
+                    default:
+                        log.warn("({}) -> Unsupported response data format: {}",
+                                getConfig().getId(), params.getResponseDataFormat());
+                        return executeResult;
+                }
+            } catch (Exception parseException) {
+                throw new ActionException("Failed to parse response body as " +
+                        params.getResponseDataFormat() + ": " + parseException.getMessage(), parseException);
             }
+
             if (responseMaps == null) {
-                throw new IllegalArgumentException("Parse response string to map failed, the response data is empty");
+                throw new ActionException("Parsed response is null - response body: " +
+                        (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody));
             }
+
             List<OutputParameter> outputParameter = getActionOutput();
             if (!CommonUtils.isEmpty(outputParameter)) {
                 executeResult.findAndAddParameters(outputParameter, responseMaps);
             }
+
+            log.debug("({}) -> API call completed successfully, response size: {} characters",
+                    getConfig().getId(), responseBody.length());
+
+        } catch (ActionException e) {
+            setExecuteThrowable(e);
+            throw e;
         } catch (Exception e) {
-            setExecuteThrowable(new ActionException(e.getMessage(), e));
+            ActionException actionException = new ActionException("API action execution failed: " + e.getMessage(), e);
+            setExecuteThrowable(actionException);
+            throw actionException;
         }
         return executeResult;
+    }
+
+    @Override
+    public void close() {
+        // Close HTTP client if needed
+        // Note: OkHttpClient manages its own connection pool and doesn't need explicit closing
+        // But we could add cleanup logic here if needed
+        super.close();
     }
 
 }
