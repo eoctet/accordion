@@ -106,10 +106,12 @@ public abstract class AbstractAction implements ActionService, Serializable {
      * @throws NullPointerException if actionConfig is null
      * @since 1.0.0
      */
-    public AbstractAction(ActionConfig actionConfig) {
+    public AbstractAction(final ActionConfig actionConfig) {
+        // Store reference to actionConfig - ActionConfig is immutable after construction
         this.actionConfig = actionConfig;
         this.inputParameter = new InputParameter();
-        this.actionId = actionConfig.getId();
+        this.actionId = actionConfig != null ? actionConfig.getId() : null;
+        this.session = null; // Initialize session field
     }
 
     /**
@@ -129,18 +131,20 @@ public abstract class AbstractAction implements ActionService, Serializable {
      * <p>If any error occurs during preparation, it's captured and can be checked
      * using {@link #checkError()}.</p>
      *
-     * @param session the execution session containing parameters and context
+     * @param sessionParam the execution session containing parameters and context
      * @return this action service instance for method chaining
      * @throws IllegalArgumentException if session is null
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     @Override
-    public ActionService prepare(Session session) {
-        if (session == null) {
+    public ActionService prepare(final Session sessionParam) {
+        if (sessionParam == null) {
             throw new IllegalArgumentException("Session cannot be null");
         }
+        this.session = sessionParam;
 
+        // Store reference to session - Session is managed by the framework
         this.session = session;
         this.executeThrowable.set(null);
         this.inputParameter.clear();
@@ -164,7 +168,8 @@ public abstract class AbstractAction implements ActionService, Serializable {
                             inputParameter.put(param.getName(), param.getValue());
                         }
                     });
-                    log.debug("({}) -> Loaded previous action output: {}", actionId, JsonUtils.toJson(prevActionOutput));
+                    log.debug("({}) -> Loaded previous action output: {}", actionId,
+                            JsonUtils.toJson(prevActionOutput));
                 }
             }
 
@@ -202,7 +207,7 @@ public abstract class AbstractAction implements ActionService, Serializable {
      * @since 1.0.0
      */
     @Override
-    public void output(ExecuteResult executeResult) {
+    public void output(final ExecuteResult executeResult) {
         this.session.remove(PREV_ACTION_OUTPUT);
 
         List<OutputParameter> output = getActionOutput();
@@ -309,7 +314,7 @@ public abstract class AbstractAction implements ActionService, Serializable {
      * @param throwable the exception that occurred during execution
      * @since 1.0.0
      */
-    protected void setExecuteThrowable(Throwable throwable) {
+    protected void setExecuteThrowable(final Throwable throwable) {
         this.executeThrowable.compareAndSet(null, throwable);
     }
 

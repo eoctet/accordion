@@ -84,7 +84,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the Long value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public Long getLong(String key) {
+    public Long getLong(final String key) {
         return DataTypeConvert.getValue(DataType.LONG, this.get(key));
     }
 
@@ -95,7 +95,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the Integer value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public Integer getInt(String key) {
+    public Integer getInt(final String key) {
         return DataTypeConvert.getValue(DataType.INT, this.get(key));
     }
 
@@ -106,7 +106,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the Double value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public Double getDouble(String key) {
+    public Double getDouble(final String key) {
         return DataTypeConvert.getValue(DataType.DOUBLE, this.get(key));
     }
 
@@ -117,7 +117,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the String value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public String getString(String key) {
+    public String getString(final String key) {
         return DataTypeConvert.getValue(DataType.STRING, this.get(key));
     }
 
@@ -128,7 +128,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the Date value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public Date getDate(String key) {
+    public Date getDate(final String key) {
         return DataTypeConvert.getValue(DataType.DATETIME, this.get(key));
     }
 
@@ -139,7 +139,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the BigDecimal value, or null if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public BigDecimal getDecimal(String key) {
+    public BigDecimal getDecimal(final String key) {
         return DataTypeConvert.getValue(DataType.DECIMAL, this.get(key));
     }
 
@@ -150,7 +150,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the boolean value, or false if the key is not found or conversion fails
      * @since 1.0.0
      */
-    public boolean getBoolean(String key) {
+    public boolean getBoolean(final String key) {
         return DataTypeConvert.getValue(DataType.BOOLEAN, this.get(key));
     }
 
@@ -166,7 +166,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the deserialized object, or null if deserialization fails
      * @since 1.0.0
      */
-    public <T> T getObject(String key, @Nullable Class<T> clazz) {
+    public <T> T getObject(final String key, @Nullable final Class<T> clazz) {
         return JsonUtils.parseToObject(String.valueOf(this.get(key)), clazz);
     }
 
@@ -182,7 +182,7 @@ public class Tuple<K, V> extends ConcurrentHashMap<K, V> implements Serializable
      * @return the deserialized LinkedList, or null if deserialization fails
      * @since 1.0.0
      */
-    public <E> LinkedList<E> getList(String key, @Nullable Class<E> clazz) {
+    public <E> LinkedList<E> getList(final String key, @Nullable final Class<E> clazz) {
         return JsonUtils.parseJsonToList(String.valueOf(this.get(key)), clazz);
     }
 

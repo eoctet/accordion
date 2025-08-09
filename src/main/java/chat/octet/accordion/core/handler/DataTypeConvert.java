@@ -21,7 +21,12 @@ import java.time.format.DateTimeParseException;
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @Slf4j
-public class DataTypeConvert {
+public final class DataTypeConvert {
+
+    private DataTypeConvert() {
+        // Utility class - prevent instantiation
+    }
+
     private static final String POINT = ".";
     private static final String SLASH = "/";
     private static final String TIME = "T";
@@ -34,7 +39,7 @@ public class DataTypeConvert {
     private static final String FALSE_FLAG = "no";
     private static final int DECIMAL_SCALE = 10;
 
-    public static <T extends Serializable> T getValue(String dataType, Object value) {
+    public static <T extends Serializable> T getValue(final String dataType, final Object value) {
         if (StringUtils.isEmpty(dataType)) {
             throw new IllegalArgumentException("DataType cannot be null.");
         }
@@ -43,7 +48,7 @@ public class DataTypeConvert {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> T getValue(DataType dataType, Object value) {
+    public static <T extends Serializable> T getValue(final DataType dataType, final Object value) {
         Preconditions.checkNotNull(dataType, MessageFormat.format("Unsupported data type {0}", dataType));
         if (value == null || StringUtils.isBlank(String.valueOf(value))) {
             return (T) dataType.getDefaultValue();
@@ -51,17 +56,19 @@ public class DataTypeConvert {
         return (T) convert(dataType.getClassType(), String.valueOf(value));
     }
 
-    private static <T extends Serializable> T convert(Class<T> clazz, String value) {
+    private static <T extends Serializable> T convert(final Class<T> clazz, final String value) {
         if (clazz == Integer.class) {
-            if (value.contains(POINT)) {
-                value = StringUtils.substringBefore(value, POINT);
+            String processedValue = value;
+            if (processedValue.contains(POINT)) {
+                processedValue = StringUtils.substringBefore(processedValue, POINT);
             }
-            return clazz.cast(Integer.parseInt(value));
+            return clazz.cast(Integer.parseInt(processedValue));
         } else if (clazz == Long.class) {
-            if (value.contains(POINT)) {
-                value = StringUtils.substringBefore(value, POINT);
+            String processedValue = value;
+            if (processedValue.contains(POINT)) {
+                processedValue = StringUtils.substringBefore(processedValue, POINT);
             }
-            return clazz.cast(Long.parseLong(value));
+            return clazz.cast(Long.parseLong(processedValue));
         } else if (clazz == String.class) {
             return clazz.cast(value);
         } else if (clazz == Double.class) {
@@ -80,21 +87,22 @@ public class DataTypeConvert {
             return clazz.cast(new BigDecimal(value).setScale(DECIMAL_SCALE, RoundingMode.HALF_UP));
         } else if (clazz == LocalDateTime.class) {
             String format = null;
-            if (value.contains(TIME) && value.contains(ZONE)) {
-                value = value.replace(TIME, StringUtils.SPACE).replace(ZONE, StringUtils.EMPTY);
+            String processedValue = value;
+            if (processedValue.contains(TIME) && processedValue.contains(ZONE)) {
+                processedValue = processedValue.replace(TIME, StringUtils.SPACE).replace(ZONE, StringUtils.EMPTY);
             }
-            if (value.contains(SLASH) && StringUtils.indexOf(value, SLASH) == 4) {
-                if (value.contains(COLON) && value.contains(POINT)) {
+            if (processedValue.contains(SLASH) && StringUtils.indexOf(processedValue, SLASH) == 4) {
+                if (processedValue.contains(COLON) && processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_MILLIS2;
-                } else if (value.contains(COLON) && !value.contains(POINT)) {
+                } else if (processedValue.contains(COLON) && !processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_TIME2;
                 } else {
                     format = Constant.DATE_FORMAT2;
                 }
-            } else if (value.contains(LINE) && value.contains(COLON) && StringUtils.indexOf(value, LINE) == 4) {
-                if (value.contains(COLON) && value.contains(POINT)) {
+            } else if (processedValue.contains(LINE) && processedValue.contains(COLON) && StringUtils.indexOf(processedValue, LINE) == 4) {
+                if (processedValue.contains(COLON) && processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_MILLIS;
-                } else if (value.contains(COLON) && !value.contains(POINT)) {
+                } else if (processedValue.contains(COLON) && !processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_TIME;
                 } else {
                     format = Constant.DATE_FORMAT;
@@ -102,9 +110,9 @@ public class DataTypeConvert {
             }
             try {
                 if (format == null) {
-                    return clazz.cast(LocalDateTime.parse(value));
+                    return clazz.cast(LocalDateTime.parse(processedValue));
                 }
-                return clazz.cast(LocalDateTime.parse(value, DateTimeFormatter.ofPattern(format)));
+                return clazz.cast(LocalDateTime.parse(processedValue, DateTimeFormatter.ofPattern(format)));
             } catch (DateTimeParseException e) {
                 log.warn("Failed to parse date value: {}, using default", value);
                 return clazz.cast(LocalDateTime.now());

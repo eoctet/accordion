@@ -11,11 +11,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for AccordionPlan functionality.
- * 
+ *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("AccordionPlan Tests")
@@ -27,7 +29,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should create plan with single action")
-        void should_create_plan_with_single_action() {
+        void shouldCreatePlanWithSingleAction() {
             // Given
             ActionConfig action = createTestAction("Single Action Test");
 
@@ -43,7 +45,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should create plan with chained actions")
-        void should_create_plan_with_chained_actions() {
+        void shouldCreatePlanWithChainedActions() {
             // Given
             ActionConfig firstAction = createTestAction("First Action");
             ActionConfig secondAction = createTestAction("Second Action");
@@ -62,7 +64,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should create plan with multiple next actions")
-        void should_create_plan_with_multiple_next_actions() {
+        void shouldCreatePlanWithMultipleNextActions() {
             // Given
             ActionConfig rootAction = createTestAction("Root Action");
             ActionConfig branchAction1 = createTestAction("Branch Action 1");
@@ -85,11 +87,11 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should export and import plan configuration")
-        void should_export_and_import_plan_configuration() {
+        void shouldExportAndImportPlanConfiguration() {
             // Given
             ActionConfig action1 = createTestAction("Export Test Action 1");
             ActionConfig action2 = createTestAction("Export Test Action 2");
-            
+
             AccordionPlan originalPlan = AccordionPlan.of()
                     .start(action1)
                     .next(action1, action2);
@@ -102,22 +104,22 @@ class AccordionPlanTest extends AccordionTestBase {
             assertThat(jsonConfig).isNotEmpty();
             assertThat(importedPlan.getGraphNodes()).hasSize(2);
             assertThat(importedPlan.getRootGraphNode()).isNotNull();
-            
+
             logger.info("Exported JSON: {}", jsonConfig);
         }
 
         @ParameterizedTest
         @CsvSource({
-            "Action A, Action B",
-            "测试动作1, 测试动作2",
-            "Action with spaces, Another action"
+                "Action A, Action B",
+                "测试动作1, 测试动作2",
+                "Action with spaces, Another action"
         })
         @DisplayName("Should handle various action names in JSON export")
-        void should_handle_various_action_names_in_json_export(String name1, String name2) {
+        void shouldHandleVariousActionNamesInJsonExport(final String name1, final String name2) {
             // Given
             ActionConfig action1 = createTestActionWithName(name1);
             ActionConfig action2 = createTestActionWithName(name2);
-            
+
             AccordionPlan plan = AccordionPlan.of()
                     .start(action1)
                     .next(action1, action2);
@@ -138,7 +140,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should reset plan state successfully")
-        void should_reset_plan_state_successfully() {
+        void shouldResetPlanStateSuccessfully() {
             // Given
             ActionConfig action = createTestAction("Reset Test Action");
             AccordionPlan plan = AccordionPlan.of().start(action);
@@ -158,7 +160,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should throw exception when starting with non-empty plan")
-        void should_throw_exception_when_starting_with_non_empty_plan() {
+        void shouldThrowExceptionWhenStartingWithNonEmptyPlan() {
             // Given
             ActionConfig action1 = createTestAction("First Action");
             ActionConfig action2 = createTestAction("Second Action");
@@ -172,7 +174,7 @@ class AccordionPlanTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle null action config gracefully")
-        void should_handle_null_action_config_gracefully() {
+        void shouldHandleNullActionConfigGracefully() {
             // When & Then
             assertThatThrownBy(() -> AccordionPlan.of().start(null))
                     .isInstanceOf(ActionException.class)
@@ -181,7 +183,7 @@ class AccordionPlanTest extends AccordionTestBase {
     }
 
     // Helper methods
-    private ActionConfig createTestAction(String name) {
+    private ActionConfig createTestAction(final String name) {
         return ActionConfig.builder()
                 .id(createTestActionId("TEST"))
                 .actionType(ActionType.SCRIPT.name())
@@ -193,7 +195,7 @@ class AccordionPlanTest extends AccordionTestBase {
                 .build();
     }
 
-    private ActionConfig createTestActionWithName(String name) {
+    private ActionConfig createTestActionWithName(final String name) {
         return ActionConfig.builder()
                 .id(createTestActionId("NAME"))
                 .actionType(ActionType.SCRIPT.name())

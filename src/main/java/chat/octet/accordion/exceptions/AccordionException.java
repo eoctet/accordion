@@ -1,6 +1,9 @@
 package chat.octet.accordion.exceptions;
 
 
+import chat.octet.accordion.Accordion;
+import chat.octet.accordion.AccordionPlan;
+
 /**
  * Runtime exception thrown when errors occur during accordion plan execution.
  *
@@ -56,7 +59,7 @@ public class AccordionException extends RuntimeException {
      * @param message the detail message explaining the cause of the exception
      * @since 1.0.0
      */
-    public AccordionException(String message) {
+    public AccordionException(final String message) {
         super(message);
     }
 
@@ -70,7 +73,7 @@ public class AccordionException extends RuntimeException {
      * @param cause   the underlying cause of this exception
      * @since 1.0.0
      */
-    public AccordionException(String message, Throwable cause) {
+    public AccordionException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

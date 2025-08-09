@@ -20,10 +20,11 @@ import java.util.List;
  */
 @Slf4j
 public class TestAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
 
     private final String name;
 
-    public TestAction(ActionConfig actionConfig) {
+    public TestAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.name = actionConfig.getActionName();
         log.info("Create new action, action id: {}, name: {}, parameters: {}.",
@@ -31,6 +32,12 @@ public class TestAction extends AbstractAction {
         );
     }
 
+    /**
+     * Executes the test action by logging parameters and returning results.
+     *
+     * @return ExecuteResult containing the test execution result
+     * @throws ActionException if test execution fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();

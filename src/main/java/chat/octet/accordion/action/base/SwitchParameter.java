@@ -39,8 +39,9 @@ public class SwitchParameter {
      * @param branch Action branch condition.
      * @return SwitchParameter
      */
-    public SwitchParameter addBranch(Branch branch) {
-        return addBranch(branch);
+    public SwitchParameter addBranch(final Branch branch) {
+        branches.add(branch);
+        return this;
     }
 
     /**
@@ -49,7 +50,7 @@ public class SwitchParameter {
      * @param branch Action branch condition.
      * @return SwitchParameter
      */
-    public SwitchParameter addBranch(Branch... branch) {
+    public SwitchParameter addBranch(final Branch... branch) {
         branches.addAll(Arrays.asList(branch));
         return this;
     }

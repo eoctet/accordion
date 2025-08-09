@@ -6,7 +6,7 @@ import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.model.ExecuteResult;
 import chat.octet.accordion.action.script.ScriptParameter;
 import chat.octet.accordion.action.base.ConditionParameter;
-import chat.octet.accordion.core.entity.Message;
+
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.test.AccordionTestBase;
 import org.junit.jupiter.api.DisplayName;
@@ -16,11 +16,12 @@ import org.junit.jupiter.api.Nested;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Integration tests for the complete Accordion workflow.
- * 
+ *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("Accordion Integration Tests")
@@ -32,7 +33,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should execute sequential actions successfully")
-        void should_execute_sequential_actions_successfully() {
+        void shouldExecuteSequentialActionsSuccessfully() {
             // Given
             ActionConfig firstAction = ActionConfig.builder()
                     .id(createTestActionId("FIRST"))
@@ -61,18 +62,18 @@ class AccordionIntegrationTest extends AccordionTestBase {
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 ExecuteResult result = accordion.play(true);
-                
+
                 assertThat(result).isNotNull();
                 assertThat(accordion.verbose()).contains("First Action");
                 assertThat(accordion.verbose()).contains("Second Action");
-                
+
                 logger.info("Sequential execution completed: {}", accordion.verbose());
             }
         }
 
         @Test
         @DisplayName("Should handle conditional branching correctly")
-        void should_handle_conditional_branching_correctly() {
+        void shouldHandleConditionalBranchingCorrectly() {
             // Given
             ActionConfig conditionAction = ActionConfig.builder()
                     .id(createTestActionId("CONDITION"))
@@ -105,17 +106,17 @@ class AccordionIntegrationTest extends AccordionTestBase {
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 ExecuteResult result = accordion.play(globalParams, null, true);
-                
+
                 assertThat(result).isNotNull();
                 assertThat(accordion.verbose()).contains("Check Value");
-                
+
                 logger.info("Conditional execution completed: {}", accordion.verbose());
             }
         }
 
         @Test
         @DisplayName("Should handle parallel branches correctly")
-        void should_handle_parallel_branches_correctly() {
+        void shouldHandleParallelBranchesCorrectly() {
             // Given
             ActionConfig rootAction = ActionConfig.builder()
                     .id(createTestActionId("ROOT"))
@@ -154,12 +155,12 @@ class AccordionIntegrationTest extends AccordionTestBase {
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 ExecuteResult result = accordion.play(true);
-                
+
                 assertThat(result).isNotNull();
                 assertThat(accordion.verbose()).contains("Root Action");
                 assertThat(accordion.verbose()).contains("Branch 1");
                 assertThat(accordion.verbose()).contains("Branch 2");
-                
+
                 logger.info("Parallel execution completed: {}", accordion.verbose());
             }
         }
@@ -171,7 +172,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle action execution errors gracefully")
-        void should_handle_action_execution_errors_gracefully() {
+        void shouldHandleActionExecutionErrorsGracefully() {
             // Given
             ActionConfig errorAction = ActionConfig.builder()
                     .id(createTestActionId("ERROR"))
@@ -190,17 +191,17 @@ class AccordionIntegrationTest extends AccordionTestBase {
                 // Should not throw exception, but handle error gracefully
                 assertThatCode(() -> accordion.play(true))
                         .doesNotThrowAnyException();
-                
+
                 String verbose = accordion.verbose();
                 assertThat(verbose).contains("Error Action");
-                
+
                 logger.info("Error handling test completed: {}", verbose);
             }
         }
 
         @Test
         @DisplayName("Should handle invalid action configuration")
-        void should_handle_invalid_action_configuration() {
+        void shouldHandleInvalidActionConfiguration() {
             // Given - Action with invalid script
             ActionConfig invalidAction = ActionConfig.builder()
                     .id(createTestActionId("INVALID"))
@@ -218,7 +219,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
             try (Accordion accordion = new Accordion(plan)) {
                 assertThatCode(() -> accordion.play(true))
                         .doesNotThrowAnyException();
-                
+
                 logger.info("Invalid configuration test completed: {}", accordion.verbose());
             }
         }
@@ -230,7 +231,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should export and import complex plan successfully")
-        void should_export_and_import_complex_plan_successfully() {
+        void shouldExportAndImportComplexPlanSuccessfully() {
             // Given
             ActionConfig action1 = ActionConfig.builder()
                     .id(createTestActionId("JSON1"))
@@ -269,11 +270,11 @@ class AccordionIntegrationTest extends AccordionTestBase {
             try (Accordion accordion = new Accordion(importedPlan)) {
                 ExecuteResult result = accordion.play(true);
                 assertThat(result).isNotNull();
-                
+
                 String verbose = accordion.verbose();
                 assertThat(verbose).contains("JSON Test Action 1");
                 assertThat(verbose).contains("JSON Test Action 2");
-                
+
                 logger.info("JSON import/export test completed: {}", verbose);
             }
         }
@@ -285,7 +286,7 @@ class AccordionIntegrationTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should properly manage resources across multiple executions")
-        void should_properly_manage_resources_across_multiple_executions() {
+        void shouldProperlyManageResourcesAcrossMultipleExecutions() {
             // Given
             ActionConfig action = ActionConfig.builder()
                     .id(createTestActionId("RESOURCE"))
@@ -305,18 +306,18 @@ class AccordionIntegrationTest extends AccordionTestBase {
                 for (int i = 0; i < 5; i++) {
                     ExecuteResult result = accordion.play();
                     assertThat(result).isNotNull();
-                    
+
                     // Small delay between executions
                     waitFor(10);
                 }
-                
+
                 logger.info("Resource management test completed successfully");
             }
         }
 
         @Test
         @DisplayName("Should handle concurrent access safely")
-        void should_handle_concurrent_access_safely() {
+        void shouldHandleConcurrentAccessSafely() {
             // Given
             ActionConfig action = ActionConfig.builder()
                     .id(createTestActionId("CONCURRENT"))

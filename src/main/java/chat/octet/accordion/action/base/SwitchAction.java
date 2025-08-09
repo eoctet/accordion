@@ -20,15 +20,22 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class SwitchAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
     public static final String ACTION_SWITCH_CONTROL = "ACTION_SWITCH_CONTROL";
-    private final SwitchParameter params;
+    private final transient SwitchParameter params;
 
-    public SwitchAction(ActionConfig actionConfig) {
+    public SwitchAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(SwitchParameter.class, "Switch parameter cannot be null.");
         Preconditions.checkArgument(!CommonUtils.isEmpty(params.getBranches()), "Switch branches cannot be empty.");
     }
 
+    /**
+     * Executes the switch action by evaluating all branch conditions.
+     *
+     * @return ExecuteResult containing the switch control filter
+     * @throws ActionException if condition evaluation fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();
@@ -45,4 +52,5 @@ public class SwitchAction extends AbstractAction {
         executeResult.add(ACTION_SWITCH_CONTROL, controller);
         return executeResult;
     }
+
 }

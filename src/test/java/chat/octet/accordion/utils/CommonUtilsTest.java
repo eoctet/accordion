@@ -12,11 +12,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for CommonUtils utility class.
- * 
+ *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("CommonUtils Tests")
@@ -28,7 +28,7 @@ class CommonUtilsTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should generate random string with prefix")
-        void should_generate_random_string_with_prefix() {
+        void shouldGenerateRandomStringWithPrefix() {
             // Given
             String prefix = "TEST";
 
@@ -40,14 +40,14 @@ class CommonUtilsTest extends AccordionTestBase {
                     .isNotNull()
                     .startsWith(prefix)
                     .hasSizeGreaterThan(prefix.length());
-            
+
             logger.info("Generated random string: {}", result);
         }
 
         @ParameterizedTest
         @ValueSource(strings = {"ACT", "MSG", "PLAN", "TEST", "ACTION"})
         @DisplayName("Should generate unique strings for different prefixes")
-        void should_generate_unique_strings_for_different_prefixes(String prefix) {
+        void shouldGenerateUniqueStringsForDifferentPrefixes(final String prefix) {
             // When
             String result1 = CommonUtils.randomString(prefix);
             String result2 = CommonUtils.randomString(prefix);
@@ -57,21 +57,21 @@ class CommonUtilsTest extends AccordionTestBase {
                     .isNotNull()
                     .startsWith(prefix)
                     .isNotEqualTo(result2);
-            
+
             assertThat(result2)
                     .isNotNull()
                     .startsWith(prefix);
-            
+
             logger.info("Generated strings for prefix '{}': {} and {}", prefix, result1, result2);
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @DisplayName("Should handle null and empty prefix")
-        void should_handle_null_and_empty_prefix(String prefix) {
+        void shouldHandleNullAndEmptyPrefix(final String prefix) {
             // When
             String result = CommonUtils.randomString(prefix);
-            
+
             // Then
             assertThat(result).isNotNull();
             if (prefix == null) {
@@ -88,7 +88,7 @@ class CommonUtilsTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should detect empty collections correctly")
-        void should_detect_empty_collections_correctly() {
+        void shouldDetectEmptyCollectionsCorrectly() {
             // Given
             List<String> emptyList = Collections.emptyList();
             List<String> nullList = null;
@@ -102,7 +102,7 @@ class CommonUtilsTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should detect non-empty collections correctly")
-        void should_detect_non_empty_collections_correctly() {
+        void shouldDetectNonEmptyCollectionsCorrectly() {
             // Given
             List<String> singleItemList = Collections.singletonList("item");
             List<Integer> numberList = Arrays.asList(1, 2, 3, 4, 5);
@@ -119,19 +119,19 @@ class CommonUtilsTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should generate random strings efficiently")
-        void should_generate_random_strings_efficiently() {
+        void shouldGenerateRandomStringsEfficiently() {
             // Given
             String prefix = "PERF";
             int iterations = 1000;
 
             // When
             long startTime = System.currentTimeMillis();
-            
+
             for (int i = 0; i < iterations; i++) {
                 String result = CommonUtils.randomString(prefix);
                 assertThat(result).startsWith(prefix);
             }
-            
+
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime;
 

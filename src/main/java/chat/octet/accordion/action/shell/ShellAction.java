@@ -15,22 +15,24 @@ import org.apache.commons.text.StringSubstitutor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ShellAction extends AbstractAction {
-    private final ShellParameter params;
+    private static final long serialVersionUID = 1L;
+    private final transient ShellParameter params;
 
-    public ShellAction(ActionConfig actionConfig) {
+    public ShellAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(ShellParameter.class, "Shell parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getShell()), "Shell cannot be empty.");
     }
 
-    private String getProcessOutput(Process process) {
+    private String getProcessOutput(final Process process) {
         StringBuilder output = new StringBuilder();
-        try (InputStreamReader input = new InputStreamReader(process.getInputStream());
+        try (InputStreamReader input = new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8);
              BufferedReader reader = new BufferedReader(input)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -42,6 +44,12 @@ public class ShellAction extends AbstractAction {
         return output.length() > 0 ? output.deleteCharAt(output.length() - 1).toString() : "";
     }
 
+    /**
+     * Executes the shell command and returns the result.
+     *
+     * @return the execution result containing output and status
+     * @throws ActionException if the shell command execution fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();
@@ -74,7 +82,10 @@ public class ShellAction extends AbstractAction {
                 OutputParameter outputParameter = getActionOutput().stream().findFirst().get();
                 executeResult.add(outputParameter.getName(), output);
             }
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }
         return executeResult;

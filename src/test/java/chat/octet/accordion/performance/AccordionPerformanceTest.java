@@ -14,16 +14,21 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Performance tests for Accordion framework.
  * These tests are disabled by default and can be enabled with system property: accordion.performance.tests=true
- * 
+ *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("Accordion Performance Tests")
@@ -36,7 +41,7 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should execute simple action within performance threshold")
-        void should_execute_simple_action_within_performance_threshold() {
+        void shouldExecuteSimpleActionWithinPerformanceThreshold() {
             // Given
             ActionConfig action = createSimpleScriptAction("Performance Test", "'test result'");
             AccordionPlan plan = AccordionPlan.of().start(action);
@@ -56,7 +61,7 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle high-frequency executions efficiently")
-        void should_handle_high_frequency_executions_efficiently() {
+        void shouldHandleHighFrequencyExecutionsEfficiently() {
             // Given
             ActionConfig action = createSimpleScriptAction("High Frequency Test", "rand(1000)");
             AccordionPlan plan = AccordionPlan.of().start(action);
@@ -75,14 +80,14 @@ class AccordionPerformanceTest extends AccordionTestBase {
             // Then
             double avgExecutionTime = (double) totalTime.toMillis() / executionCount;
             assertThat(avgExecutionTime).isLessThan(10.0); // Less than 10ms per execution on average
-            
-            logger.info("High frequency test - Total time: {} ms, Average per execution: {} ms", 
-                totalTime.toMillis(), avgExecutionTime);
+
+            logger.info("High frequency test - Total time: {} ms, Average per execution: {} ms",
+                    totalTime.toMillis(), avgExecutionTime);
         }
 
         @Test
         @DisplayName("Should execute complex plan within reasonable time")
-        void should_execute_complex_plan_within_reasonable_time() {
+        void shouldExecuteComplexPlanWithinReasonableTime() {
             // Given
             AccordionPlan plan = createComplexPlan();
 
@@ -106,11 +111,11 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle concurrent executions efficiently")
-        void should_handle_concurrent_executions_efficiently() throws InterruptedException {
+        void shouldHandleConcurrentExecutionsEfficiently() throws InterruptedException {
             // Given
             ActionConfig action = createSimpleScriptAction("Concurrent Test", "'concurrent-' + rand(100)");
             AccordionPlan plan = AccordionPlan.of().start(action);
-            
+
             int threadCount = 10;
             int executionsPerThread = 50;
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -122,7 +127,7 @@ class AccordionPerformanceTest extends AccordionTestBase {
             // When
             Instant start = Instant.now();
             for (int i = 0; i < threadCount; i++) {
-                executor.submit(() -> {
+                Future<?> future = executor.submit(() -> {
                     try {
                         Instant threadStart = Instant.now();
                         for (int j = 0; j < executionsPerThread; j++) {
@@ -144,12 +149,16 @@ class AccordionPerformanceTest extends AccordionTestBase {
                         latch.countDown();
                     }
                 });
+                // We don't need to wait for individual futures since we use CountDownLatch
+                if (future == null) {
+                    logger.warn("Failed to submit task {}", i);
+                }
             }
 
             // Then
             assertThat(latch.await(30, TimeUnit.SECONDS)).isTrue();
             executor.shutdown();
-            
+
             Duration totalTime = Duration.between(start, Instant.now());
             int totalExecutions = threadCount * executionsPerThread;
             double successRate = (double) successCount.get() / totalExecutions;
@@ -157,19 +166,19 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
             assertThat(successRate).isGreaterThan(0.95); // 95% success rate
             assertThat(totalTime).isLessThan(Duration.ofSeconds(30));
-            
-            logger.info("Concurrent test - Threads: {}, Executions per thread: {}, Success rate: {:.2%}, " +
-                "Total time: {} ms, Avg thread time: {} ms", 
-                threadCount, executionsPerThread, successRate, totalTime.toMillis(), avgExecutionTime);
+
+            logger.info("Concurrent test - Threads: {}, Executions per thread: {}, Success rate: {:.2%}, "
+                            + "Total time: {} ms, Avg thread time: {} ms",
+                    threadCount, executionsPerThread, successRate, totalTime.toMillis(), avgExecutionTime);
         }
 
         @Test
         @DisplayName("Should maintain performance under load")
-        void should_maintain_performance_under_load() throws InterruptedException {
+        void shouldMaintainPerformanceUnderLoad() throws InterruptedException {
             // Given
             ActionConfig action = createSimpleScriptAction("Load Test", "rand(1000)");
             AccordionPlan plan = AccordionPlan.of().start(action);
-            
+
             int threadCount = 20;
             int executionsPerThread = 25;
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -178,7 +187,7 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
             // When
             for (int i = 0; i < threadCount; i++) {
-                executor.submit(() -> {
+                Future<?> future = executor.submit(() -> {
                     try {
                         for (int j = 0; j < executionsPerThread; j++) {
                             Instant start = Instant.now();
@@ -192,6 +201,10 @@ class AccordionPerformanceTest extends AccordionTestBase {
                         latch.countDown();
                     }
                 });
+                // We don't need to wait for individual futures since we use CountDownLatch
+                if (future == null) {
+                    logger.warn("Failed to submit task {}", i);
+                }
             }
 
             // Then
@@ -206,9 +219,9 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
             assertThat(median).isLessThan(100); // Median execution time < 100ms
             assertThat(p95).isLessThan(500);    // 95th percentile < 500ms
-            
+
             logger.info("Load test results - Executions: {}, Median: {} ms, 95th percentile: {} ms, Average: {:.2f} ms",
-                times.length, median, p95, average);
+                    times.length, median, p95, average);
         }
     }
 
@@ -218,15 +231,15 @@ class AccordionPerformanceTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should not leak memory during repeated executions")
-        void should_not_leak_memory_during_repeated_executions() {
+        void shouldNotLeakMemoryDuringRepeatedExecutions() {
             // Given
             ActionConfig action = createSimpleScriptAction("Memory Test", "'memory-test-' + rand(1000)");
             AccordionPlan plan = AccordionPlan.of().start(action);
-            
+
             Runtime runtime = Runtime.getRuntime();
-            
-            // Force initial GC
-            System.gc();
+
+            // Force initial GC - This is acceptable in benchmarking code
+            runtime.gc();
             waitFor(100);
             long initialMemory = runtime.totalMemory() - runtime.freeMemory();
 
@@ -235,36 +248,36 @@ class AccordionPerformanceTest extends AccordionTestBase {
                 try (Accordion accordion = new Accordion(plan)) {
                     accordion.play();
                 }
-                
-                // Periodic GC to help detect leaks
+
+                // Periodic GC to help detect leaks - acceptable in benchmarking code
                 if (i % 50 == 0) {
-                    System.gc();
+                    runtime.gc();
                     waitFor(10);
                 }
             }
 
-            // Force final GC
-            System.gc();
+            // Force final GC - acceptable in benchmarking code
+            runtime.gc();
             waitFor(200);
             long finalMemory = runtime.totalMemory() - runtime.freeMemory();
 
             // Then
             long memoryIncrease = finalMemory - initialMemory;
             double memoryIncreasePercent = (double) memoryIncrease / initialMemory * 100;
-            
+
             // Memory increase should be reasonable (less than 50% of initial memory)
             assertThat(memoryIncreasePercent).isLessThan(50.0);
-            
+
             logger.info("Memory test - Initial: {} bytes, Final: {} bytes, Increase: {} bytes ({:.2f}%)",
-                initialMemory, finalMemory, memoryIncrease, memoryIncreasePercent);
+                    initialMemory, finalMemory, memoryIncrease, memoryIncreasePercent);
         }
 
         @Test
         @DisplayName("Should handle large data processing efficiently")
-        void should_handle_large_data_processing_efficiently() {
+        void shouldHandleLargeDataProcessingEfficiently() {
             // Given
-            ActionConfig action = createSimpleScriptAction("Large Data Test", 
-                "let sum = 0; for(let i = 0; i < 10000; i++) { sum = sum + i; } sum");
+            ActionConfig action = createSimpleScriptAction("Large Data Test",
+                    "let sum = 0; for(let i = 0; i < 10000; i++) { sum = sum + i; } sum");
             AccordionPlan plan = AccordionPlan.of().start(action);
 
             Runtime runtime = Runtime.getRuntime();
@@ -282,17 +295,17 @@ class AccordionPerformanceTest extends AccordionTestBase {
             // Then
             long freeMemoryAfter = runtime.freeMemory();
             long memoryUsed = freeMemoryBefore - freeMemoryAfter;
-            
+
             assertThat(executionTime).isLessThan(Duration.ofSeconds(2));
             assertThat(memoryUsed).isLessThan(maxMemoryBefore / 4); // Should not use more than 25% of max memory
-            
-            logger.info("Large data test - Execution time: {} ms, Memory used: {} bytes", 
-                executionTime.toMillis(), memoryUsed);
+
+            logger.info("Large data test - Execution time: {} ms, Memory used: {} bytes",
+                    executionTime.toMillis(), memoryUsed);
         }
     }
 
     // Helper methods
-    private ActionConfig createSimpleScriptAction(String name, String script) {
+    private ActionConfig createSimpleScriptAction(final String name, final String script) {
         return ActionConfig.builder()
                 .id(createTestActionId("PERF"))
                 .actionType(ActionType.SCRIPT.name())

@@ -12,25 +12,25 @@ import java.util.LinkedHashMap;
 
 
 @Slf4j
-public class XmlParser {
+public final class XmlParser {
 
     private XmlParser() {
     }
 
-    public static LinkedHashMap<String, Object> parseXmlToMap(String xmlContent) {
+    public static LinkedHashMap<String, Object> parseXmlToMap(final String xmlContent) {
         LinkedHashMap<String, Object> maps = Maps.newLinkedHashMap();
         try (StringReader stringReader = new StringReader(xmlContent)) {
             SAXReader reader = new SAXReader();
             Document document = reader.read(stringReader);
             Element node = document.getRootElement();
             parseXmlToMap(maps, node);
-        } catch (Exception e) {
+        } catch (org.dom4j.DocumentException e) {
             log.error("Parse xml content error", e);
         }
         return maps;
     }
 
-    private static void parseXmlToMap(LinkedHashMap<String, Object> result, Element node) {
+    private static void parseXmlToMap(final LinkedHashMap<String, Object> result, final Element node) {
         if (node.isTextOnly()) {
             result.put(node.getName(), node.getText().trim());
             return;

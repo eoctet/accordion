@@ -19,7 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -79,7 +84,7 @@ public class Accordion implements AutoCloseable {
      * @throws NullPointerException if accordionPlan is null
      * @since 1.0.0
      */
-    public Accordion(AccordionPlan accordionPlan) {
+    public Accordion(final AccordionPlan accordionPlan) {
         Preconditions.checkNotNull(accordionPlan, "Accordion plan cannot be null");
         this.plan = accordionPlan;
         this.session = new Session();
@@ -107,14 +112,14 @@ public class Accordion implements AutoCloseable {
      * <p>When verbose is enabled, detailed execution visualization will be generated
      * and can be retrieved using {@link #verbose()}.</p>
      *
-     * @param verbose if true, generates detailed execution visualization
+     * @param verboseMode if true, generates detailed execution visualization
      * @return the execution result of the last action in the plan
      * @throws AccordionException    if execution fails
      * @throws IllegalStateException if the accordion has been closed
      * @since 1.0.0
      */
-    public ExecuteResult play(boolean verbose) {
-        return play(null, null, verbose);
+    public ExecuteResult play(final boolean verboseMode) {
+        return play(null, null, verboseMode);
     }
 
     /**
@@ -129,7 +134,7 @@ public class Accordion implements AutoCloseable {
      * @throws IllegalStateException if the accordion has been closed
      * @since 1.0.0
      */
-    public ExecuteResult play(Message message) {
+    public ExecuteResult play(final Message message) {
         return play(null, message, false);
     }
 
@@ -138,15 +143,15 @@ public class Accordion implements AutoCloseable {
      *
      * <p>Combines message passing with execution visualization capabilities.</p>
      *
-     * @param message the initial message to pass to the execution plan, may be null
-     * @param verbose if true, generates detailed execution visualization
+     * @param message     the initial message to pass to the execution plan, may be null
+     * @param verboseMode if true, generates detailed execution visualization
      * @return the execution result of the last action in the plan
      * @throws AccordionException    if execution fails
      * @throws IllegalStateException if the accordion has been closed
      * @since 1.0.0
      */
-    public ExecuteResult play(Message message, boolean verbose) {
-        return play(null, message, verbose);
+    public ExecuteResult play(final Message message, final boolean verboseMode) {
+        return play(null, message, verboseMode);
     }
 
     /**
@@ -170,14 +175,15 @@ public class Accordion implements AutoCloseable {
      *
      * @param globalParams global parameters available to all actions, may be null
      * @param message      the initial message to pass to the execution plan, may be null
-     * @param verbose      if true, generates detailed execution visualization
+     * @param verboseMode  if true, generates detailed execution visualization
      * @return the execution result of the last action in the plan
      * @throws AccordionException       if execution fails
      * @throws IllegalStateException    if the accordion has been closed
      * @throws IllegalArgumentException if global parameter keys are null
      * @since 1.0.0
      */
-    public ExecuteResult play(@Nullable Map<String, Object> globalParams, @Nullable Message message, boolean verbose) {
+    public ExecuteResult play(@Nullable final Map<String, Object> globalParams,
+                              @Nullable final Message message, final boolean verboseMode) {
         if (closed) {
             throw new IllegalStateException("Accordion has been closed and cannot be reused");
         }
@@ -200,7 +206,7 @@ public class Accordion implements AutoCloseable {
         if (message != null) {
             this.session.add(AbstractAction.ACCORDION_MESSAGE, message);
         }
-        this.verbose = verbose;
+        this.verbose = verboseMode;
 
         GraphNode node = plan.getRootGraphNode();
         Preconditions.checkNotNull(node, "Root graph node cannot be null.");
@@ -216,7 +222,8 @@ public class Accordion implements AutoCloseable {
                 //execute action service
                 start = System.currentTimeMillis();
                 lastResult = execute(node);
-                log.debug("({}) -> Action execution time: {} ms.", node.getActionId(), System.currentTimeMillis() - start);
+                log.debug("({}) -> Action execution time: {} ms.",
+                        node.getActionId(), System.currentTimeMillis() - start);
                 //get next actions
                 Set<GraphEdge> edges = node.getEdges();
                 level += edges.isEmpty() ? 0 : 1;
@@ -224,8 +231,10 @@ public class Accordion implements AutoCloseable {
                 for (GraphEdge edge : edges) {
                     GraphNode nextNode = edge.getNextNode();
                     if (!queue.contains(nextNode) && !nextNode.isFinished()) {
-                        queue.offer(nextNode);
-                        executedGraphViews.add(new GraphView(nextNode, level, (count == edges.size() - 1)));
+                        boolean added = queue.offer(nextNode);
+                        if (added) {
+                            executedGraphViews.add(new GraphView(nextNode, level, (count == edges.size() - 1)));
+                        }
                     } else {
                         --level;
                     }
@@ -255,7 +264,7 @@ public class Accordion implements AutoCloseable {
      * @param node the graph node containing the action to execute
      * @return the execution result of the action
      */
-    private ExecuteResult execute(GraphNode node) {
+    private ExecuteResult execute(final GraphNode node) {
         ExecuteResult result = new ExecuteResult();
         boolean filter = Optional.ofNullable(switchFilter.get(node.getActionId())).orElse(true);
         if (!breakUp && filter && plan.prevGraphNodesFinished(node)) {
@@ -296,18 +305,19 @@ public class Accordion implements AutoCloseable {
      *
      * @param views list of graph views representing the execution sequence
      */
-    private void generateExecuteGraphView(List<GraphView> views) {
+    private void generateExecuteGraphView(final List<GraphView> views) {
         if (this.verbose) {
             GraphView view;
             String suffix;
             for (Iterator<GraphView> iterator = views.iterator();
                  iterator.hasNext();
                  this.executeGraphView.append(IntStream.range(0, view.getLevel())
-                         .mapToObj((i) -> "\t")
+                         .mapToObj((i) -> "    ")
                          .collect(Collectors.joining("", "", suffix
                                  + "───⨀ "
                                  + view.getGraphNode().getStatus().getFlag()
-                                 + StringUtils.SPACE + view.getGraphNode().getActionName() + StringUtils.SPACE
+                                 + StringUtils.SPACE + view.getGraphNode().getActionName()
+                                 + StringUtils.SPACE
                                  + "(" + view.getGraphNode().getActionId() + ")\n")))) {
                 view = iterator.next();
                 suffix = view.isEnd() ? "└" : "├";

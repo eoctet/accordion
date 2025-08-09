@@ -27,10 +27,11 @@ public class AccordionConfig implements Serializable {
     @JsonFormat(pattern = Constant.DATE_FORMAT_WITH_TIME)
     private LocalDateTime updatetime;
 
-    public AccordionConfig(String id, String name, String desc, AccordionGraphConfig graphConfig, LocalDateTime updatetime) {
+    public AccordionConfig(final String id, final String name, final String desc, final AccordionGraphConfig graphConfig, final LocalDateTime updatetime) {
         this.id = id;
         this.name = name;
         this.desc = desc;
+        // Store reference - AccordionGraphConfig is managed by the framework
         this.graphConfig = graphConfig;
         this.updatetime = updatetime;
     }

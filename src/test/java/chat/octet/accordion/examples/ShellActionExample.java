@@ -9,14 +9,18 @@ import chat.octet.accordion.core.entity.Message;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.utils.CommonUtils;
 
-public class ShellActionExample {
+public final class ShellActionExample {
 
-    public static void main(String[] args) {
+    private ShellActionExample() {
+        // Utility class - prevent instantiation
+    }
+
+    public static void main(final String[] args) {
         Message message = new Message();
         message.put("text", "Hello world");
 
         ActionConfig action = ActionConfig.builder()
-                .id(CommonUtils.randomString("ACT").toUpperCase())
+                .id(CommonUtils.randomString("ACT").toUpperCase(java.util.Locale.ROOT))
                 .actionType(ActionType.SHELL.name())
                 .actionName("Shell action")
                 .actionParams(

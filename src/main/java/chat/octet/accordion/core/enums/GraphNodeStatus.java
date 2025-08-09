@@ -14,7 +14,7 @@ public enum GraphNodeStatus {
 
     private final String flag;
 
-    GraphNodeStatus(String flag) {
+    GraphNodeStatus(final String flag) {
         this.flag = flag;
     }
 }

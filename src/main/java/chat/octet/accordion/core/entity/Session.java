@@ -55,7 +55,7 @@ import lombok.Getter;
  * @since 1.0.0
  */
 public class Session {
-    private final static String SESSION_GLOBAL_PARAMETER = "SESSION_GLOBAL_PARAMETER";
+    private static final String SESSION_GLOBAL_PARAMETER = "SESSION_GLOBAL_PARAMETER";
     private final Tuple<String, Object> data;
     @Getter
     private final Tuple<String, Object> global;
@@ -84,7 +84,7 @@ public class Session {
      * @return true if the parameter exists, false otherwise
      * @since 1.0.0
      */
-    public boolean containsKey(String key) {
+    public boolean containsKey(final String key) {
         return this.data.containsKey(key);
     }
 
@@ -100,7 +100,7 @@ public class Session {
      * @throws IllegalArgumentException if key is null or empty
      * @since 1.0.0
      */
-    public Session add(String key, Object value) {
+    public Session add(final String key, final Object value) {
         return add(key, value, false);
     }
 
@@ -109,21 +109,21 @@ public class Session {
      *
      * <p>Parameters can be added to either local or global scope:</p>
      * <ul>
-     *   <li><strong>Local (global=false)</strong>: Available within current execution context</li>
-     *   <li><strong>Global (global=true)</strong>: Available to all actions throughout execution</li>
+     *   <li><strong>Local (isGlobal=false)</strong>: Available within current execution context</li>
+     *   <li><strong>Global (isGlobal=true)</strong>: Available to all actions throughout execution</li>
      * </ul>
      *
      * <p>Global parameters are particularly useful for configuration values,
      * authentication tokens, or other data that should be accessible to all actions.</p>
      *
-     * @param key    the parameter key, must not be null or empty
-     * @param value  the parameter value, may be null
-     * @param global if true, stores in global scope; if false, stores in local scope
+     * @param key      the parameter key, must not be null or empty
+     * @param value    the parameter value, may be null
+     * @param isGlobal if true, stores in global scope; if false, stores in local scope
      * @return this session instance for method chaining
      * @throws IllegalArgumentException if key is null or empty
      * @since 1.0.0
      */
-    public Session add(String key, Object value, boolean global) {
+    public Session add(final String key, final Object value, final boolean isGlobal) {
         if (key == null) {
             throw new IllegalArgumentException("Session key cannot be null");
         }
@@ -131,7 +131,7 @@ public class Session {
             throw new IllegalArgumentException("Session key cannot be empty");
         }
 
-        if (global) {
+        if (isGlobal) {
             this.global.put(key, value);
         } else {
             this.data.put(key, value);
@@ -148,7 +148,7 @@ public class Session {
      * @param key the key of the parameter to remove
      * @since 1.0.0
      */
-    public void remove(String key) {
+    public void remove(final String key) {
         this.data.remove(key);
     }
 
@@ -162,7 +162,7 @@ public class Session {
      * @return the parameter value, or null if not found
      * @since 1.0.0
      */
-    public Object getValue(String key) {
+    public Object getValue(final String key) {
         return this.data.get(key);
     }
 
@@ -187,7 +187,7 @@ public class Session {
      * @throws IllegalArgumentException if key or clazz is null, or if type casting fails
      * @since 1.0.0
      */
-    public <T> T getValue(String key, Class<T> clazz) {
+    public <T> T getValue(final String key, final Class<T> clazz) {
         if (key == null || clazz == null) {
             throw new IllegalArgumentException("Key and class cannot be null");
         }
@@ -200,8 +200,8 @@ public class Session {
         try {
             return clazz.cast(value);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Cannot cast value for key '" + key +
-                    "' to type " + clazz.getSimpleName() + ". Actual type: " + value.getClass().getSimpleName(), e);
+            throw new IllegalArgumentException("Cannot cast value for key '" + key
+                    + "' to type " + clazz.getSimpleName() + ". Actual type: " + value.getClass().getSimpleName(), e);
         }
     }
 

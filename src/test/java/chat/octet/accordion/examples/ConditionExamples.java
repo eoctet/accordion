@@ -8,16 +8,23 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-public class ConditionExamples {
+public final class ConditionExamples {
 
-    public static void main(String[] args) {
+    private static final int MAX_VALUE = 99;
+    private static final int TEST_VALUE = 515;
+
+    private ConditionExamples() {
+        // Utility class - prevent instantiation
+    }
+
+    public static void main(final String[] args) {
         //create a condition
         Condition condition = new Condition("vars", ConditionOperator.GT, 10)
-                .and("vars", ConditionOperator.LT, 99);
+                .and("vars", ConditionOperator.LT, MAX_VALUE);
 
         //set the condition params
         Map<String, Object> params = Maps.newLinkedHashMap();
-        params.put("vars", 515);
+        params.put("vars", TEST_VALUE);
 
         //print condition expression
         String expression = ConditionBuilder.getInstance().build(condition);

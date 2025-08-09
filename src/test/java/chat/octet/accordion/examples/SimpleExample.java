@@ -15,13 +15,17 @@ import chat.octet.accordion.core.enums.DataType;
 import chat.octet.accordion.utils.CommonUtils;
 import com.google.common.collect.Lists;
 
-public class SimpleExample {
+public final class SimpleExample {
 
-    public static void main(String[] args) {
+    private SimpleExample() {
+        // Utility class - prevent instantiation
+    }
+
+    public static void main(final String[] args) {
         //Create the start action with script
         //NOTE: Script will execute a 1+1 addition calculation and outputs the calculation result.
         ActionConfig myAction = ActionConfig.builder()
-                .id(CommonUtils.randomString("ACT").toUpperCase())
+                .id(CommonUtils.randomString("ACT").toUpperCase(java.util.Locale.ROOT))
                 .actionType(ActionType.SCRIPT.name())
                 .actionName("My action")
                 .actionDesc("My first action example")
@@ -32,7 +36,7 @@ public class SimpleExample {
         //NOTE: Expression will determine whether the value is equal to 2.
         Condition condition = new Condition("number", ConditionOperator.EQ, 2);
         ActionConfig conditionAction = ActionConfig.builder()
-                .id(CommonUtils.randomString("ACT").toUpperCase())
+                .id(CommonUtils.randomString("ACT").toUpperCase(java.util.Locale.ROOT))
                 .actionType(ActionType.CONDITION.name())
                 .actionName("Condition action")
                 .actionDesc("Condition action example")

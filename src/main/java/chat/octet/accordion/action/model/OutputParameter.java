@@ -7,14 +7,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
 /**
- * Action output parameter model
+ * Action output parameter model.
  *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class OutputParameter {
+public class OutputParameter implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
 
     private DataType dataType;
@@ -25,14 +26,14 @@ public class OutputParameter {
 
     private Object value;
 
-    public OutputParameter(String name, DataType dataType, String desc, Object value) {
+    public OutputParameter(final String name, final DataType dataType, final String desc, final Object value) {
         this.name = name;
         this.dataType = dataType;
         this.desc = desc;
         this.value = value;
     }
 
-    public OutputParameter(String name, DataType dataType, String desc) {
+    public OutputParameter(final String name, final DataType dataType, final String desc) {
         this.name = name;
         this.dataType = dataType;
         this.desc = desc;

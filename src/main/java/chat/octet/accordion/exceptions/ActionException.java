@@ -1,6 +1,9 @@
 package chat.octet.accordion.exceptions;
 
 
+import chat.octet.accordion.action.AbstractAction;
+import chat.octet.accordion.action.ActionService;
+
 /**
  * Runtime exception thrown when errors occur during individual action execution.
  *
@@ -67,7 +70,7 @@ public class ActionException extends RuntimeException {
      * @param message the detail message explaining the cause of the exception
      * @since 1.0.0
      */
-    public ActionException(String message) {
+    public ActionException(final String message) {
         super(message);
     }
 
@@ -82,7 +85,7 @@ public class ActionException extends RuntimeException {
      * @param cause   the underlying cause of this exception
      * @since 1.0.0
      */
-    public ActionException(String message, Throwable cause) {
+    public ActionException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

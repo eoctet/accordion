@@ -1,5 +1,7 @@
 package chat.octet.accordion.action.model;
 
+import chat.octet.accordion.action.ActionRegister;
+import chat.octet.accordion.action.ActionService;
 import chat.octet.accordion.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -88,7 +90,8 @@ import java.util.List;
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ActionConfig {
+public class ActionConfig implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Unique identifier for this action within the execution plan.
@@ -144,7 +147,7 @@ public class ActionConfig {
      * @return the typed parameter object, or null if conversion fails or types don't match
      * @since 1.0.0
      */
-    public <T> T getActionParams(Class<T> clazz) {
+    public <T> T getActionParams(final Class<T> clazz) {
         if (actionParams instanceof LinkedHashMap) {
             actionParams = JsonUtils.parseToObject(JsonUtils.toJson(actionParams), clazz);
         }
@@ -172,7 +175,7 @@ public class ActionConfig {
      * @throws IllegalArgumentException if parameters cannot be retrieved or converted
      * @since 1.0.0
      */
-    public <T> T getActionParams(Class<T> clazz, String errorMessage) {
+    public <T> T getActionParams(final Class<T> clazz, final String errorMessage) {
         T object = getActionParams(clazz);
         if (object == null) {
             throw new IllegalArgumentException(errorMessage);

@@ -11,7 +11,11 @@ import chat.octet.accordion.utils.CommonUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.googlecode.aviator.*;
+import com.googlecode.aviator.AviatorEvaluator;
+import com.googlecode.aviator.AviatorEvaluatorInstance;
+import com.googlecode.aviator.Expression;
+import com.googlecode.aviator.Feature;
+import com.googlecode.aviator.Options;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,11 +24,12 @@ import java.util.Optional;
 
 @Slf4j
 public class ScriptAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
     public static final String ACTION_SCRIPT_RESULT = "ACTION_SCRIPT_RESULT";
-    private final ScriptParameter params;
-    private final AviatorEvaluatorInstance evaluator;
+    private final transient ScriptParameter params;
+    private final transient AviatorEvaluatorInstance evaluator;
 
-    public ScriptAction(ActionConfig actionConfig) {
+    public ScriptAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(ScriptParameter.class, "Script parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getScript()), "Script cannot be empty.");
@@ -45,6 +50,12 @@ public class ScriptAction extends AbstractAction {
         }
     }
 
+    /**
+     * Executes the script and returns the result.
+     *
+     * @return the execution result containing script output and status
+     * @throws ActionException if the script execution fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();

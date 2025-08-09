@@ -108,7 +108,7 @@ public class ExecuteResult implements Serializable {
      * @return a new ExecuteResult with the specified data
      * @since 1.0.0
      */
-    public static ExecuteResult success(String key, Object value) {
+    public static ExecuteResult success(final String key, final Object value) {
         return new ExecuteResult().add(key, value);
     }
 
@@ -122,7 +122,7 @@ public class ExecuteResult implements Serializable {
      * @return a new ExecuteResult representing failed execution
      * @since 1.0.0
      */
-    public static ExecuteResult failure(String errorMessage) {
+    public static ExecuteResult failure(final String errorMessage) {
         return new ExecuteResult()
                 .add("success", false)
                 .add("error", errorMessage);
@@ -135,7 +135,7 @@ public class ExecuteResult implements Serializable {
      * @return true if the key exists in the result, false otherwise
      * @since 1.0.0
      */
-    public boolean contains(String key) {
+    public boolean contains(final String key) {
         return this.result.containsKey(key);
     }
 
@@ -150,7 +150,7 @@ public class ExecuteResult implements Serializable {
      * @return this ExecuteResult instance for method chaining
      * @since 1.0.0
      */
-    public ExecuteResult add(String key, Object value) {
+    public ExecuteResult add(final String key, final Object value) {
         this.result.put(key, value);
         return this;
     }
@@ -162,7 +162,7 @@ public class ExecuteResult implements Serializable {
      * @return the value associated with the key, or null if not found
      * @since 1.0.0
      */
-    public Object getValue(String key) {
+    public Object getValue(final String key) {
         return this.result.get(key);
     }
 
@@ -179,7 +179,7 @@ public class ExecuteResult implements Serializable {
      * @throws ClassCastException if the value cannot be cast to the specified type
      * @since 1.0.0
      */
-    public <T> T getValue(String key, Class<T> clazz) {
+    public <T> T getValue(final String key, final Class<T> clazz) {
         return clazz.cast(this.result.get(key));
     }
 
@@ -239,12 +239,12 @@ public class ExecuteResult implements Serializable {
      * API responses or other structured data sources.</p>
      *
      * @param outputParameter list of output parameter definitions to search for
-     * @param result          the result map to search through
+     * @param resultMap       the result map to search through
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    public void findAndAddParameters(List<OutputParameter> outputParameter, Map<String, Object> result) {
-        result.forEach((key, value) -> {
+    public void findAndAddParameters(final List<OutputParameter> outputParameter, final Map<String, Object> resultMap) {
+        resultMap.forEach((key, value) -> {
             outputParameter.forEach(parameter -> {
                 if (parameter.getName().equalsIgnoreCase(key)) {
                     this.add(parameter.getName(), DataTypeConvert.getValue(parameter.getDataType(), value));

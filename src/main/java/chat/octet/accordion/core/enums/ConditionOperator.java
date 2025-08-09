@@ -21,7 +21,7 @@ public enum ConditionOperator {
 
     private final String operator;
 
-    ConditionOperator(String operator) {
+    ConditionOperator(final String operator) {
         this.operator = operator;
     }
 

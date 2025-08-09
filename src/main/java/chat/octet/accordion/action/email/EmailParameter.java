@@ -78,19 +78,29 @@ public class EmailParameter {
      */
     private boolean debug;
 
+    /**
+     * Gets the email recipients as an array by splitting the 'to' field.
+     *
+     * @return array of recipient email addresses
+     */
     @JsonIgnore
     public String[] getRecipients() {
         if (StringUtils.isNotBlank(to)) {
             return StringUtils.split(to, ",");
         }
-        return null;
+        return new String[0];
     }
 
+    /**
+     * Gets the carbon copy recipients as an array by splitting the 'cc' field.
+     *
+     * @return array of carbon copy email addresses
+     */
     @JsonIgnore
     public String[] getCarbonCopies() {
         if (StringUtils.isNotBlank(cc)) {
             return StringUtils.split(cc, ",");
         }
-        return null;
+        return new String[0];
     }
 }

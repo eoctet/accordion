@@ -76,10 +76,10 @@ import java.util.Map;
  * @see ActionType
  * @since 1.0.0
  */
-public class ActionRegister {
+public final class ActionRegister {
 
     private static volatile ActionRegister register;
-    private final static Map<String, String> ACTION_MAPPING = Maps.newLinkedHashMap();
+    private static final Map<String, String> ACTION_MAPPING = Maps.newLinkedHashMap();
 
     static {
         ACTION_MAPPING.put(ActionType.API.name(), ApiAction.class.getName());
@@ -134,7 +134,7 @@ public class ActionRegister {
      * @see ActionType
      * @since 1.0.0
      */
-    public boolean isRegistered(String actionType) {
+    public boolean isRegistered(final String actionType) {
         Preconditions.checkArgument(StringUtils.isNotBlank(actionType), "Action type cannot be empty.");
         return ACTION_MAPPING.containsKey(actionType);
     }
@@ -153,7 +153,7 @@ public class ActionRegister {
      * @see ActionType
      * @since 1.0.0
      */
-    public boolean register(ActionType actionType, String className) {
+    public boolean register(final ActionType actionType, final String className) {
         return register(actionType.name(), className);
     }
 
@@ -179,7 +179,7 @@ public class ActionRegister {
      * @see ActionType
      * @since 1.0.0
      */
-    public boolean register(String actionType, String className) {
+    public boolean register(final String actionType, final String className) {
         if (isRegistered(actionType)) {
             return false;
         }
@@ -202,7 +202,7 @@ public class ActionRegister {
      * @return true if the action type was successfully removed, false if it wasn't registered
      * @since 1.0.0
      */
-    public boolean unregister(String actionType) {
+    public boolean unregister(final String actionType) {
         if (!isRegistered(actionType)) {
             return false;
         }
@@ -240,7 +240,7 @@ public class ActionRegister {
      * @throws NullPointerException if actionConfig is null
      * @since 1.0.0
      */
-    public ActionService build(ActionConfig actionConfig) {
+    public ActionService build(final ActionConfig actionConfig) {
         if (actionConfig == null) {
             throw new ActionException("Action config cannot be null");
         }
@@ -255,9 +255,9 @@ public class ActionRegister {
         String actionType = actionConfig.getActionType();
         String className = ACTION_MAPPING.get(actionType);
         if (className == null) {
-            throw new ActionException("Action type '" + actionType + "' is not registered. " +
-                    "Available types: " + String.join(", ", ACTION_MAPPING.keySet()) +
-                    ". Action ID: " + actionConfig.getId());
+            throw new ActionException("Action type '" + actionType + "' is not registered. "
+                    + "Available types: " + String.join(", ", ACTION_MAPPING.keySet())
+                    + ". Action ID: " + actionConfig.getId());
         }
 
         try {
@@ -266,10 +266,11 @@ public class ActionRegister {
         } catch (ClassNotFoundException e) {
             throw new ActionException("Action class not found: " + className + " for action type: " + actionType, e);
         } catch (NoSuchMethodException e) {
-            throw new ActionException("Action class " + className + " must have a constructor that accepts ActionConfig", e);
+            throw new ActionException("Action class " + className
+                    + " must have a constructor that accepts ActionConfig", e);
         } catch (Exception e) {
-            throw new ActionException("Failed to create action instance for type '" + actionType +
-                    "', ID: " + actionConfig.getId() + ". Error: " + e.getMessage(), e);
+            throw new ActionException("Failed to create action instance for type '" + actionType
+                    + "', ID: " + actionConfig.getId() + ". Error: " + e.getMessage(), e);
         }
     }
 

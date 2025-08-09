@@ -19,15 +19,22 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class ConditionAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
     public static final String ACTION_CONDITION_STATE = "ACTION_CONDITION_STATE";
-    private final ConditionParameter params;
+    private final transient ConditionParameter params;
 
-    public ConditionAction(ActionConfig actionConfig) {
+    public ConditionAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(ConditionParameter.class, "Condition parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getExpression()), "Condition expression cannot be empty.");
     }
 
+    /**
+     * Executes the condition action by evaluating the condition expression.
+     *
+     * @return ExecuteResult containing the condition evaluation result
+     * @throws ActionException if condition evaluation fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();
@@ -57,4 +64,5 @@ public class ConditionAction extends AbstractAction {
         // The break flag is automatically determined by isBreak() method based on ACTION_CONDITION_STATE
         return executeResult;
     }
+
 }

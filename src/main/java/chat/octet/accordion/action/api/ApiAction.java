@@ -14,7 +14,13 @@ import chat.octet.accordion.utils.XmlParser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -38,11 +44,13 @@ import static chat.octet.accordion.core.enums.DataFormatType.XML;
  */
 @Slf4j
 public class ApiAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
+    private static final int MAX_RESPONSE_PREVIEW_LENGTH = 200;
 
-    private final OkHttpClient client;
-    private final ApiParameter params;
+    private final transient OkHttpClient client;
+    private final transient ApiParameter params;
 
-    public ApiAction(ActionConfig actionConfig) {
+    public ApiAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(ApiParameter.class, "API parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getUrl()), "Request url cannot be empty.");
@@ -52,8 +60,10 @@ public class ApiAction extends AbstractAction {
         log.debug("Create API action, parameters: {}.", JsonUtils.toJson(params));
         Proxy proxyServer = null;
         if (StringUtils.isNotBlank(params.getProxyServerAddress()) && params.getProxyServerPort() != -1) {
-            proxyServer = new Proxy(params.getProxyType(), new InetSocketAddress(params.getProxyServerAddress(), params.getProxyServerPort()));
-            log.debug("Enable proxy service support, proxy server address: {}.", StringUtils.join(params.getProxyServerAddress(), ":", params.getProxyServerPort()));
+            proxyServer = new Proxy(params.getProxyType(),
+                    new InetSocketAddress(params.getProxyServerAddress(), params.getProxyServerPort()));
+            log.debug("Enable proxy service support, proxy server address: {}.",
+                    StringUtils.join(params.getProxyServerAddress(), ":", params.getProxyServerPort()));
         }
         this.client = new OkHttpClient().newBuilder()
                 .proxy(proxyServer)
@@ -80,18 +90,20 @@ public class ApiAction extends AbstractAction {
         return MediaType.parse(contentType);
     }
 
-    private String exchange(InputParameter inputParameter) throws IOException {
+    private String exchange(final InputParameter inputParameter) throws IOException {
         //Set request headers
         Map<String, String> headersMaps = Maps.newHashMap();
         if (!params.getHeaders().isEmpty()) {
-            params.getHeaders().forEach((key, value) -> headersMaps.put(key, StringSubstitutor.replace(value, inputParameter)));
+            params.getHeaders().forEach((key, value) -> headersMaps.put(key,
+                    StringSubstitutor.replace(value, inputParameter)));
         }
         Headers headers = Headers.of(headersMaps);
         //Set request params
         String url = StringSubstitutor.replace(params.getUrl(), inputParameter);
         HttpUrl.Builder urlBuilder = HttpUrl.get(url).newBuilder();
         if (!params.getRequest().isEmpty()) {
-            params.getRequest().forEach((key, value) -> urlBuilder.addQueryParameter(key, StringSubstitutor.replace(value, inputParameter)));
+            params.getRequest().forEach((key, value) -> urlBuilder.addQueryParameter(key,
+                    StringSubstitutor.replace(value, inputParameter)));
         }
         HttpUrl httpUrl = urlBuilder.build();
         //Set request body
@@ -115,6 +127,12 @@ public class ApiAction extends AbstractAction {
         }
     }
 
+    /**
+     * Executes the API call and returns the result.
+     *
+     * @return the execution result containing API response data
+     * @throws ActionException if the API call fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();
@@ -141,13 +159,14 @@ public class ApiAction extends AbstractAction {
                         return executeResult;
                 }
             } catch (Exception parseException) {
-                throw new ActionException("Failed to parse response body as " +
-                        params.getResponseDataFormat() + ": " + parseException.getMessage(), parseException);
+                throw new ActionException("Failed to parse response body as "
+                        + params.getResponseDataFormat() + ": " + parseException.getMessage(), parseException);
             }
 
             if (responseMaps == null) {
-                throw new ActionException("Parsed response is null - response body: " +
-                        (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody));
+                throw new ActionException("Parsed response is null - response body: "
+                        + (responseBody.length() > MAX_RESPONSE_PREVIEW_LENGTH
+                        ? responseBody.substring(0, MAX_RESPONSE_PREVIEW_LENGTH) + "..." : responseBody));
             }
 
             List<OutputParameter> outputParameter = getActionOutput();
@@ -169,6 +188,10 @@ public class ApiAction extends AbstractAction {
         return executeResult;
     }
 
+    /**
+     * Closes the API action and releases any resources.
+     * The OkHttpClient manages its own connection pool and doesn't require explicit closing.
+     */
     @Override
     public void close() {
         // Close HTTP client if needed

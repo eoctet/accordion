@@ -21,11 +21,11 @@ import java.util.Map;
 /**
  * There are two ways to use conditional expressions.
  * The first is to write the expression directly, and the second is to create it using Condition.
- * <p><p>
- * example 1:
+ *
+ * <p>example 1:
  * <code>Condition condition = new Condition("vars", ConditionOperator.GREATER_THAN, 10).and("vars", ConditionOperator.LESS_THAN, 99);</code>
- * <p><p>
- * example 2:
+ *
+ * <p>example 2:
  * <code>(vars > 10) and (vars < 99)</code>
  *
  * @author <a href="https://github.com/eoctet">William</a>
@@ -33,6 +33,7 @@ import java.util.Map;
 @Getter
 @Slf4j
 public class Condition implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @JsonProperty("expressions")
     private final List<ExpressionGroup> expressionGroups;
@@ -41,16 +42,16 @@ public class Condition implements Serializable {
         this.expressionGroups = Lists.newArrayList();
     }
 
-    public Condition(Object param, ConditionOperator operator, Object value) {
+    public Condition(final Object param, final ConditionOperator operator, final Object value) {
         this(param, operator, value, true);
     }
 
-    public Condition(Object param, ConditionOperator operator, Object value, boolean negation) {
+    public Condition(final Object param, final ConditionOperator operator, final Object value, final boolean negation) {
         this();
         and(param, operator, value, negation);
     }
 
-    private Condition join(ConditionType type, Object param, ConditionOperator operator, Object value, boolean negation) {
+    private Condition join(final ConditionType type, final Object param, final ConditionOperator operator, final Object value, final boolean negation) {
         Preconditions.checkNotNull(param, "Parameter cannot be null.");
         Preconditions.checkNotNull(operator, "Condition operator cannot be null.");
         Preconditions.checkNotNull(value, "Value cannot be null.");
@@ -61,7 +62,7 @@ public class Condition implements Serializable {
         return this;
     }
 
-    private Condition join(ConditionType type, boolean negation, Condition... conditions) {
+    private Condition join(final ConditionType type, final boolean negation, final Condition... conditions) {
         Preconditions.checkNotNull(conditions, "Conditions cannot be null.");
 
         for (Condition c : conditions) {
@@ -71,47 +72,108 @@ public class Condition implements Serializable {
         return this;
     }
 
-    public Condition and(Object param, ConditionOperator operator, Object value, boolean negation) {
+    /**
+     * Adds an AND condition with specified negation.
+     *
+     * @param param    the parameter to evaluate
+     * @param operator the comparison operator
+     * @param value    the value to compare against
+     * @param negation whether to negate the condition
+     * @return this condition instance for method chaining
+     */
+    public Condition and(final Object param, final ConditionOperator operator, final Object value, final boolean negation) {
         return join(ConditionType.AND, param, operator, value, negation);
     }
 
-    public Condition and(Object param, ConditionOperator operator, Object value) {
+    /**
+     * Adds an AND condition with default negation (true).
+     *
+     * @param param    the parameter to evaluate
+     * @param operator the comparison operator
+     * @param value    the value to compare against
+     * @return this condition instance for method chaining
+     */
+    public Condition and(final Object param, final ConditionOperator operator, final Object value) {
         return and(param, operator, value, true);
     }
 
-    public Condition or(Object param, ConditionOperator operator, Object value, boolean negation) {
+    /**
+     * Adds an OR condition with specified negation.
+     *
+     * @param param    the parameter to evaluate
+     * @param operator the comparison operator
+     * @param value    the value to compare against
+     * @param negation whether to negate the condition
+     * @return this condition instance for method chaining
+     */
+    public Condition or(final Object param, final ConditionOperator operator, final Object value, final boolean negation) {
         return join(ConditionType.OR, param, operator, value, negation);
     }
 
-    public Condition or(Object param, ConditionOperator operator, Object value) {
+    /**
+     * Adds an OR condition with default negation (true).
+     *
+     * @param param    the parameter to evaluate
+     * @param operator the comparison operator
+     * @param value    the value to compare against
+     * @return this condition instance for method chaining
+     */
+    public Condition or(final Object param, final ConditionOperator operator, final Object value) {
         return or(param, operator, value, true);
     }
 
-    public Condition or(boolean negation, Condition... conditions) {
+    /**
+     * Adds OR conditions from multiple condition objects with specified negation.
+     *
+     * @param negation   whether to negate the conditions
+     * @param conditions the conditions to combine with OR
+     * @return this condition instance for method chaining
+     */
+    public Condition or(final boolean negation, final Condition... conditions) {
         return join(ConditionType.OR, negation, conditions);
     }
 
-    public Condition or(Condition... conditions) {
+    /**
+     * Adds OR conditions from multiple condition objects with default negation (true).
+     *
+     * @param conditions the conditions to combine with OR
+     * @return this condition instance for method chaining
+     */
+    public Condition or(final Condition... conditions) {
         return or(true, conditions);
     }
 
-    public Condition and(boolean negation, Condition... conditions) {
+    /**
+     * Adds AND conditions from multiple condition objects with specified negation.
+     *
+     * @param negation   whether to negate the conditions
+     * @param conditions the conditions to combine with AND
+     * @return this condition instance for method chaining
+     */
+    public Condition and(final boolean negation, final Condition... conditions) {
         return join(ConditionType.AND, negation, conditions);
     }
 
-    public Condition and(Condition... conditions) {
+    /**
+     * Adds AND conditions from multiple condition objects with default negation (true).
+     *
+     * @param conditions the conditions to combine with AND
+     * @return this condition instance for method chaining
+     */
+    public Condition and(final Condition... conditions) {
         return and(true, conditions);
     }
 
     @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class ExpressionGroup implements Serializable {
+        private static final long serialVersionUID = 1L;
         private final ConditionType type;
         private final Object expression;
         private final Boolean negation;
 
         @JsonCreator
-        public ExpressionGroup(@JsonProperty("type") ConditionType type, @JsonProperty("expression") Object expression, @JsonProperty("negation") Boolean negation) {
+        public ExpressionGroup(@JsonProperty("type") final ConditionType type, @JsonProperty("expression") final Object expression, @JsonProperty("negation") final Boolean negation) {
             this.type = type;
             this.negation = negation;
             //Special handling of type issues in JSON parsing
@@ -124,11 +186,21 @@ public class Condition implements Serializable {
             }
         }
 
+        /**
+         * Checks if this expression group contains a list of expression groups.
+         *
+         * @return true if expression is a List, false otherwise
+         */
         @JsonIgnore
         public boolean isExpressionGroup() {
             return expression instanceof List;
         }
 
+        /**
+         * Checks if this expression group contains a single expression.
+         *
+         * @return true if expression is an Expression, false otherwise
+         */
         @JsonIgnore
         public boolean isExpression() {
             return expression instanceof Expression;
@@ -138,6 +210,7 @@ public class Condition implements Serializable {
     @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class Expression implements Serializable {
+        private static final long serialVersionUID = 1L;
         private static final String EXPRESSION_TEMP = "{negation}({param} {operator} {value})";
 
         private final Object parameter;
@@ -146,13 +219,18 @@ public class Condition implements Serializable {
         private final Boolean negation;
 
         @JsonCreator
-        public Expression(@JsonProperty("parameter") Object parameter, @JsonProperty("operator") ConditionOperator operator, @JsonProperty("value") Object value, @JsonProperty("negation") boolean negation) {
+        public Expression(@JsonProperty("parameter") final Object parameter, @JsonProperty("operator") final ConditionOperator operator, @JsonProperty("value") final Object value, @JsonProperty("negation") final boolean negation) {
             this.parameter = parameter;
             this.operator = operator;
             this.value = value;
             this.negation = negation;
         }
 
+        /**
+         * Converts this expression to a string representation.
+         *
+         * @return the expression as a formatted string
+         */
         public String toExpression() {
             Map<String, Object> maps = Maps.newHashMap();
             maps.put("negation", negation ? "" : "!");
@@ -162,6 +240,11 @@ public class Condition implements Serializable {
             return StringSubstitutor.replace(EXPRESSION_TEMP, maps, "{", "}");
         }
 
+        /**
+         * Returns a string representation of this expression.
+         *
+         * @return the expression as a formatted string
+         */
         @Override
         public String toString() {
             return toExpression();

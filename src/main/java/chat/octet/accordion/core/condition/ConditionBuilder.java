@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-public class ConditionBuilder {
+public final class ConditionBuilder {
     private static volatile ConditionBuilder builder;
     private static final AviatorEvaluatorInstance EVALUATOR;
 
@@ -40,7 +40,7 @@ public class ConditionBuilder {
         return builder;
     }
 
-    public boolean test(Map<String, Object> params, String expression, boolean debug) {
+    public boolean test(final Map<String, Object> params, final String expression, final boolean debug) {
         Preconditions.checkNotNull(params, "Condition parameters cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(expression), "Expression cannot be empty.");
         EVALUATOR.setOption(Options.TRACE_EVAL, debug);
@@ -48,26 +48,26 @@ public class ConditionBuilder {
         return (boolean) Optional.of(result).orElse(false);
     }
 
-    public boolean test(Map<String, Object> params, Condition condition, boolean debug) {
+    public boolean test(final Map<String, Object> params, final Condition condition, final boolean debug) {
         String expression = build(condition);
         return test(params, expression, debug);
     }
 
-    public boolean test(Map<String, Object> params, String expression) {
+    public boolean test(final Map<String, Object> params, final String expression) {
         return test(params, expression, false);
     }
 
-    public boolean test(Map<String, Object> params, Condition condition) {
+    public boolean test(final Map<String, Object> params, final Condition condition) {
         return test(params, condition, false);
     }
 
     @SuppressWarnings("unchecked")
-    private String build(List<Condition.ExpressionGroup> expressionGroups) {
+    private String build(final List<Condition.ExpressionGroup> expressionGroups) {
         StringBuilder snippet = new StringBuilder();
         for (int i = 0; i < expressionGroups.size(); i++) {
             Condition.ExpressionGroup group = expressionGroups.get(i);
             if (i > 0) {
-                snippet.append(StringUtils.SPACE).append(group.getType().name().toLowerCase()).append(StringUtils.SPACE);
+                snippet.append(StringUtils.SPACE).append(group.getType().name().toLowerCase(java.util.Locale.ROOT)).append(StringUtils.SPACE);
             }
             String expression = "";
             if (group.isExpressionGroup()) {
@@ -88,7 +88,7 @@ public class ConditionBuilder {
         return snippet.toString();
     }
 
-    public String build(Condition condition) {
+    public String build(final Condition condition) {
         Preconditions.checkNotNull(condition, "Condition cannot be null.");
         return build(condition.getExpressionGroups());
     }

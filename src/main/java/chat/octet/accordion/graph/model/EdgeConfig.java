@@ -17,12 +17,12 @@ public class EdgeConfig implements Serializable {
 
     private String nextAction;
 
-    public EdgeConfig(String previousActionId, String nextActionId) {
+    public EdgeConfig(final String previousActionId, final String nextActionId) {
         this.previousAction = previousActionId;
         this.nextAction = nextActionId;
     }
 
-    public EdgeConfig(ActionConfig previousAction, ActionConfig nextAction) {
+    public EdgeConfig(final ActionConfig previousAction, final ActionConfig nextAction) {
         this(previousAction.getId(), nextAction.getId());
     }
 

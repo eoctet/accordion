@@ -1,6 +1,8 @@
 package chat.octet.accordion.core.entity;
 
 
+import chat.octet.accordion.action.AbstractAction;
+
 /**
  * Message entity for passing initial data to accordion execution plans.
  *

@@ -18,31 +18,31 @@ import java.util.Map;
 public enum DataType {
 
     /**
-     * STRING java data type
+     * STRING java data type.
      */
     STRING(StringUtils.EMPTY),
     /**
-     * LONG java data type
+     * LONG java data type.
      */
     LONG(0L),
     /**
-     * INT java data type
+     * INT java data type.
      */
     INT(0),
     /**
-     * DOUBLE java data type
+     * DOUBLE java data type.
      */
     DOUBLE(0.0d),
     /**
-     * DECIMAL java data type
+     * DECIMAL java data type.
      */
     DECIMAL(BigDecimal.valueOf(0, 10)),
     /**
-     * DATETIME java data type
+     * DATETIME java data type.
      */
     DATETIME(LocalDateTime.now()),
     /**
-     * BOOLEAN java data type
+     * BOOLEAN java data type.
      */
     BOOLEAN(false);
 
@@ -69,11 +69,11 @@ public enum DataType {
         return clazz;
     }
 
-    public static DataType valueOfType(String key) {
-        return TYPES.get(key.trim().toUpperCase());
+    public static DataType valueOfType(final String key) {
+        return TYPES.get(key.trim().toUpperCase(java.util.Locale.ROOT));
     }
 
-    <T extends Serializable> DataType(T defaultValue) {
+    <T extends Serializable> DataType(final T defaultValue) {
         this.defaultValue = defaultValue;
         this.clazz = defaultValue.getClass();
     }

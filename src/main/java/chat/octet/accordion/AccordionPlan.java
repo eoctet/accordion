@@ -5,6 +5,7 @@ import chat.octet.accordion.action.ActionRegister;
 import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.core.enums.GraphNodeStatus;
 import chat.octet.accordion.exceptions.AccordionException;
+import chat.octet.accordion.exceptions.ActionException;
 import chat.octet.accordion.graph.entity.GraphEdge;
 import chat.octet.accordion.graph.entity.GraphNode;
 import chat.octet.accordion.graph.model.AccordionConfig;
@@ -138,7 +139,7 @@ public class AccordionPlan {
      * @param actionId the unique identifier of the action to find
      * @return the GraphNode with the specified ID, or null if not found
      */
-    private GraphNode findGraphNode(String actionId) {
+    private GraphNode findGraphNode(final String actionId) {
         return graphNodes.stream().filter(node -> node.getActionId().equals(actionId)).findFirst().orElse(null);
     }
 
@@ -168,7 +169,7 @@ public class AccordionPlan {
         }
 
         // If there are no edges but multiple nodes, throw an exception
-        if (graphEdges.isEmpty() && graphNodes.size() > 1) {
+        if (graphEdges.isEmpty()) {
             throw new AccordionException("Multiple actions found without edges. Please specify the starting action using start() method.");
         }
 
@@ -216,7 +217,7 @@ public class AccordionPlan {
      * @throws ActionException          if the action configuration is invalid
      * @since 1.0.0
      */
-    public AccordionPlan start(ActionConfig actionConfig) {
+    public AccordionPlan start(final ActionConfig actionConfig) {
         if (!graphNodes.isEmpty()) {
             throw new IllegalArgumentException("Not allowed to add because the list is not empty.");
         }
@@ -253,7 +254,7 @@ public class AccordionPlan {
      * @throws AccordionException       if adding the dependency would create a cycle
      * @since 1.0.0
      */
-    public AccordionPlan next(ActionConfig previousAction, ActionConfig nextAction) {
+    public AccordionPlan next(final ActionConfig previousAction, final ActionConfig nextAction) {
         if (previousAction == null || nextAction == null) {
             throw new IllegalArgumentException("Previous action and next action cannot be null");
         }
@@ -265,8 +266,9 @@ public class AccordionPlan {
         GraphNode previousNode = findGraphNode(previousAction.getId());
         if (previousNode == null) {
             if (!graphNodes.isEmpty()) {
-                throw new IllegalArgumentException("Unable to find the previous action: " + previousAction.getId() +
-                        ". Please ensure the action is added to the plan first.");
+                throw new IllegalArgumentException("Unable to find the previous action: "
+                        + previousAction.getId()
+                        + ". Please ensure the action is added to the plan first.");
             }
             previousNode = createGraphNode(previousAction);
             graphNodes.add(previousNode);
@@ -280,8 +282,8 @@ public class AccordionPlan {
 
         // Check for direct cycle
         if (wouldCreateCycle(previousNode, nextNode)) {
-            throw new AccordionException("Adding edge from " + previousAction.getId() +
-                    " to " + nextAction.getId() + " would create a cycle");
+            throw new AccordionException("Adding edge from " + previousAction.getId()
+                    + " to " + nextAction.getId() + " would create a cycle");
         }
 
         GraphEdge edge = new GraphEdge(previousNode, nextNode);
@@ -301,7 +303,7 @@ public class AccordionPlan {
      * @param to   the target node of the proposed edge
      * @return true if adding the edge would create a cycle, false otherwise
      */
-    private boolean wouldCreateCycle(GraphNode from, GraphNode to) {
+    private boolean wouldCreateCycle(final GraphNode from, final GraphNode to) {
         Set<GraphNode> visited = new HashSet<>();
         return hasCycleDFS(to, from, visited);
     }
@@ -318,7 +320,7 @@ public class AccordionPlan {
      * @param visited set of already visited nodes to prevent infinite loops
      * @return true if target can be reached from current, false otherwise
      */
-    private boolean hasCycleDFS(GraphNode current, GraphNode target, Set<GraphNode> visited) {
+    private boolean hasCycleDFS(final GraphNode current, final GraphNode target, final Set<GraphNode> visited) {
         if (current.equals(target)) {
             return true;
         }
@@ -360,7 +362,7 @@ public class AccordionPlan {
      * @throws AccordionException       if any dependency would create a cycle
      * @since 1.0.0
      */
-    public AccordionPlan next(ActionConfig previousAction, ActionConfig... nextActions) {
+    public AccordionPlan next(final ActionConfig previousAction, final ActionConfig... nextActions) {
         for (ActionConfig config : nextActions) {
             next(previousAction, config);
         }
@@ -400,12 +402,19 @@ public class AccordionPlan {
      */
     public String exportToJsonConfig() {
         if (accordionConfig == null) {
-            AccordionGraphConfig graphConfig = new AccordionGraphConfig(Lists.newArrayList(), Lists.newArrayList());
-            graphNodes.stream().map(graphNode -> graphNode.getActionService().getConfig()).forEach(graphConfig::addAction);
-            graphEdges.stream().map(graphEdge -> new EdgeConfig(graphEdge.getPreviousNode().getActionId(), graphEdge.getNextNode().getActionId())).forEach(graphConfig::addEdge);
+            AccordionGraphConfig graphConfig = new AccordionGraphConfig(
+                    Lists.newArrayList(), Lists.newArrayList());
+            graphNodes.stream()
+                    .map(graphNode -> graphNode.getActionService().getConfig())
+                    .forEach(graphConfig::addAction);
+            graphEdges.stream()
+                    .map(graphEdge -> new EdgeConfig(
+                            graphEdge.getPreviousNode().getActionId(),
+                            graphEdge.getNextNode().getActionId()))
+                    .forEach(graphConfig::addEdge);
             findRootGraphNode();
             AccordionConfig config = new AccordionConfig(
-                    CommonUtils.randomString("ACR").toUpperCase(),
+                    CommonUtils.randomString("ACR").toUpperCase(java.util.Locale.ROOT),
                     "Default accordion name",
                     "Default accordion desc",
                     graphConfig, LocalDateTime.now()
@@ -441,8 +450,9 @@ public class AccordionPlan {
      * @throws NullPointerException if accordionConfigJson is null
      * @since 1.0.0
      */
-    public AccordionPlan importConfig(String accordionConfigJson) {
-        AccordionConfig config = Objects.requireNonNull(JsonUtils.parseToObject(accordionConfigJson, AccordionConfig.class));
+    public AccordionPlan importConfig(final String accordionConfigJson) {
+        AccordionConfig config = Objects.requireNonNull(
+                JsonUtils.parseToObject(accordionConfigJson, AccordionConfig.class));
         return importConfig(config);
     }
 
@@ -465,8 +475,15 @@ public class AccordionPlan {
      * @throws AccordionException if configuration is invalid or actions cannot be found
      * @since 1.0.0
      */
-    public AccordionPlan importConfig(AccordionConfig accordionConfig) {
-        this.accordionConfig = accordionConfig;
+    public AccordionPlan importConfig(final AccordionConfig accordionConfig) {
+        // Create defensive copy to avoid external mutation
+        this.accordionConfig = new AccordionConfig(
+                accordionConfig.getId(),
+                accordionConfig.getName(),
+                accordionConfig.getDesc(),
+                accordionConfig.getGraphConfig(),
+                accordionConfig.getUpdatetime()
+        );
         this.graphNodes.clear();
         this.graphEdges.clear();
         this.rootGraphNode = null;
@@ -484,9 +501,11 @@ public class AccordionPlan {
 
         String message = "Unable to find the action config, please check your parameter.";
         for (EdgeConfig edgeConfig : graphConfig.getEdges()) {
-            ActionConfig previousAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getPreviousAction()))
+            ActionConfig previousAction = actionConfigs.stream()
+                    .filter(action -> action.getId().equals(edgeConfig.getPreviousAction()))
                     .findFirst().orElseThrow(() -> new AccordionException(message));
-            ActionConfig nextAction = actionConfigs.stream().filter(action -> action.getId().equals(edgeConfig.getNextAction()))
+            ActionConfig nextAction = actionConfigs.stream()
+                    .filter(action -> action.getId().equals(edgeConfig.getNextAction()))
                     .findFirst().orElseThrow(() -> new AccordionException(message));
             next(previousAction, nextAction);
         }
@@ -531,7 +550,7 @@ public class AccordionPlan {
      * @return true if all prerequisite actions have completed successfully, false otherwise
      * @since 1.0.0
      */
-    protected boolean prevGraphNodesFinished(GraphNode graphNode) {
+    protected boolean prevGraphNodesFinished(final GraphNode graphNode) {
         if (graphNode.equals(rootGraphNode)) {
             return true;
         }
@@ -556,7 +575,7 @@ public class AccordionPlan {
      * @see GraphNodeStatus
      * @since 1.0.0
      */
-    protected void updateGraphNodeStatus(GraphNode graphNode, GraphNodeStatus status) {
+    protected void updateGraphNodeStatus(final GraphNode graphNode, final GraphNodeStatus status) {
         graphNode.setStatus(status);
     }
 

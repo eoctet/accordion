@@ -4,18 +4,18 @@ import chat.octet.accordion.action.model.ActionConfig;
 import chat.octet.accordion.action.script.ScriptParameter;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.test.AccordionTestBase;
-import chat.octet.accordion.utils.CommonUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for the main Accordion execution engine.
- * 
+ *
  * @author <a href="https://github.com/eoctet">William</a>
  */
 @DisplayName("Accordion Engine Tests")
@@ -27,7 +27,7 @@ class AccordionTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should execute simple script action successfully")
-        void should_execute_simple_script_action_successfully() {
+        void shouldExecuteSimpleScriptActionSuccessfully() {
             // Given
             ActionConfig scriptAction = ActionConfig.builder()
                     .id(createTestActionId("ACT"))
@@ -44,7 +44,7 @@ class AccordionTest extends AccordionTestBase {
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
                 var result = accordion.play(true);
-                
+
                 assertThat(result).isNotNull();
                 assertThat(accordion.verbose()).isNotEmpty();
                 logger.info("Execution result: {}", accordion.verbose());
@@ -53,7 +53,7 @@ class AccordionTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle empty plan gracefully")
-        void should_handle_empty_plan_gracefully() {
+        void shouldHandleEmptyPlanGracefully() {
             // Given
             ActionConfig emptyAction = ActionConfig.builder()
                     .id(createTestActionId("EMPTY"))
@@ -79,7 +79,7 @@ class AccordionTest extends AccordionTestBase {
         @ParameterizedTest
         @ValueSource(strings = {"println('Hello')", "2 * 3", "math.abs(-10)"})
         @DisplayName("Should execute various script expressions")
-        void should_execute_various_script_expressions(String script) {
+        void shouldExecuteVariousScriptExpressions(final String script) {
             // Given
             ActionConfig scriptAction = ActionConfig.builder()
                     .id(createTestActionId("SCRIPT"))
@@ -97,14 +97,14 @@ class AccordionTest extends AccordionTestBase {
             try (Accordion accordion = new Accordion(plan)) {
                 assertThatCode(() -> accordion.play())
                         .doesNotThrowAnyException();
-                
+
                 logger.info("Executed script: {} - Result: {}", script, accordion.verbose());
             }
         }
 
         @Test
         @DisplayName("Should export plan to JSON successfully")
-        void should_export_plan_to_json_successfully() {
+        void shouldExportPlanToJsonSuccessfully() {
             // Given
             ActionConfig action = ActionConfig.builder()
                     .id(createTestActionId("JSON"))
@@ -128,7 +128,7 @@ class AccordionTest extends AccordionTestBase {
                     .contains("JSON Export Test")
                     .contains("actions")
                     .contains("edges");
-            
+
             logger.info("Exported JSON config: {}", jsonConfig);
         }
     }
@@ -139,7 +139,7 @@ class AccordionTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should properly close resources with try-with-resources")
-        void should_properly_close_resources_with_try_with_resources() {
+        void shouldProperlyCloseResourcesWithTryWithResources() {
             // Given
             ActionConfig action = ActionConfig.builder()
                     .id(createTestActionId("RESOURCE"))
@@ -163,7 +163,7 @@ class AccordionTest extends AccordionTestBase {
 
         @Test
         @DisplayName("Should handle multiple executions with reset")
-        void should_handle_multiple_executions_with_reset() {
+        void shouldHandleMultipleExecutionsWithReset() {
             // Given
             ActionConfig action = ActionConfig.builder()
                     .id(createTestActionId("MULTI"))

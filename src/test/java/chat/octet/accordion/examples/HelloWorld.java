@@ -8,11 +8,15 @@ import chat.octet.accordion.action.script.ScriptParameter;
 import chat.octet.accordion.core.enums.ActionType;
 import chat.octet.accordion.utils.CommonUtils;
 
-public class HelloWorld {
+public final class HelloWorld {
 
-    public static void main(String[] args) {
+    private HelloWorld() {
+        // Utility class - prevent instantiation
+    }
+
+    public static void main(final String[] args) {
         ActionConfig myAction = ActionConfig.builder()
-                .id(CommonUtils.randomString("ACT").toUpperCase())
+                .id(CommonUtils.randomString("ACT").toUpperCase(java.util.Locale.ROOT))
                 .actionType(ActionType.SCRIPT.name())
                 .actionName("My action")
                 .actionDesc("My first action example")

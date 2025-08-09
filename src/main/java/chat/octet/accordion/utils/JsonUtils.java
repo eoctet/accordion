@@ -72,7 +72,7 @@ import java.util.TimeZone;
  * @since 1.0.0
  */
 @Slf4j
-public class JsonUtils {
+public final class JsonUtils {
 
     /**
      * Shared ObjectMapper instance configured for Accordion framework use.
@@ -111,7 +111,7 @@ public class JsonUtils {
      * @return the deserialized object, or null if parsing fails or input is invalid
      * @since 1.0.0
      */
-    public static <T> T parseToObject(String json, @Nullable Class<T> clazz) {
+    public static <T> T parseToObject(final String json, @Nullable final Class<T> clazz) {
         try {
             if (StringUtils.isNotBlank(json)) {
                 return JACKSON_MAPPER.readValue(json, clazz);
@@ -142,7 +142,7 @@ public class JsonUtils {
      * @return the JSON string representation, or null if serialization fails
      * @since 1.0.0
      */
-    public static String toJson(Object obj) {
+    public static String toJson(final Object obj) {
         try {
             return JACKSON_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException ex) {
@@ -180,7 +180,8 @@ public class JsonUtils {
      * @return the parsed LinkedHashMap, or null if parsing fails or input is invalid
      * @since 1.0.0
      */
-    public static <K, V> LinkedHashMap<K, V> parseJsonToMap(String json, @Nullable Class<K> key, @Nullable Class<V> value) {
+    public static <K, V> LinkedHashMap<K, V> parseJsonToMap(final String json, @Nullable final Class<K> key,
+                                                            @Nullable final Class<V> value) {
         JavaType javaType = JACKSON_MAPPER.getTypeFactory().constructMapType(LinkedHashMap.class, key, value);
         try {
             if (StringUtils.isNotBlank(json)) {
@@ -222,7 +223,7 @@ public class JsonUtils {
      * @return the parsed LinkedList, or null if parsing fails or input is invalid
      * @since 1.0.0
      */
-    public static <E> LinkedList<E> parseJsonToList(String json, @Nullable Class<E> clazz) {
+    public static <E> LinkedList<E> parseJsonToList(final String json, @Nullable final Class<E> clazz) {
         JavaType javaType = JACKSON_MAPPER.getTypeFactory().constructParametricType(LinkedList.class, clazz);
         try {
             if (StringUtils.isNotBlank(json)) {

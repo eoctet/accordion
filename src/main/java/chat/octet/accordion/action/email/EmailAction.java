@@ -28,10 +28,11 @@ import java.util.Map;
  */
 @Slf4j
 public class EmailAction extends AbstractAction {
+    private static final long serialVersionUID = 1L;
 
-    private final EmailParameter params;
+    private final transient EmailParameter params;
 
-    public EmailAction(ActionConfig actionConfig) {
+    public EmailAction(final ActionConfig actionConfig) {
         super(actionConfig);
         this.params = actionConfig.getActionParams(EmailParameter.class, "Email parameter cannot be null.");
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getServer()), "Email SMTP server address cannot be empty.");
@@ -41,44 +42,50 @@ public class EmailAction extends AbstractAction {
         Preconditions.checkArgument(StringUtils.isNotBlank(params.getContent()), "Email content cannot be empty.");
     }
 
-    private HtmlEmail createEmail(EmailParameter params, String contentId) {
+    private HtmlEmail createEmail(final EmailParameter emailParams, final String contentId) {
         // setting email server config
         HtmlEmail email = new HtmlEmail();
-        email.setSocketTimeout(Duration.ofMillis(params.getTimeout()));
-        email.setSocketConnectionTimeout(Duration.ofMillis(params.getTimeout()));
-        email.setDebug(params.isDebug());
+        email.setSocketTimeout(Duration.ofMillis(emailParams.getTimeout()));
+        email.setSocketConnectionTimeout(Duration.ofMillis(emailParams.getTimeout()));
+        email.setDebug(emailParams.isDebug());
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-ID", contentId);
         email.setHeaders(headers);
-        email.setHostName(params.getServer());
-        email.setSmtpPort(params.getSmtpPort());
-        email.setSslSmtpPort(String.valueOf(params.getSmtpPort()));
-        email.setSSLOnConnect(params.isSsl());
-        email.setStartTLSEnabled(params.isTls());
-        if (StringUtils.isNotBlank(params.getUsername()) || StringUtils.isNotBlank(params.getPassword())) {
-            email.setAuthenticator(new DefaultAuthenticator(params.getUsername(), params.getPassword()));
+        email.setHostName(emailParams.getServer());
+        email.setSmtpPort(emailParams.getSmtpPort());
+        email.setSslSmtpPort(String.valueOf(emailParams.getSmtpPort()));
+        email.setSSLOnConnect(emailParams.isSsl());
+        email.setStartTLSEnabled(emailParams.isTls());
+        if (StringUtils.isNotBlank(emailParams.getUsername()) || StringUtils.isNotBlank(emailParams.getPassword())) {
+            email.setAuthenticator(new DefaultAuthenticator(emailParams.getUsername(), emailParams.getPassword()));
         }
         return email;
     }
 
 
-    private String send(EmailParameter params, String content) throws EmailException {
+    private String send(final EmailParameter emailParams, final String content) throws EmailException {
         // setting email server config
         String contentId = CommonUtils.randomString("accordion-email");
-        HtmlEmail email = createEmail(params, contentId);
+        HtmlEmail email = createEmail(emailParams, contentId);
         // setting email header config
-        email.setFrom(params.getFrom(), StringUtils.substringBefore(params.getFrom(), "@"));
+        email.setFrom(emailParams.getFrom(), StringUtils.substringBefore(emailParams.getFrom(), "@"));
         email.setCharset(StandardCharsets.UTF_8.name());
-        email.setSubject(params.getSubject());
-        email.addTo(params.getRecipients());
-        if (params.getCarbonCopies() != null) {
-            email.addCc(params.getCarbonCopies());
+        email.setSubject(emailParams.getSubject());
+        email.addTo(emailParams.getRecipients());
+        if (emailParams.getCarbonCopies() != null) {
+            email.addCc(emailParams.getCarbonCopies());
         }
         email.setHtmlMsg(content);
         log.debug("Create a new email, Content ID: {}.", contentId);
         return email.send();
     }
 
+    /**
+     * Executes the email action by sending an email with the configured parameters.
+     *
+     * @return ExecuteResult containing the execution result
+     * @throws ActionException if email sending fails
+     */
     @Override
     public ExecuteResult execute() throws ActionException {
         ExecuteResult executeResult = new ExecuteResult();
