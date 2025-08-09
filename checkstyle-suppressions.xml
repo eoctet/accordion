@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Suppress certain checks for test files -->
+    <suppress checks="JavadocMethod" files=".*Test\.java"/>
+    <suppress checks="JavadocType" files=".*Test\.java"/>
+    <suppress checks="MagicNumber" files=".*Test\.java"/>
+    <suppress checks="DesignForExtension" files=".*Test\.java"/>
+    <suppress checks="HideUtilityClassConstructor" files=".*Test\.java"/>
+    
+    <!-- Suppress checks for generated code -->
+    <suppress checks="." files=".*[\\/]target[\\/]generated-sources[\\/].*"/>
+    
+    <!-- Suppress checks for example files -->
+    <suppress checks="JavadocMethod" files=".*Example\.java"/>
+    <suppress checks="JavadocType" files=".*Example\.java"/>
+    <suppress checks="SystemOut" files=".*Example\.java"/>
+    
+    <!-- Suppress specific checks for utility classes -->
+    <suppress checks="HideUtilityClassConstructor" files=".*Utils\.java"/>
+    
+    <!-- Suppress line length for import statements -->
+    <suppress checks="LineLength" files=".*\.java" lines="1-50"/>
+</suppressions>

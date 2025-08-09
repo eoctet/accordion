@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude test files from certain checks -->
+    <Match>
+        <Class name="~.*Test.*"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    
+    <Match>
+        <Class name="~.*Test.*"/>
+        <Bug pattern="DM_PRINT"/>
+    </Match>
+    
+    <Match>
+        <Class name="~.*Test.*"/>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+    
+    <!-- Exclude example files from certain checks -->
+    <Match>
+        <Class name="~.*Example.*"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    
+    <Match>
+        <Class name="~.*Example.*"/>
+        <Bug pattern="DM_PRINT"/>
+    </Match>
+    
+    <!-- Exclude generated code -->
+    <Match>
+        <Source name="~.*[\\/]target[\\/]generated-sources[\\/].*"/>
+    </Match>
+    
+    <!-- Exclude Lombok generated methods -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Method name="~get.*"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Method name="~set.*"/>
+    </Match>
+    
+    <!-- Exclude serialization warnings for data classes -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+        <Class name="~.*\.entity\..*"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+        <Class name="~.*\.model\..*"/>
+    </Match>
+    
+    <!-- Exclude null pointer warnings for Lombok @NonNull -->
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Method name="~.*"/>
+        <Class name="~.*"/>
+    </Match>
+    
+    <!-- Exclude warnings for utility classes -->
+    <Match>
+        <Class name="~.*Utils"/>
+        <Bug pattern="UC_USELESS_OBJECT"/>
+    </Match>
+    
+    <!-- Exclude warnings for builder patterns -->
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        <Class name="~.*Builder"/>
+    </Match>
+    
+    <!-- Exclude warnings for action parameter classes -->
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+        <Class name="~.*Parameter"/>
+    </Match>
+    
+    <!-- Exclude warnings for configuration classes -->
+    <Match>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+        <Class name="~.*Config"/>
+    </Match>
+    
+    <!-- Exclude EI_EXPOSE_REP2 warnings for framework-managed objects -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.AccordionPlan"/>
+        <Method name="importConfig"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.action.AbstractAction"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.action.AbstractAction"/>
+        <Method name="prepare"/>
+    </Match>
+    
+    <!-- Exclude EI_EXPOSE_REP2 warnings for Lombok builder patterns -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="~.*Builder"/>
+    </Match>
+    
+    <!-- Exclude EI_EXPOSE_REP2 warnings for graph entity constructors -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.graph.entity.GraphEdge"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.graph.entity.GraphView"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.graph.model.AccordionConfig"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="chat.octet.accordion.graph.model.AccordionGraphConfig"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+    
+    <!-- Exclude SE_TRANSIENT_FIELD_NOT_RESTORED warnings for action classes -->
+    <Match>
+        <Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+        <Class name="~.*Action"/>
+    </Match>
+    
+    <!-- Exclude UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR for session field -->
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        <Class name="chat.octet.accordion.action.AbstractAction"/>
+        <Field name="session"/>
+    </Match>
+    
+    <!-- Exclude test-specific warnings -->
+    <Match>
+        <Bug pattern="DM_GC"/>
+        <Class name="~.*Test.*"/>
+    </Match>
+    
+    <Match>
+        <Bug pattern="DMI_RANDOM_USED_ONLY_ONCE"/>
+        <Class name="~.*Test.*"/>
+    </Match>
+</FindBugsFilter>

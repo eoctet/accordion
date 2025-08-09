@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<ruleset name="Accordion PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>PMD rules for Accordion project</description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Exclude rules that conflict with Lombok -->
+        <exclude name="AccessorMethodGeneration"/>
+        <exclude name="DataClass"/>
+        
+        <!-- Exclude rules for test files -->
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+    </rule>
+
+    <!-- Code Style -->
+    <rule ref="category/java/codestyle.xml">
+        <!-- Exclude naming rules that are too strict -->
+        <exclude name="ShortVariable"/>
+        <exclude name="LongVariable"/>
+        <exclude name="ShortMethodName"/>
+        <exclude name="ShortClassName"/>
+        
+        <!-- Exclude rules that conflict with modern Java practices -->
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="DefaultPackage"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="TooManyStaticImports"/>
+        
+        <!-- Allow field naming for constants -->
+        <exclude name="FieldNamingConventions"/>
+        
+        <!-- Allow method argument naming -->
+        <exclude name="FormalParameterNamingConventions"/>
+    </rule>
+
+    <!-- Design -->
+    <rule ref="category/java/design.xml">
+        <!-- Exclude overly restrictive complexity rules -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="ExcessiveClassLength"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="TooManyFields"/>
+        
+        <!-- Allow data classes -->
+        <exclude name="DataClass"/>
+        
+        <!-- Allow utility classes -->
+        <exclude name="UseUtilityClass"/>
+        
+        <!-- Allow law of demeter violations for fluent APIs -->
+        <exclude name="LawOfDemeter"/>
+    </rule>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Exclude rules that are too strict for test code -->
+        <exclude name="BeanMembersShouldSerialize"/>
+        <exclude name="DataflowAnomalyAnalysis"/>
+        <exclude name="NullAssignment"/>
+        
+        <!-- Allow empty catch blocks with comments -->
+        <exclude name="EmptyCatchBlock"/>
+        
+        <!-- Allow missing serial version UID for data classes -->
+        <exclude name="MissingSerialVersionUID"/>
+    </rule>
+
+    <!-- Multithreading -->
+    <rule ref="category/java/multithreading.xml">
+        <!-- Exclude overly strict synchronization rules -->
+        <exclude name="UseConcurrentHashMap"/>
+        <exclude name="AvoidSynchronizedAtMethodLevel"/>
+    </rule>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml">
+        <!-- Exclude rules that conflict with readability -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+        <exclude name="UseStringBufferForStringAppends"/>
+    </rule>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml"/>
+
+    <!-- Custom rules for specific patterns -->
+    <rule ref="category/java/bestpractices.xml/UnusedImports"/>
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+
+    <!-- Configure specific rules -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="80"/>
+            <property name="methodReportLevel" value="15"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="200"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveMethodLength">
+        <properties>
+            <property name="minimum" value="100"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="8"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml/ExcessiveClassLength">
+        <properties>
+            <property name="minimum" value="1000"/>
+        </properties>
+    </rule>
+
+    <!-- Exclude test files from certain rules -->
+    <exclude-pattern>.*/src/test/.*</exclude-pattern>
+    <exclude-pattern>.*Test\.java</exclude-pattern>
+    <exclude-pattern>.*Example\.java</exclude-pattern>
+</ruleset>
