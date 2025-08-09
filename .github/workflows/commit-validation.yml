@@ -114,23 +114,23 @@ jobs:
             
             const comment = `## ❌ Commit Message Validation Failed
 
-The following commit messages do not follow the [conventional commit format](https://www.conventionalcommits.org/):
+            The following commit messages do not follow the [conventional commit format](https://www.conventionalcommits.org/):
 
-\`\`\`
-${errorMessage}
-\`\`\`
+            \`\`\`
+            ${errorMessage}
+            \`\`\`
 
-### Expected Format
-\`<type>(<scope>): <subject>\`
+            ### Expected Format
+            \`<type>(<scope>): <subject>\`
 
-**Valid types**: feat, fix, docs, style, refactor, perf, test, chore, ci
+            **Valid types**: feat, fix, docs, style, refactor, perf, test, chore, ci
 
-**Examples**:
-- \`feat(auth): add user authentication\`
-- \`fix: resolve null pointer exception\`
-- \`docs: update API documentation\`
+            **Examples**:
+            - \`feat(auth): add user authentication\`
+            - \`fix: resolve null pointer exception\`
+            - \`docs: update API documentation\`
 
-Please update your commit messages and force push to fix this issue.`;
+            Please update your commit messages and force push to fix this issue.`;
             
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -138,3 +138,14 @@ Please update your commit messages and force push to fix this issue.`;
               repo: context.repo.repo,
               body: comment
             });
+            
+      - name: Set final status
+        if: always()
+        run: |
+          if [[ "${{ steps.validate.outcome }}" == "success" ]]; then
+            echo "✅ All commit messages are valid"
+            exit 0
+          else
+            echo "❌ Commit message validation failed"
+            exit 1
+          fi
