@@ -1,0 +1,181 @@
+name: 📖 Documentation Issue
+description: Report issues with documentation or request documentation improvements
+title: "[DOCS] "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please provide details about the documentation issue or improvement request.
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is this about?
+      options:
+        - API Documentation
+        - User Guide
+        - Getting Started
+        - Examples/Tutorials
+        - README
+        - Code Comments
+        - Architecture Documentation
+        - Contributing Guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect information
+        - Outdated content
+        - Unclear explanation
+        - Broken links
+        - Formatting issues
+        - Translation needed
+        - New documentation request
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation located? (URL, file path, or section)
+      placeholder: e.g., README.md, docs/api/actions.md, https://github.com/owner/repo/wiki/Page
+    validations:
+      required: false
+
+  - type: textarea
+    id: current_content
+    attributes:
+      label: Current Content (if applicable)
+      description: Quote the current documentation content that has issues
+      render: markdown
+      placeholder: |
+        Current documentation says:
+        > "To create an action, use the ActionBuilder..."
+        
+        But this is incorrect because...
+    validations:
+      required: false
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: Issue Description
+      description: Describe the documentation issue in detail
+      placeholder: |
+        The current documentation for EmailAction doesn't explain how to configure SMTP settings...
+        The example code in the getting started guide is outdated...
+        There's no documentation for the new ScriptAction feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Add a section explaining SMTP configuration with examples...
+        Update the example code to use the new API...
+        Create a comprehensive guide for ScriptAction usage...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_content
+    attributes:
+      label: Proposed Content (Optional)
+      description: If you have specific content suggestions, please share them
+      render: markdown
+      placeholder: |
+        ## SMTP Configuration
+        
+        To configure SMTP settings for EmailAction:
+        
+        ```java
+        EmailAction emailAction = EmailAction.builder()
+            .smtpConfig(SmtpConfig.builder()
+                .host("smtp.gmail.com")
+                .port(587)
+                .username("user@gmail.com")
+                .password("password")
+                .build())
+            .build();
+        ```
+    validations:
+      required: false
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is the primary audience for this documentation?
+      options:
+        - New users/beginners
+        - Experienced developers
+        - Contributors
+        - API consumers
+        - System administrators
+        - All users
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this documentation improvement?
+      options:
+        - Low - Minor improvement
+        - Medium - Would help users
+        - High - Important for usability
+        - Critical - Blocking user adoption
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Are you willing to help improve the documentation?
+      options:
+        - label: I can write the documentation content
+        - label: I can review proposed changes
+        - label: I can provide examples or use cases
+        - label: I can help with translation
+
+  - type: textarea
+    id: related_issues
+    attributes:
+      label: Related Issues
+      description: Are there any related issues or discussions?
+      placeholder: |
+        Related to issue #123
+        Discussed in PR #456
+        Similar to documentation request #789
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        User feedback indicating confusion about this topic...
+        Common questions in discussions or support channels...
+        Comparison with documentation from similar projects...
+    validations:
+      required: false
