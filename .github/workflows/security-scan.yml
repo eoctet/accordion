@@ -1,0 +1,269 @@
+name: 🔒 Security Scan
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: "0 2 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "pom.xml"
+      - "**/pom.xml"
+      - "owasp-suppressions.xml"
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: -Xmx2048m
+
+jobs:
+  # Dependency vulnerability scan
+  dependency-scan:
+    name: 📦 Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run OWASP Dependency Check
+        run: |
+          echo "Running OWASP dependency vulnerability scan..."
+          echo "Checking for known vulnerabilities in project dependencies..."
+
+          # Create reports directory
+          mkdir -p target/dependency-check-reports
+
+          # Run dependency check with detailed reporting
+          mvn dependency-check:check -DfailBuildOnCVSS=7 -Dformats=HTML,JSON,SARIF
+
+          echo "✅ Dependency scan completed"
+
+      - name: Upload OWASP Dependency Check reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owasp-dependency-check-reports
+          path: |
+            target/dependency-check-report.html
+            target/dependency-check-report.json
+            target/dependency-check-report.sarif
+          retention-days: 30
+
+      - name: Upload OWASP scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('target/dependency-check-report.sarif') != ''
+        with:
+          sarif_file: target/dependency-check-report.sarif
+          category: owasp-dependency-check
+
+  # Code security scan
+  code-security-scan:
+    name: 🔍 Code Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run SpotBugs Security Audit
+        run: |
+          echo "Running SpotBugs security scan..."
+          mkdir -p target/spotbugs-reports
+
+          # Compile first
+          mvn clean compile -DskipTests
+
+          # Run SpotBugs with security rules
+          mvn spotbugs:check
+
+          echo "✅ SpotBugs security scan completed"
+
+      - name: Run PMD Security Rules
+        run: |
+          echo "Running PMD security analysis..."
+          mkdir -p target/pmd-reports
+
+          # Run PMD with security-focused rulesets
+          mvn pmd:check
+
+          echo "✅ PMD security analysis completed"
+
+      - name: Upload SpotBugs reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spotbugs-security-reports
+          path: |
+            target/spotbugsXml.xml
+            target/spotbugs.xml
+          retention-days: 30
+
+      - name: Upload PMD reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pmd-security-reports
+          path: |
+            target/pmd.xml
+            target/site/pmd.html
+          retention-days: 30
+
+  # CodeQL analysis
+  codeql-analysis:
+    name: 🔬 CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+          queries: security-and-quality
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build project
+        run: |
+          echo "Building project for CodeQL analysis..."
+          mvn clean compile -DskipTests
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java"
+
+  # Secret scanning
+  secret-scan:
+    name: 🔐 Secret Detection Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # License compliance check
+  license-scan:
+    name: 📜 License Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Check licenses
+        run: |
+          echo "Checking dependency licenses..."
+
+          # Generate license report
+          mvn license:add-third-party
+
+          # Check for problematic licenses
+          if [ -f "target/generated-sources/license/THIRD-PARTY.txt" ]; then
+            echo "✅ License report generated"
+            cat target/generated-sources/license/THIRD-PARTY.txt
+          else
+            echo "⚠️ License report not generated"
+          fi
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: license-compliance-report
+          path: target/generated-sources/license/THIRD-PARTY.txt
+          retention-days: 30
+
+  # Security scan summary
+  security-summary:
+    name: 📊 Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, code-security-scan, codeql-analysis, secret-scan, license-scan]
+    if: always()
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "# 🔒 Security Scan Report Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger Method:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 📋 Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Type | Status | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Vulnerability Scan | ${{ needs.dependency-scan.result }} | OWASP dependency check for known vulnerabilities (CVSS ≥7) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Security Scan | ${{ needs.code-security-scan.result }} | SpotBugs and PMD security analysis |" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL Analysis | ${{ needs.codeql-analysis.result }} | Advanced semantic code analysis |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Detection | ${{ needs.secret-scan.result }} | Scan for exposed secrets and credentials |" >> $GITHUB_STEP_SUMMARY
+          echo "| License Compliance | ${{ needs.license-scan.result }} | Check dependency license compliance |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Determine overall security status
+          failed_count=0
+          [[ "${{ needs.dependency-scan.result }}" == "failure" ]] && ((failed_count++))
+          [[ "${{ needs.code-security-scan.result }}" == "failure" ]] && ((failed_count++))
+          [[ "${{ needs.codeql-analysis.result }}" == "failure" ]] && ((failed_count++))
+          [[ "${{ needs.secret-scan.result }}" == "failure" ]] && ((failed_count++))
+          [[ "${{ needs.license-scan.result }}" == "failure" ]] && ((failed_count++))
+
+          if [ $failed_count -gt 0 ]; then
+            echo "## ❌ Security Issues Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**$failed_count** security scan(s) found issues that need attention." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please review the detailed reports and fix them promptly:" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.dependency-scan.result }}" == "failure" ]] && echo "- ❌ Dependency vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.code-security-scan.result }}" == "failure" ]] && echo "- ❌ Code security issues detected" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.codeql-analysis.result }}" == "failure" ]] && echo "- ❌ CodeQL analysis found issues" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.secret-scan.result }}" == "failure" ]] && echo "- ❌ Secrets or credentials exposed" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.license-scan.result }}" == "failure" ]] && echo "- ❌ License compliance issues" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ Security Scan Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All security scans have passed. No serious security issues found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📎 Related Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [Security Tab](${{ github.server_url }}/${{ github.repository }}/security)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Dependency Graph](${{ github.server_url }}/${{ github.repository }}/network/dependencies)" >> $GITHUB_STEP_SUMMARY

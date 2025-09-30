@@ -1,0 +1,507 @@
+name: 🔍 PR Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize]
+
+# Add necessary permissions
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: write
+  security-events: write
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: -Xmx2048m
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # Commit message format check
+  commit-message-check:
+    name: 📝 Commit Message Check
+    runs-on: ubuntu-latest
+    if: github.event.action != 'edited'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        run: |
+          echo "Checking commit message format..."
+
+          # Ensure script has execute permission
+          chmod +x ./scripts/check-commit-message.sh
+
+          # Get all commits in PR
+          commits=$(git rev-list --reverse ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+
+          failed_commits=()
+
+          for commit in $commits; do
+            message=$(git log --format=%s -n 1 $commit)
+            echo "Checking commit: $commit"
+            echo "Message: $message"
+
+            if ! ./scripts/check-commit-message.sh "$message"; then
+              failed_commits+=("$commit: $message")
+            fi
+          done
+
+          if [ ${#failed_commits[@]} -gt 0 ]; then
+            echo "❌ The following commit messages have incorrect format:"
+            for failed in "${failed_commits[@]}"; do
+              echo "  - $failed"
+            done
+            echo ""
+            echo "Please modify commit messages to follow Conventional Commits specification:"
+            echo "Format: <type>[optional scope]: <description>"
+            echo "Example: feat(action): add new webhook action type"
+            exit 1
+          fi
+
+          echo "✅ All commit message formats are correct"
+
+  # Code quality check
+  code-quality-check:
+    name: 🎨 Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: |
+          echo "Running Checkstyle code style check..."
+          mvn checkstyle:check
+          echo "✅ Checkstyle passed"
+
+      - name: Run SpotBugs
+        run: |
+          echo "Running SpotBugs static analysis..."
+          mvn compile spotbugs:check
+          echo "✅ SpotBugs passed"
+
+      - name: Run PMD
+        run: |
+          echo "Running PMD code analysis..."
+          mvn pmd:check
+          echo "✅ PMD passed"
+
+      - name: Run PMD CPD
+        run: |
+          echo "Running PMD CPD check..."
+          mvn pmd:cpd-check
+          echo "✅ PMD CPD passed"
+
+  # Unit tests
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run unit tests with coverage
+        run: |
+          echo "Running unit tests with coverage..."
+          mkdir -p target/test-reports
+
+          # Run tests with coverage
+          mvn clean test jacoco:report
+
+          echo "✅ Unit tests completed"
+
+      - name: Calculate coverage
+        id: coverage
+        run: |
+          echo "Calculating test coverage..."
+
+          # Extract coverage from JaCoCo report
+          if [ -f "target/site/jacoco/index.html" ]; then
+            # Parse HTML to get coverage percentages
+            line_coverage=$(grep -oP 'Total.*?<td class="ctr2">\K[0-9]+(?=%)' target/site/jacoco/index.html | head -1 || echo "0")
+            branch_coverage=$(grep -oP 'Total.*?<td class="ctr2">[0-9]+%.*?<td class="ctr2">\K[0-9]+(?=%)' target/site/jacoco/index.html | head -1 || echo "0")
+
+            echo "Line coverage: ${line_coverage}%"
+            echo "Branch coverage: ${branch_coverage}%"
+            echo "line_coverage=$line_coverage" >> $GITHUB_ENV
+            echo "branch_coverage=$branch_coverage" >> $GITHUB_ENV
+          else
+            echo "⚠️ Coverage report not generated, setting coverage to 0%"
+            echo "line_coverage=0" >> $GITHUB_ENV
+            echo "branch_coverage=0" >> $GITHUB_ENV
+          fi
+
+      - name: Check coverage thresholds
+        run: |
+          echo "Checking coverage thresholds..."
+          mvn jacoco:check
+          echo "✅ Coverage thresholds met (80% line, 70% branch)"
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+          retention-days: 30
+
+      - name: Comment coverage on PR
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const fs = require('fs');
+              const path = require('path');
+
+              // Get coverage data
+              const lineCoverage = process.env.line_coverage || '0';
+              const branchCoverage = process.env.branch_coverage || '0';
+              const threshold = process.env.COVERAGE_THRESHOLD;
+
+              // Calculate average coverage
+              const avgCoverage = ((parseFloat(lineCoverage) + parseFloat(branchCoverage)) / 2).toFixed(1);
+              const isWarning = parseFloat(lineCoverage) < parseFloat(threshold) || parseFloat(branchCoverage) < 70;
+
+              let coverageIcon = '✅';
+              if (isWarning) {
+                coverageIcon = '⚠️';
+              }
+
+              const comment = `## ${coverageIcon} Test Coverage Report
+
+              | Metric | Coverage | Status |
+              |------|--------|------|
+              | Line Coverage | ${lineCoverage}% | ${parseFloat(lineCoverage) >= parseFloat(threshold) ? '✅' : '⚠️'} |
+              | Branch Coverage | ${branchCoverage}% | ${parseFloat(branchCoverage) >= 70 ? '✅' : '⚠️'} |
+              | **Average Coverage** | **${avgCoverage}%** | **${isWarning ? '⚠️' : '✅'}** |
+
+              **Required Thresholds:** Line ≥ ${threshold}%, Branch ≥ 70%
+
+              ${isWarning ? '⚠️ **Warning:** Coverage below threshold, recommend adding test cases' : '✅ Coverage meets requirements'}
+              `;
+
+              // Find existing coverage comment
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+
+              const existingComment = comments.find(comment =>
+                comment.body.includes('Test Coverage Report')
+              );
+
+              if (existingComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+                console.log('✅ Coverage comment updated');
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: comment
+                });
+                console.log('✅ Coverage comment created');
+              }
+            } catch (error) {
+              console.log('⚠️ Unable to create or update coverage comment:', error.message);
+              console.log('Coverage data will still be displayed in workflow logs');
+            }
+
+  # Integration tests
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests..."
+          mvn verify -DskipUnitTests
+          echo "✅ Integration tests passed"
+
+      - name: Upload integration test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-reports
+          path: target/failsafe-reports/
+          retention-days: 30
+
+  # Build verification
+  build-check:
+    name: 🔨 Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build project
+        run: |
+          echo "Building project..."
+          mvn clean package -DskipTests
+          echo "✅ Build successful"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: target/*.jar
+          retention-days: 7
+
+  # Security scan
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run OWASP Dependency Check
+        run: |
+          echo "Running OWASP dependency vulnerability scan..."
+          mvn dependency-check:check -DfailBuildOnCVSS=7 -Dformats=HTML,SARIF
+          echo "✅ Security scan completed"
+        continue-on-error: true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            target/dependency-check-report.html
+            target/dependency-check-report.sarif
+          retention-days: 30
+
+      - name: Upload security scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('target/dependency-check-report.sarif') != ''
+        with:
+          sarif_file: target/dependency-check-report.sarif
+          category: owasp-dependency-check
+
+  # Final status check
+  pr-check-summary:
+    name: 📊 PR Check Summary
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    needs:
+      [
+        commit-message-check,
+        code-quality-check,
+        unit-tests,
+        integration-tests,
+        build-check,
+        security-scan
+      ]
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          echo "=== PR Check Results Summary ==="
+
+          # Check status of each job
+          commit_check="${{ needs.commit-message-check.result }}"
+          code_quality="${{ needs.code-quality-check.result }}"
+          unit_tests="${{ needs.unit-tests.result }}"
+          integration_tests="${{ needs.integration-tests.result }}"
+          build_check="${{ needs.build-check.result }}"
+          security_scan="${{ needs.security-scan.result }}"
+
+          echo "Commit message check: $commit_check"
+          echo "Code quality check: $code_quality"
+          echo "Unit tests: $unit_tests"
+          echo "Integration tests: $integration_tests"
+          echo "Build check: $build_check"
+          echo "Security scan: $security_scan"
+
+          # Check if there are any failed jobs
+          failed_jobs=()
+
+          [ "$commit_check" = "failure" ] && failed_jobs+=("Commit message check")
+          [ "$code_quality" = "failure" ] && failed_jobs+=("Code quality check")
+          [ "$unit_tests" = "failure" ] && failed_jobs+=("Unit tests")
+          [ "$integration_tests" = "failure" ] && failed_jobs+=("Integration tests")
+          [ "$build_check" = "failure" ] && failed_jobs+=("Build check")
+          [ "$security_scan" = "failure" ] && failed_jobs+=("Security scan")
+
+          if [ ${#failed_jobs[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ The following checks failed:"
+            for job in "${failed_jobs[@]}"; do
+              echo "  - $job"
+            done
+            echo ""
+            echo "Please fix the failed checks and resubmit"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All PR checks passed!"
+
+      - name: Comment PR check summary
+        if: always()
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const needs = ${{ toJSON(needs) }};
+
+              let summary = '## 📊 PR Check Results Summary\n\n';
+              let allPassed = true;
+              let failedJobs = [];
+
+              const jobs = [
+                { name: 'Commit Message Check', key: 'commit-message-check' },
+                { name: 'Code Quality Check', key: 'code-quality-check' },
+                { name: 'Unit Tests', key: 'unit-tests' },
+                { name: 'Integration Tests', key: 'integration-tests' },
+                { name: 'Build Check', key: 'build-check' },
+                { name: 'Security Scan', key: 'security-scan' }
+              ];
+
+              for (const job of jobs) {
+                const result = needs[job.key]?.result || 'skipped';
+                let icon = '✅';
+
+                if (result === 'failure') {
+                  icon = '❌';
+                  allPassed = false;
+                  failedJobs.push(job.name);
+                } else if (result === 'cancelled') {
+                  icon = '⏹️';
+                } else if (result === 'skipped') {
+                  icon = '⏭️';
+                }
+
+                summary += `${icon} **${job.name}:** ${result}\n`;
+              }
+
+              summary += '\n';
+
+              if (allPassed) {
+                summary += '🎉 **All checks passed!** This PR can be merged.';
+              } else {
+                summary += '⚠️ **Some checks failed** Please fix the failed checks and resubmit.\n\n';
+                summary += '### 🔧 Fix Suggestions\n\n';
+
+                if (failedJobs.includes('Commit Message Check')) {
+                  summary += '- **Commit Message Format**: Please use Conventional Commits format, e.g. `feat(action): add webhook support`\n';
+                }
+                if (failedJobs.includes('Code Quality Check')) {
+                  summary += '- **Code Quality**: Fix Checkstyle, SpotBugs, and PMD violations\n';
+                }
+                if (failedJobs.includes('Unit Tests')) {
+                  summary += '- **Unit Tests**: Fix failed test cases and ensure coverage meets requirements (80% line, 70% branch)\n';
+                }
+                if (failedJobs.includes('Integration Tests')) {
+                  summary += '- **Integration Tests**: Fix integration test failures\n';
+                }
+                if (failedJobs.includes('Build Check')) {
+                  summary += '- **Build Issues**: Check compilation errors and dependency problems\n';
+                }
+                if (failedJobs.includes('Security Scan')) {
+                  summary += '- **Security Issues**: Fix vulnerabilities found by OWASP dependency check\n';
+                }
+              }
+
+              // Find existing summary comment
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+
+              const existingComment = comments.find(comment =>
+                comment.body.includes('PR Check Results Summary')
+              );
+
+              if (existingComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: summary
+                });
+                console.log('✅ PR check summary comment updated');
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: summary
+                });
+                console.log('✅ PR check summary comment created');
+              }
+
+            } catch (error) {
+              console.log('⚠️ Unable to create or update PR check summary comment:', error.message);
+            }
