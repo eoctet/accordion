@@ -58,21 +58,36 @@ public final class DataTypeConvert {
 
     private static <T extends Serializable> T convert(final Class<T> clazz, final String value) {
         if (clazz == Integer.class) {
-            String processedValue = value;
-            if (processedValue.contains(POINT)) {
-                processedValue = StringUtils.substringBefore(processedValue, POINT);
+            try {
+                String processedValue = value;
+                if (processedValue.contains(POINT)) {
+                    processedValue = StringUtils.substringBefore(processedValue, POINT);
+                }
+                return clazz.cast(Integer.parseInt(processedValue));
+            } catch (NumberFormatException e) {
+                log.warn("Failed to parse integer value: {}, using default (0)", value);
+                return clazz.cast(0);
             }
-            return clazz.cast(Integer.parseInt(processedValue));
         } else if (clazz == Long.class) {
-            String processedValue = value;
-            if (processedValue.contains(POINT)) {
-                processedValue = StringUtils.substringBefore(processedValue, POINT);
+            try {
+                String processedValue = value;
+                if (processedValue.contains(POINT)) {
+                    processedValue = StringUtils.substringBefore(processedValue, POINT);
+                }
+                return clazz.cast(Long.parseLong(processedValue));
+            } catch (NumberFormatException e) {
+                log.warn("Failed to parse long value: {}, using default (0)", value);
+                return clazz.cast(0L);
             }
-            return clazz.cast(Long.parseLong(processedValue));
         } else if (clazz == String.class) {
             return clazz.cast(value);
         } else if (clazz == Double.class) {
-            return clazz.cast(Double.parseDouble(value));
+            try {
+                return clazz.cast(Double.parseDouble(value));
+            } catch (NumberFormatException e) {
+                log.warn("Failed to parse double value: {}, using default (0.0)", value);
+                return clazz.cast(0.0d);
+            }
         } else if (clazz == Boolean.class) {
             boolean b;
             if (TRUE_NUMBER.equals(value) || FALSE_NUMBER.equals(value)) {
@@ -84,7 +99,12 @@ public final class DataTypeConvert {
             }
             return clazz.cast(b);
         } else if (clazz == BigDecimal.class) {
-            return clazz.cast(new BigDecimal(value).setScale(DECIMAL_SCALE, RoundingMode.HALF_UP));
+            try {
+                return clazz.cast(new BigDecimal(value).setScale(DECIMAL_SCALE, RoundingMode.HALF_UP));
+            } catch (NumberFormatException e) {
+                log.warn("Failed to parse BigDecimal value: {}, using default (0)", value);
+                return clazz.cast(BigDecimal.valueOf(0, DECIMAL_SCALE));
+            }
         } else if (clazz == LocalDateTime.class) {
             String format = null;
             String processedValue = value;
