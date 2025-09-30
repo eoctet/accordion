@@ -1,0 +1,61 @@
+name: 🧪 Test Failure (Auto-generated)
+description: Automatically created when tests fail in CI/CD
+title: "[Test Failure]: "
+labels: ["test-failure", "ci/cd", "bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue was automatically created due to test failures in the CI/CD pipeline.
+
+  - type: input
+    id: commit-sha
+    attributes:
+      label: Commit SHA
+      description: The commit that caused the test failure
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: Branch
+      description: The branch where the test failure occurred
+    validations:
+      required: true
+
+  - type: input
+    id: workflow-run
+    attributes:
+      label: Workflow Run URL
+      description: Link to the failed workflow run
+    validations:
+      required: true
+
+  - type: textarea
+    id: failed-tests
+    attributes:
+      label: Failed Tests
+      description: List of failed test cases
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Logs
+      description: Relevant error logs from the test failure
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: How to reproduce the test failure locally
+    validations:
+      required: false

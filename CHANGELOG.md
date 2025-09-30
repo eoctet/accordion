@@ -1,7 +1,7 @@
 __Release Note__ 🎉
 
 - Added new actions.
-    - Shell
-    - LlamaAI
+  - Shell
+  - LlamaAI
 - Supports global params & last result.
 - Optimize code.

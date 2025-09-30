@@ -1,0 +1,70 @@
+name: 🐛 错误报告
+description: 创建错误报告帮助我们改进
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间填写这个错误报告！
+
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 如果我们需要更多信息，如何联系您？
+      placeholder: 例如：email@example.com
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么？
+      description: 请告诉我们发生了什么，以及您期望发生什么？
+      placeholder: 告诉我们您看到了什么！
+      value: "发生了一个错误！"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: 版本
+      description: 您正在运行哪个版本的软件？
+      options:
+        - 1.0.0 (默认)
+        - 1.0.1
+        - 1.1.0
+        - main 分支
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: 您在哪些浏览器上看到了这个问题？
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志输出
+      description: 请复制并粘贴任何相关的日志输出。这将自动格式化为代码，因此不需要反引号。
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 行为准则
+      description: 通过提交此问题，您同意遵守我们的[行为准则](https://example.com)
+      options:
+        - label: 我同意遵守此项目的行为准则
+          required: true

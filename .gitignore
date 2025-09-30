@@ -50,3 +50,6 @@ build/
 .idea
 .kiro
 .history
+.claude
+CLAUDE.md
+.mcp.json

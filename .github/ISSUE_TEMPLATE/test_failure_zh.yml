@@ -1,0 +1,61 @@
+name: 🧪 测试失败 (自动生成)
+description: CI/CD 中测试失败时自动创建
+title: "[Test Failure]: "
+labels: ["test-failure", "ci/cd", "bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        此问题是由于 CI/CD 流水线中的测试失败而自动创建的。
+
+  - type: input
+    id: commit-sha
+    attributes:
+      label: 提交 SHA
+      description: 导致测试失败的提交
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: 分支
+      description: 发生测试失败的分支
+    validations:
+      required: true
+
+  - type: input
+    id: workflow-run
+    attributes:
+      label: 工作流运行 URL
+      description: 失败的工作流运行链接
+    validations:
+      required: true
+
+  - type: textarea
+    id: failed-tests
+    attributes:
+      label: 失败的测试
+      description: 失败的测试用例列表
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: 错误日志
+      description: 测试失败的相关错误日志
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 重现步骤
+      description: 如何在本地重现测试失败
+    validations:
+      required: false

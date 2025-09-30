@@ -1,0 +1,53 @@
+name: 🚀 功能请求
+description: 为此项目建议一个想法
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间建议新功能！
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 您的功能请求是否与问题相关？
+      description: 清楚简洁地描述问题是什么。
+      placeholder: 我总是在...时感到沮丧
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 描述您想要的解决方案
+      description: 清楚简洁地描述您希望发生什么。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 描述您考虑过的替代方案
+      description: 清楚简洁地描述您考虑过的任何替代解决方案或功能。
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 附加上下文
+      description: 在此处添加有关功能请求的任何其他上下文或屏幕截图。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 行为准则
+      description: 通过提交此问题，您同意遵守我们的[行为准则](https://example.com)
+      options:
+        - label: 我同意遵守此项目的行为准则
+          required: true

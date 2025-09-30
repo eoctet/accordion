@@ -1,137 +1,53 @@
-name: ✨ Feature Request
-description: Suggest a new feature or enhancement for Accordion
-title: "[FEATURE] "
-labels: ["enhancement", "needs-triage"]
+name: 🚀 Feature Request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
 assignees: []
+
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
-
-  - type: checkboxes
-    id: prerequisites
-    attributes:
-      label: Prerequisites
-      description: Please confirm you have completed the following
-      options:
-        - label: I have searched existing issues and discussions
-          required: true
-        - label: This feature doesn't exist in the current version
-          required: true
-        - label: I have read the project roadmap
-          required: false
-
-  - type: dropdown
-    id: feature_type
-    attributes:
-      label: Feature Type
-      description: What type of feature are you requesting?
-      options:
-        - New Action Type
-        - Core Framework Enhancement
-        - API Improvement
-        - Performance Optimization
-        - Developer Experience
-        - Documentation
-        - Testing
-        - Other
-    validations:
-      required: true
+        Thanks for taking the time to suggest a new feature!
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem Statement
-      description: What problem does this feature solve? What's the current limitation?
-      placeholder: |
-        Currently, when I try to..., I encounter the limitation that...
-        This makes it difficult to...
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: I'm always frustrated when...
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: solution
     attributes:
-      label: Proposed Solution
-      description: Describe your ideal solution
-      placeholder: |
-        I would like to be able to...
-        This could be implemented by...
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
     validations:
       required: true
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternative Solutions
-      description: Have you considered any alternative solutions or workarounds?
-      placeholder: |
-        Alternative approaches could include...
-        Current workarounds are...
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
     validations:
       required: false
 
   - type: textarea
-    id: use_cases
+    id: additional-context
     attributes:
-      label: Use Cases
-      description: Describe specific use cases where this feature would be valuable
-      placeholder: |
-        Use Case 1: When building CI/CD pipelines...
-        Use Case 2: For data processing workflows...
-        Use Case 3: In monitoring scenarios...
-    validations:
-      required: true
-
-  - type: textarea
-    id: api_design
-    attributes:
-      label: API Design (Optional)
-      description: If you have ideas about the API design, please share them
-      render: java
-      placeholder: |
-        // Example API usage
-        AccordionPlan.create()
-            .addAction("new-feature", NewFeatureAction.builder()
-                .parameter("value")
-                .build())
-            .build();
+      label: Additional context
+      description: Add any other context or screenshots about the feature request here.
     validations:
       required: false
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      description: How important is this feature to you?
-      options:
-        - Low - Nice to have
-        - Medium - Would improve my workflow
-        - High - Blocking my use case
-        - Critical - Essential for adoption
-    validations:
-      required: true
 
   - type: checkboxes
-    id: contribution
+    id: terms
     attributes:
-      label: Contribution
-      description: Are you willing to contribute to this feature?
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
       options:
-        - label: I'm willing to submit a pull request for this feature
-        - label: I can help with testing
-        - label: I can help with documentation
-        - label: I can provide feedback during development
-
-  - type: textarea
-    id: additional_context
-    attributes:
-      label: Additional Context
-      description: Any other context, mockups, or examples
-      placeholder: |
-        Related projects that have similar features...
-        Links to relevant documentation...
-        Screenshots or mockups...
-    validations:
-      required: false
+        - label: I agree to follow this project's Code of Conduct
+          required: true
