@@ -188,7 +188,7 @@ public class Accordion implements AutoCloseable {
             throw new IllegalStateException("Accordion has been closed and cannot be reused");
         }
 
-        if (executeGraphView.length() > 0) {
+        if (!executeGraphView.isEmpty()) {
             log.debug("Reset the execution status of the accordion.");
             reset();
         }

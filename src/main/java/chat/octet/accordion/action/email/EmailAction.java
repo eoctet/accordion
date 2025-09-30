@@ -15,6 +15,7 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.text.StringSubstitutor;
 
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 @Slf4j
 public class EmailAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final transient EmailParameter params;

@@ -66,7 +66,7 @@ public class ScriptAction extends AbstractAction {
                 OutputParameter outputParameter = getActionOutput().stream().findFirst().get();
                 executeResult.add(outputParameter.getName(), result);
             }
-            log.debug("Script action execution result: " + result);
+            log.debug("Script action execution result: {}", result);
         } catch (Exception e) {
             setExecuteThrowable(new ActionException(e.getMessage(), e));
         }

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.LinkedHashMap;
@@ -44,6 +45,7 @@ import static chat.octet.accordion.core.enums.DataFormatType.XML;
  */
 @Slf4j
 public class ApiAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final int MAX_RESPONSE_PREVIEW_LENGTH = 200;
 

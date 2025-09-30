@@ -145,7 +145,6 @@ public abstract class AbstractAction implements ActionService, Serializable {
         this.session = sessionParam;
 
         // Store reference to session - Session is managed by the framework
-        this.session = session;
         this.executeThrowable.set(null);
         this.inputParameter.clear();
 

@@ -149,7 +149,7 @@ class AccordionPlanTest extends AccordionTestBase {
             plan.reset();
 
             // Then
-            assertThatCode(() -> plan.reset()).doesNotThrowAnyException();
+            assertThatCode(plan::reset).doesNotThrowAnyException();
             assertThat(plan.getGraphNodes()).hasSize(1);
         }
     }

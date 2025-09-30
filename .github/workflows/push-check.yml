@@ -1,0 +1,283 @@
+name: 🚀 Push Check
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**', 'bugfix/**', 'hotfix/**' ]
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: -Xmx2048m
+
+jobs:
+  # Check for code changes
+  check-code-changes:
+    name: 🔍 Check Code Changes
+    runs-on: ubuntu-latest
+    outputs:
+      has-code-changes: ${{ steps.changes.outputs.has-code-changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for code changes
+        id: changes
+        run: |
+          echo "Checking for code changes..."
+
+          # Get list of modified files
+          changed_files=$(git diff --name-only HEAD^ HEAD)
+          echo "Modified files:"
+          echo "$changed_files"
+
+          # Define code file extensions for Java project
+          code_extensions="\.(java|xml|properties|yaml|yml|json|sh)$"
+
+          # Check for code file modifications
+          has_code_changes=false
+          while IFS= read -r file; do
+            if [[ -n "$file" && "$file" =~ $code_extensions ]]; then
+              echo "Found code file modification: $file"
+              has_code_changes=true
+              break
+            fi
+          done <<< "$changed_files"
+
+          # Check special files (pom.xml, Maven config, etc.)
+          special_files="pom\.xml|mvnw|mvnw\.cmd|checkstyle\.xml|spotbugs-exclude\.xml|pmd-ruleset\.xml|owasp-suppressions\.xml"
+          while IFS= read -r file; do
+            if [[ -n "$file" && "$file" =~ $special_files ]]; then
+              echo "Found build config file modification: $file"
+              has_code_changes=true
+              break
+            fi
+          done <<< "$changed_files"
+
+          if [ "$has_code_changes" = true ]; then
+            echo "✅ Code changes detected, proceeding with subsequent checks"
+            echo "has-code-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️  No code changes detected, skipping subsequent checks"
+            echo "Modified file types: documentation, configuration, other non-code files"
+            echo "has-code-changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Commit message format check
+  commit-message-check:
+    name: 📝 Commit Message Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check latest commit message
+        run: |
+          echo "Checking latest commit message format..."
+
+          # Get latest commit message
+          message=$(git log --format=%s -n 1 HEAD)
+          echo "Commit message: $message"
+          echo "Message length: ${#message} characters"
+
+          # Ensure script has execution permissions
+          chmod +x ./scripts/check-commit-message.sh
+
+          # Check commit message format
+          echo "Running commit message check script..."
+          if ./scripts/check-commit-message.sh -v "$message"; then
+            echo "✅ Commit message format is correct"
+          else
+            echo "❌ ERROR: Commit message format is incorrect"
+            echo ""
+            echo "Please modify the commit message to comply with Conventional Commits specification:"
+            echo "Format: <type>[optional scope]: <description>"
+            echo ""
+            echo "Supported types: feat, fix, docs, style, refactor, test, chore, perf, ci"
+            echo "Description length: 1-100 characters"
+            echo ""
+            echo "Examples:"
+            echo "  feat(action): add new webhook action type"
+            echo "  fix(api): handle null pointer in action execution"
+            echo "  chore: update dependencies and Maven plugins"
+            exit 1
+          fi
+
+  # Code format and quality check
+  code-quality-check:
+    name: 🎨 Code Quality Check
+    runs-on: ubuntu-latest
+    needs: check-code-changes
+    if: needs.check-code-changes.outputs.has-code-changes == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: |
+          echo "Running Checkstyle code style check..."
+          mvn checkstyle:check
+          echo "✅ Checkstyle passed"
+
+      - name: Run SpotBugs
+        run: |
+          echo "Running SpotBugs static analysis..."
+          mvn compile spotbugs:check
+          echo "✅ SpotBugs passed"
+
+      - name: Run PMD
+        run: |
+          echo "Running PMD code analysis..."
+          mvn pmd:check
+          echo "✅ PMD passed"
+
+      - name: Run PMD CPD (Copy-Paste Detection)
+        run: |
+          echo "Running PMD CPD check..."
+          mvn pmd:cpd-check
+          echo "✅ PMD CPD passed"
+
+  # Quick build check
+  build-check:
+    name: 🔨 Build Check
+    runs-on: ubuntu-latest
+    needs: check-code-changes
+    if: needs.check-code-changes.outputs.has-code-changes == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile project
+        run: |
+          echo "Compiling project..."
+          mvn clean compile -DskipTests
+          echo "✅ Build successful"
+
+  # Quick test
+  quick-test:
+    name: ⚡ Quick Test
+    runs-on: ubuntu-latest
+    needs: check-code-changes
+    if: needs.check-code-changes.outputs.has-code-changes == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          mvn test -Dtest.profile=unit
+          echo "✅ Unit tests passed"
+
+      - name: Generate test coverage report
+        run: |
+          echo "Generating test coverage report..."
+          mvn jacoco:report
+          echo "✅ Coverage report generated"
+
+      - name: Check coverage thresholds
+        run: |
+          echo "Checking coverage thresholds (80% line, 70% branch)..."
+          mvn jacoco:check
+          echo "✅ Coverage thresholds met"
+
+  # Security scan
+  security-check:
+    name: 🔒 Security Check
+    runs-on: ubuntu-latest
+    needs: check-code-changes
+    if: needs.check-code-changes.outputs.has-code-changes == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run OWASP Dependency Check
+        run: |
+          echo "Running OWASP dependency vulnerability scan..."
+          mvn dependency-check:check
+          echo "✅ No critical vulnerabilities found"
+        continue-on-error: false
+
+  # Push check summary
+  push-check-summary:
+    name: 📊 Push Check Summary
+    runs-on: ubuntu-latest
+    needs: [check-code-changes, commit-message-check, code-quality-check, build-check, quick-test, security-check]
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          echo "=== Push Check Results Summary ==="
+
+          # Check the status of each job
+          has_code_changes="${{ needs.check-code-changes.outputs.has-code-changes }}"
+          commit_check="${{ needs.commit-message-check.result }}"
+          code_quality="${{ needs.code-quality-check.result }}"
+          build_check="${{ needs.build-check.result }}"
+          quick_test="${{ needs.quick-test.result }}"
+          security_check="${{ needs.security-check.result }}"
+
+          echo "Code changes check: $has_code_changes"
+          echo "Commit message check: $commit_check"
+          echo "Code quality check: $code_quality"
+          echo "Build check: $build_check"
+          echo "Quick test: $quick_test"
+          echo "Security check: $security_check"
+
+          # Check for failed jobs
+          failed_jobs=()
+
+          [ "$commit_check" = "failure" ] && failed_jobs+=("Commit message check")
+
+          # Check for code changes
+          if [ "$has_code_changes" == "true" ]; then
+            [ "$code_quality" = "failure" ] && failed_jobs+=("Code quality check")
+            [ "$build_check" = "failure" ] && failed_jobs+=("Build check")
+            [ "$quick_test" = "failure" ] && failed_jobs+=("Quick test")
+            [ "$security_check" = "failure" ] && failed_jobs+=("Security check")
+          fi
+
+
+          if [ ${#failed_jobs[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ The following checks failed:"
+            for job in "${failed_jobs[@]}"; do
+              echo "  - $job"
+            done
+            echo ""
+            echo "Please fix the failed check items"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All push checks passed!"

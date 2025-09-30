@@ -66,7 +66,7 @@ class AccordionTest extends AccordionTestBase {
 
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
-                assertThatCode(() -> accordion.play())
+                assertThatCode(accordion::play)
                         .doesNotThrowAnyException();
             }
         }
@@ -95,7 +95,7 @@ class AccordionTest extends AccordionTestBase {
 
             // When & Then
             try (Accordion accordion = new Accordion(plan)) {
-                assertThatCode(() -> accordion.play())
+                assertThatCode(accordion::play)
                         .doesNotThrowAnyException();
 
                 logger.info("Executed script: {} - Result: {}", script, accordion.verbose());

@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 
+import java.io.Serial;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -91,6 +92,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ActionConfig implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

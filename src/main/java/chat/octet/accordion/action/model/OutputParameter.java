@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
+import java.io.Serial;
+
 /**
  * Action output parameter model.
  *
@@ -15,6 +17,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OutputParameter implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private String name;
 

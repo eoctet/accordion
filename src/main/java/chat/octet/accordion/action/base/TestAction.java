@@ -10,6 +10,7 @@ import chat.octet.accordion.utils.CommonUtils;
 import chat.octet.accordion.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ import java.util.List;
  */
 @Slf4j
 public class TestAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final String name;

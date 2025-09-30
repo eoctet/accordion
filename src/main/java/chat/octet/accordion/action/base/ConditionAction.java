@@ -10,6 +10,8 @@ import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serial;
+
 /**
  * ConditionAction is similar to the "if" in Java, used to control the execution process.
  * When the conditional judgment is not true, the execution will be interrupted.
@@ -19,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class ConditionAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
     public static final String ACTION_CONDITION_STATE = "ACTION_CONDITION_STATE";
     private final transient ConditionParameter params;

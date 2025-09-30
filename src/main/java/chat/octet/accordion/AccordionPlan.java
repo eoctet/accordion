@@ -180,7 +180,7 @@ public class AccordionPlan {
 
         List<GraphNode> rootCandidates = graphNodes.stream()
                 .filter(node -> !targetNodes.contains(node))
-                .collect(Collectors.toList());
+                .toList();
 
         if (rootCandidates.isEmpty()) {
             throw new AccordionException("Circular dependency detected. No starting action found.");

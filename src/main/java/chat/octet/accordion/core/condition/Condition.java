@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringSubstitutor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Getter
 @Slf4j
 public class Condition implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("expressions")
@@ -167,6 +169,7 @@ public class Condition implements Serializable {
     @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class ExpressionGroup implements Serializable {
+        @Serial
         private static final long serialVersionUID = 1L;
         private final ConditionType type;
         private final Object expression;
@@ -210,6 +213,7 @@ public class Condition implements Serializable {
     @Getter
     @JsonInclude(JsonInclude.Include.NON_NULL)
     protected static class Expression implements Serializable {
+        @Serial
         private static final long serialVersionUID = 1L;
         private static final String EXPRESSION_TEMP = "{negation}({param} {operator} {value})";
 

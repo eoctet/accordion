@@ -1,0 +1,158 @@
+#!/bin/sh
+# Accordion project pre-commit hook
+# Execute code quality checks and quick tests before commit
+
+set -e  # Exit immediately on error
+
+# Log functions
+log_info() {
+    printf "[INFO] %s\n" "$1"
+}
+
+log_success() {
+    printf "[SUCCESS] %s\n" "$1"
+}
+
+log_warning() {
+    printf "[WARNING] %s\n" "$1"
+}
+
+log_error() {
+    printf "[ERROR] %s\n" "$1"
+}
+
+# Check if tool is installed
+check_tool() {
+    local tool=$1
+    local install_cmd=$2
+
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        log_error "$tool is not installed. Please install it first:"
+        log_info "$install_cmd"
+        exit 1
+    fi
+}
+
+# Check Maven version
+check_maven_version() {
+    if ! mvn -v >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+# Get changed Java files
+get_changed_java_files() {
+    git diff --cached --name-only --diff-filter=ACM | grep '\.java$' || true
+}
+
+# Get changed pom.xml or config files
+get_changed_config_files() {
+    git diff --cached --name-only --diff-filter=ACM | grep -E '(pom\.xml|checkstyle\.xml|spotbugs-exclude\.xml|pmd-ruleset\.xml|owasp-suppressions\.xml)$' || true
+}
+
+# Main function
+main() {
+    log_info "Starting pre-commit checks for Accordion project..."
+
+    # Check required tools
+    log_info "Checking required tools..."
+    check_tool "mvn" "Please install Maven: https://maven.apache.org/install.html"
+
+    if ! check_maven_version; then
+        log_error "Maven is not properly configured"
+        exit 1
+    fi
+
+    # Check Java version
+    log_info "Checking Java version..."
+    java_version=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | cut -d'.' -f1)
+    if [ "$java_version" -lt 17 ]; then
+        log_error "Java 17 or higher is required. Current version: $java_version"
+        exit 1
+    fi
+    log_success "Java version check passed (Java $java_version)"
+
+    # Check if there are Java file changes or config changes
+    changed_java_files=$(get_changed_java_files)
+    changed_config_files=$(get_changed_config_files)
+
+    if [ -z "$changed_java_files" ] && [ -z "$changed_config_files" ]; then
+        log_info "No Java or config files changed, skipping checks"
+        exit 0
+    fi
+
+    if [ -n "$changed_java_files" ]; then
+        log_info "Changed Java files:"
+        echo "$changed_java_files" | sed 's/^/  - /'
+    fi
+
+    if [ -n "$changed_config_files" ]; then
+        log_info "Changed config files:"
+        echo "$changed_config_files" | sed 's/^/  - /'
+    fi
+
+    # 1. Compile check
+    log_info "Step 1/5: Compiling project..."
+    if ! mvn clean compile -q; then
+        log_error "Compilation failed. Please fix compilation errors."
+        exit 1
+    fi
+    log_success "Compilation passed"
+
+    # 2. Code style check
+    log_info "Step 2/5: Running Checkstyle..."
+    if ! mvn checkstyle:check -q; then
+        log_error "Checkstyle check failed. Please fix code style issues."
+        log_info "Run 'mvn checkstyle:check' for detailed output"
+        exit 1
+    fi
+    log_success "Checkstyle passed"
+
+    # 3. Static analysis
+    log_info "Step 3/5: Running static analysis (SpotBugs + PMD)..."
+    if ! mvn spotbugs:check pmd:check -q; then
+        log_error "Static analysis failed. Please fix the issues."
+        log_info "Run 'mvn spotbugs:check pmd:check' for detailed output"
+        exit 1
+    fi
+    log_success "Static analysis passed"
+
+    # 4. Quick unit tests (skip integration tests)
+    log_info "Step 4/5: Running unit tests..."
+    if ! mvn test -Dtest.profile=unit -q; then
+        log_error "Unit tests failed. Please fix the failing tests."
+        log_info "Run 'mvn test -Dtest.profile=unit' for detailed output"
+        exit 1
+    fi
+    log_success "Unit tests passed"
+
+    # 5. Check commit message format
+    log_info "Step 5/5: Checking commit message format..."
+    commit_msg_file="$1"
+
+    if [ -n "$commit_msg_file" ] && [ -f "$commit_msg_file" ]; then
+        script_dir="$(cd "$(dirname "$0")" && pwd)"
+        if [ -f "$script_dir/check-commit-message.sh" ]; then
+            if ! "$script_dir/check-commit-message.sh" -f "$commit_msg_file"; then
+                log_error "Commit message format check failed"
+                exit 1
+            fi
+            log_success "Commit message format check passed"
+        else
+            log_warning "Commit message check script not found, skipping"
+        fi
+    else
+        log_info "Commit message file not provided, skipping format check"
+    fi
+
+    # All checks passed
+    log_success "All pre-commit checks passed! ✨"
+    log_info "Commit is ready to proceed."
+}
+
+# Error handling
+trap 'log_error "Pre-commit hook failed. Commit aborted."; exit 1' ERR
+
+# Execute main function
+main "$@"

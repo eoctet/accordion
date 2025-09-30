@@ -15,12 +15,14 @@ import org.apache.commons.text.StringSubstitutor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ShellAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final transient ShellParameter params;
 
@@ -41,7 +43,7 @@ public class ShellAction extends AbstractAction {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return output.length() > 0 ? output.deleteCharAt(output.length() - 1).toString() : "";
+        return !output.isEmpty() ? output.deleteCharAt(output.length() - 1).toString() : "";
     }
 
     /**

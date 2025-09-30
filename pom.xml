@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>chat.octet</groupId>
@@ -57,7 +56,7 @@
         <junit.version>5.10.1</junit.version>
         <mockito.version>5.7.0</mockito.version>
         <assertj.version>3.24.2</assertj.version>
-        
+
         <!-- Code quality plugin versions -->
         <checkstyle.version>10.12.4</checkstyle.version>
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
@@ -86,7 +85,7 @@
             <artifactId>guava</artifactId>
             <version>32.1.3-jre</version>
         </dependency>
-        
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -103,7 +102,7 @@
             <artifactId>logback-classic</artifactId>
             <version>1.4.14</version>
         </dependency>
-        
+
         <!-- JSON processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -115,45 +114,45 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.16.1</version>
         </dependency>
-        
+
         <!-- Date/Time - Replace Joda-Time with Java Time API -->
         <!-- Joda-Time is no longer needed with Java 8+ Time API -->
-        
+
         <!-- HTTP client -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.12.0</version>
         </dependency>
-        
+
         <!-- XML processing -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>2.1.4</version>
         </dependency>
-        
+
         <!-- Email -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
             <version>1.6.0</version>
         </dependency>
-        
+
         <!-- Text processing -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.11.0</version>
         </dependency>
-        
+
         <!-- Script engine -->
         <dependency>
             <groupId>com.googlecode.aviator</groupId>
             <artifactId>aviator</artifactId>
             <version>5.4.3</version>
         </dependency>
-        
+
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -179,6 +178,34 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- MockWebServer for API testing -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.12.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- GreenMail for Email testing -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit5</artifactId>
+            <version>1.6.15</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Java Mail API for Email testing -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>1.6.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -197,7 +224,7 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            
+
             <!-- Surefire plugin for running tests with enhanced reporting -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -227,25 +254,9 @@
                         <java.awt.headless>true</java.awt.headless>
                         <file.encoding>UTF-8</file.encoding>
                     </systemPropertyVariables>
-                    <!-- Test profiles support -->
-                    <profiles>
-                        <profile>
-                            <id>unit</id>
-                            <activation>
-                                <property>
-                                    <name>test.profile</name>
-                                    <value>unit</value>
-                                </property>
-                            </activation>
-                            <excludes>
-                                <exclude>**/*IntegrationTest.java</exclude>
-                                <exclude>**/*IT.java</exclude>
-                            </excludes>
-                        </profile>
-                    </profiles>
                 </configuration>
             </plugin>
-            
+
             <!-- Failsafe plugin for integration tests with enhanced reporting -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -265,18 +276,6 @@
                         <java.awt.headless>true</java.awt.headless>
                         <file.encoding>UTF-8</file.encoding>
                     </systemPropertyVariables>
-                    <!-- Integration test profiles -->
-                    <profiles>
-                        <profile>
-                            <id>integration</id>
-                            <activation>
-                                <property>
-                                    <name>test.profile</name>
-                                    <value>integration</value>
-                                </property>
-                            </activation>
-                        </profile>
-                    </profiles>
                 </configuration>
                 <executions>
                     <execution>
@@ -287,7 +286,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Javadoc plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -310,7 +309,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Source plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -325,7 +324,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Nexus staging plugin -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -338,7 +337,7 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-            
+
             <!-- GPG plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -360,14 +359,14 @@
                     </gpgArguments>
                 </configuration>
             </plugin>
-            
+
             <!-- Deploy plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.1.1</version>
             </plugin>
-            
+
             <!-- JaCoCo plugin for code coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -413,7 +412,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Checkstyle plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -422,7 +421,6 @@
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
@@ -444,7 +442,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- SpotBugs plugin -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
@@ -472,7 +470,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- PMD plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -485,7 +483,6 @@
                     <includeTests>true</includeTests>
                     <minimumTokens>100</minimumTokens>
                     <linkXRef>false</linkXRef>
-                    <sourceEncoding>UTF-8</sourceEncoding>
                     <minimumPriority>5</minimumPriority>
                     <failOnViolation>true</failOnViolation>
                     <printFailingErrors>true</printFailingErrors>
@@ -499,7 +496,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- OWASP Dependency Check plugin -->
             <plugin>
                 <groupId>org.owasp</groupId>

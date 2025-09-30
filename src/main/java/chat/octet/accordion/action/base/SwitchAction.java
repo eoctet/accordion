@@ -11,6 +11,8 @@ import chat.octet.accordion.utils.CommonUtils;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
+
 /**
  * SwitchAction is a combination of multiple sets of conditions used to control multiple different execution chains,
  * suitable for execution scenarios of multiple independent tasks.
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class SwitchAction extends AbstractAction {
+    @Serial
     private static final long serialVersionUID = 1L;
     public static final String ACTION_SWITCH_CONTROL = "ACTION_SWITCH_CONTROL";
     private final transient SwitchParameter params;
