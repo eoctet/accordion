@@ -75,9 +75,9 @@ public final class DataTypeConvert {
             return clazz.cast(Double.parseDouble(value));
         } else if (clazz == Boolean.class) {
             boolean b;
-            if (StringUtils.equalsAny(value, TRUE_NUMBER, FALSE_NUMBER)) {
+            if (TRUE_NUMBER.equals(value) || FALSE_NUMBER.equals(value)) {
                 b = TRUE_NUMBER.equals(value);
-            } else if (StringUtils.equalsAnyIgnoreCase(value, TRUE_FLAG, FALSE_FLAG)) {
+            } else if (TRUE_FLAG.equalsIgnoreCase(value) || FALSE_FLAG.equalsIgnoreCase(value)) {
                 b = TRUE_FLAG.equalsIgnoreCase(value);
             } else {
                 b = Boolean.parseBoolean(value);
@@ -91,7 +91,7 @@ public final class DataTypeConvert {
             if (processedValue.contains(TIME) && processedValue.contains(ZONE)) {
                 processedValue = processedValue.replace(TIME, StringUtils.SPACE).replace(ZONE, StringUtils.EMPTY);
             }
-            if (processedValue.contains(SLASH) && StringUtils.indexOf(processedValue, SLASH) == 4) {
+            if (processedValue.contains(SLASH) && processedValue.indexOf(SLASH) == 4) {
                 if (processedValue.contains(COLON) && processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_MILLIS2;
                 } else if (processedValue.contains(COLON) && !processedValue.contains(POINT)) {
@@ -99,7 +99,7 @@ public final class DataTypeConvert {
                 } else {
                     format = Constant.DATE_FORMAT2;
                 }
-            } else if (processedValue.contains(LINE) && processedValue.contains(COLON) && StringUtils.indexOf(processedValue, LINE) == 4) {
+            } else if (processedValue.contains(LINE) && processedValue.contains(COLON) && processedValue.indexOf(LINE) == 4) {
                 if (processedValue.contains(COLON) && processedValue.contains(POINT)) {
                     format = Constant.DATE_FORMAT_WITH_MILLIS;
                 } else if (processedValue.contains(COLON) && !processedValue.contains(POINT)) {

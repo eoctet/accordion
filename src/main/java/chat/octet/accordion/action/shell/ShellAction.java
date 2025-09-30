@@ -48,6 +48,15 @@ public class ShellAction extends AbstractAction {
 
     /**
      * Executes the shell command and returns the result.
+     * <p>
+     * This method uses absolute paths for shell executables to prevent PATH manipulation attacks.
+     * Custom shell paths can be configured through system properties:
+     * <ul>
+     *   <li>{@code accordion.shell.bash.path} - Custom bash executable path</li>
+     *   <li>{@code accordion.shell.cmd.path} - Custom cmd executable path</li>
+     *   <li>{@code accordion.shell.powershell.path} - Custom PowerShell executable path</li>
+     * </ul>
+     * </p>
      *
      * @return the execution result containing output and status
      * @throws ActionException if the shell command execution fails
@@ -58,13 +67,18 @@ public class ShellAction extends AbstractAction {
         try {
             //format shell and inject dynamic variables
             String shell = StringSubstitutor.replace(params.getShell(), getInputParameter());
+
+            // Get secure absolute path for shell executable
+            String shellExecutable = ShellExecutorConfig.getShellPath(params.getType());
+            log.debug("Using shell executable: {}", shellExecutable);
+
             ProcessBuilder builder;
             if (ShellParameter.ShellType.CMD == params.getType()) {
-                builder = new ProcessBuilder("cmd", "/c", shell);
+                builder = new ProcessBuilder(shellExecutable, "/c", shell);
             } else if (ShellParameter.ShellType.POWERSHELL == params.getType()) {
-                builder = new ProcessBuilder("powershell", "-Command", shell);
+                builder = new ProcessBuilder(shellExecutable, "-Command", shell);
             } else {
-                builder = new ProcessBuilder("bash", "-c", shell);
+                builder = new ProcessBuilder(shellExecutable, "-c", shell);
             }
             Process process = builder.start();
             String output = getProcessOutput(process);
@@ -89,6 +103,9 @@ public class ShellAction extends AbstractAction {
                 Thread.currentThread().interrupt();
             }
             setExecuteThrowable(new ActionException(e.getMessage(), e));
+        } catch (IllegalStateException e) {
+            // Handle shell executable not found
+            setExecuteThrowable(new ActionException("Shell executable not found: " + e.getMessage(), e));
         }
         return executeResult;
     }
