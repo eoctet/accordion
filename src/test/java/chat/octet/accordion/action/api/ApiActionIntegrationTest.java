@@ -51,6 +51,43 @@ class ApiActionIntegrationTest {
         log.info("MockWebServer stopped");
     }
 
+    /**
+     * Helper method to execute API action with custom headers.
+     *
+     * @param url the API endpoint URL
+     * @param headers custom headers to send with the request
+     * @param message optional message for parameter substitution (can be null)
+     * @return the recorded request from the mock server
+     * @throws Exception if execution fails
+     */
+    private RecordedRequest executeApiActionWithHeaders(String url, Map<String, String> headers, Message message) throws Exception {
+        ActionConfig action = ActionConfig.builder()
+                .id(CommonUtils.randomString("ACT"))
+                .actionType(ActionType.API.name())
+                .actionName("Secure API")
+                .actionParams(ApiParameter.builder()
+                        .url(url)
+                        .method(HttpMethod.GET)
+                        .headers(headers)
+                        .responseDataFormat(DataFormatType.JSON)
+                        .build())
+                .build();
+
+        AccordionPlan plan = AccordionPlan.of().start(action);
+
+        assertThatCode(() -> {
+            try (Accordion accordion = new Accordion(plan)) {
+                if (message != null) {
+                    accordion.play(message, false);
+                } else {
+                    accordion.play(false);
+                }
+            }
+        }).doesNotThrowAnyException();
+
+        return mockWebServer.takeRequest();
+    }
+
     @Nested
     @DisplayName("Basic API Call Tests")
     class BasicApiCallTests {
@@ -311,27 +348,7 @@ class ApiActionIntegrationTest {
             Map<String, String> headers = Maps.newLinkedHashMap();
             headers.put("Authorization", "${token}");
 
-            ActionConfig action = ActionConfig.builder()
-                    .id(CommonUtils.randomString("ACT"))
-                    .actionType(ActionType.API.name())
-                    .actionName("Secure API")
-                    .actionParams(ApiParameter.builder()
-                            .url(url)
-                            .method(HttpMethod.GET)
-                            .headers(headers)
-                            .responseDataFormat(DataFormatType.JSON)
-                            .build())
-                    .build();
-
-            AccordionPlan plan = AccordionPlan.of().start(action);
-
-            assertThatCode(() -> {
-                try (Accordion accordion = new Accordion(plan)) {
-                    accordion.play(message, false);
-                }
-            }).doesNotThrowAnyException();
-
-            RecordedRequest request = mockWebServer.takeRequest();
+            RecordedRequest request = executeApiActionWithHeaders(url, headers, message);
             assertThat(request.getHeader("Authorization")).isEqualTo("Bearer abc123xyz");
         }
     }
@@ -487,27 +504,7 @@ class ApiActionIntegrationTest {
             headers.put("X-API-Key", "api-key-123");
             headers.put("X-Client-Version", "1.0.0");
 
-            ActionConfig action = ActionConfig.builder()
-                    .id(CommonUtils.randomString("ACT"))
-                    .actionType(ActionType.API.name())
-                    .actionName("Secure API")
-                    .actionParams(ApiParameter.builder()
-                            .url(url)
-                            .method(HttpMethod.GET)
-                            .headers(headers)
-                            .responseDataFormat(DataFormatType.JSON)
-                            .build())
-                    .build();
-
-            AccordionPlan plan = AccordionPlan.of().start(action);
-
-            assertThatCode(() -> {
-                try (Accordion accordion = new Accordion(plan)) {
-                    accordion.play(false);
-                }
-            }).doesNotThrowAnyException();
-
-            RecordedRequest request = mockWebServer.takeRequest();
+            RecordedRequest request = executeApiActionWithHeaders(url, headers, null);
             assertThat(request.getHeader("Authorization")).isEqualTo("Bearer test-token");
             assertThat(request.getHeader("X-API-Key")).isEqualTo("api-key-123");
             assertThat(request.getHeader("X-Client-Version")).isEqualTo("1.0.0");
