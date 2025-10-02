@@ -290,7 +290,7 @@ jobs:
       - name: Build project
         run: |
           echo "Building project..."
-          mvn clean package -DskipTests
+          mvn clean package -DskipTests -Djacoco.skip=true
           echo "✅ Build successful"
 
       - name: Upload build artifacts
